@@ -2,12 +2,18 @@
 
 #
 # BRAID: A python program to find protein complexes from high-throughput data
-#
-#
+# 
+# Input file: a CSV file containing a list of bait-preys experiments
+# The first protein at the beginning of every line is a bait protein.
+#   
+# Model parameters:
+# 1. False negative rate
+# 2. False positive rate
+# 3. Number of clusters
 
 import argparse
 
-import countSpokeModel as cpm
+import spoke_model.countSpokeModel as cpm
 
 def read_input(filename):
     with open(filename) as fh:
