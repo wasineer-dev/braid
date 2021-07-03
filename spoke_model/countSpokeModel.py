@@ -12,7 +12,7 @@ def falseInteraction(t, s, fpRate):
     return scipy.special.binom(t,s)*np.power(1.0 - fpRate,t-s)*np.power(fpRate,s)
 
 def interactionProbability(rho, fnRate, fpRate):
-    MAX_TRIALS = 10;
+    MAX_TRIALS = 100
 
     mPreComputed = np.zeros(shape=(MAX_TRIALS,MAX_TRIALS), dtype=float)
     for t in np.arange(MAX_TRIALS):
