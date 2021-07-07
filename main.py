@@ -14,6 +14,7 @@
 import argparse
 
 import spoke_model.countSpokeModel as cpm
+import spoke_model.simulateLikelihood as smlt
 
 def read_input(filename):
     with open(filename) as fh:
@@ -21,7 +22,6 @@ def read_input(filename):
         listInput = []
         for line in fh:
             lst = line.rstrip().split(',')
-            print(lst)
             listInput.append(lst)
             for protein in lst:
                 records[protein] = 0
@@ -43,7 +43,12 @@ def read_input(filename):
             indices.append(states.index(prot))
         listIndices.append(indices)
 
-    cpm.CountSpokeModel(nProteins, listBaits, listIndices)
+    observationG = cpm.CountSpokeModel(nProteins, listBaits, listIndices)
+    return observationG
+
+def clustering(observationG, Nk, fn, fp):
+    nProteins = observationG.nProteins
+    smlt.Likelihood(observationG, nProteins, Nk, fn, fp)
 
 def get_args():
     parser = argparse.ArgumentParser(description='Say hello')
@@ -54,7 +59,8 @@ def get_args():
 def main():
     args = get_args()
     print('Hello, ' + args.file + '!')
-    read_input(args.file)
+    observationG = read_input(args.file)
+    clustering(observationG, 400, 0.001, 0.01)
 
 if __name__ == '__main__':
     main()

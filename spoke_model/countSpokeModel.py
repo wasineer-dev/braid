@@ -19,7 +19,6 @@ def interactionProbability(rho, fnRate, fpRate):
         for s in np.arange(t+1):
             mPreComputed[t][s] = np.log(trueInteraction(t,s,fnRate))
             mPreComputed[t][s] -= np.log(trueInteraction(t,s,fnRate)*rho + falseInteraction(t,s,fpRate)*(1.0 - rho))
-            print(str(np.exp(mPreComputed[t][s])))
 
     return mPreComputed
     
@@ -28,7 +27,7 @@ class CountSpokeModel:
     
     def __init__(self, nProteins, listBaits, listIndices):
 
-
+        self.nProteins = nProteins
         self.mObserved = np.zeros(shape=(nProteins, nProteins), dtype=int)
         for indices in listIndices:
             bait = indices[0]
@@ -42,7 +41,6 @@ class CountSpokeModel:
         nDim = nProteins*nProteins
         a = np.arange(nDim).reshape(nProteins,nProteins)
         
-        print('Trials: Array Dimension ' + str(self.mTrials.shape))
         for bait in listBaits:
             dim = bait
             self.mTrials[bait, 0:dim:1] += 1
@@ -60,6 +58,15 @@ class CountSpokeModel:
                 s = self.mObserved[i][j]
                 self.mPosterior[i][j] =self.mPreComputed[t][s]
 
-    
-    
+        #
+        # Create the adjacency list
+        #
+        self.lstAdjacency = {}
+        for i in np.arange(nProteins):
+            self.lstAdjacency[i] = []
+            for j in np.arange(i+1):
+                t = self.mTrials[i][j]
+                s = self.mObserved[i][j] 
+                if (t > 0):
+                    self.lstAdjacency[i].append(j)
     

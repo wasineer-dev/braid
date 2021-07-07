@@ -3,14 +3,14 @@ import numpy as np
 from numpy.random import default_rng
 
 import matplotlib.pyplot as plt
+import sys
 
-NTrials = 10
+NTrials = 5
 
 # A nice correction suggested by Tomáš Tunys
 def Stick_Breaking(num_weights,alpha):
     betas = np.random.beta(1,alpha, size=num_weights)
     betas[1:] *= np.cumprod(1 - betas[:-1])  
-    print("Betas sum = " + str(np.sum(betas)))
     betas /= np.sum(betas)     
     return betas
 
@@ -63,20 +63,23 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
 
     alpha = 10
 
-    betas = Stick_Breaking(Nk, alpha)
     mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
+    mAlphas = np.ones(Nk, dtype=float)
+    mAlphas *= alpha
     for i in range(Nproteins):
-        mIndicatorQ[i,:] = Assign_Cluster(rng, betas)
+        mIndicatorQ[i,:] = np.random.dirichlet(mAlphas)
 
     gamma = 100
+    mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
+    
+    nLastLogLikelihood = 0.0
     while gamma < 1000:
-        mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
         for i in range(Nproteins):
             for k in range(Nk):
-                for j in range(i):
+                for j in mObservationG.lstAdjacency[i]:
                     if (i != j):
-                        t = NTrials
-                        s = mObservationG[i][j]
+                        t = mObservationG.mTrials[i][j]
+                        s = mObservationG.mObserved[i][j] 
                         mLogLikelihood[i][k] += (mIndicatorQ[j][k]*(t-s) + (1 - mIndicatorQ[j][k])*s*psi)
 
         for k in range(Nk):        
@@ -84,44 +87,46 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
         if sum(mIndicatorQ[i,:]) > 0.0:
             mIndicatorQ[i,:] /= sum(mIndicatorQ[i,:])
         gamma *= 2.1
-
-    # 
-    # TODO: Need to compute the cluster indicator before computing a potential function
-    #
-    mQ = np.zeros(Nproteins)
-    for i in range(Nproteins):
-        mQ[i] = np.argmax(mIndicatorQ[i,:])
+        nEntropy = 0.0
+        nLogLikelihood = 0.0
+        for i in range(Nproteins):
+            for k in range(Nk):
+                if (mIndicatorQ[i][k] > 0):
+                    nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
+                    nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
+        if (nLogLikelihood - nLastLogLikelihood < 0.00000001):
+            break
+        else:
+            nLastLogLikelihood = nLogLikelihood
 
     alpha = -np.log(fn) + np.log(1-fp)
     beta = -np.log(fp) + np.log(1-fn)
-    nLikelihood = 0.0
+    nEntropy = 0.0
+    nLogLikelihood = 0.0
     for i in range(Nproteins):
         for k in range(Nk):
-            for j in range(Nproteins):
-                if (i != j):
-                    Q = 0.0
-                    if (mQ[i] == mQ[j]):
-	                    Q = 1.0
-                    t = NTrials
-                    s = mObservationG[i][j]
-                    A = s*(Q*(-np.log(1-fn)) + (1.0-Q)*(-np.log(fp)))
-                    B = (t-s)*(Q*(-np.log(fn)) + (1.0-Q)*(-np.log(1-fp)))
-                    nLikelihood += (A + B)
+            if (mIndicatorQ[i][k] > 0):
+                nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
+                nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
 
-    print('Likelihood = ' + str(nLikelihood))
+    print('Entropy = ' + str(nEntropy))
+    print('Log-Likelihood = ' + str(nLogLikelihood))
+    return nLogLikelihood - nEntropy
 
-    return nLikelihood
+if __name__ == '__main__':
+    NPROTEINS = 100
+    NCLUSTERS = 10
+    mGraph = ObservationGraph(NPROTEINS, NCLUSTERS, 0.001, 0.01, 10)
 
-NPROTEINS = 1000
-NCLUSTERS = 10
-mGraph = ObservationGraph(NPROTEINS, NCLUSTERS, 0.001, 0.01, 100)
+    lstCostFunction = []
+    fn = 0.001
+    fp = 0.01
+    for k in range(2,50):
+        minCost = Likelihood(mGraph, NPROTEINS, k, fn, fp)
+        lstCostFunction.append(minCost)
 
-lstCostFunction = []
-for k in range(2,20):
-    lstCostFunction.append(Likelihood(mGraph, NPROTEINS, k, 0.001, 0.01))
-
-plt.plot(range(2,20), lstCostFunction)
-plt.show()
+    plt.plot(range(2,50), lstCostFunction)
+    plt.show()
 
 #fig = plt.figure()
 #ax = plt.axes(projection='3d')
