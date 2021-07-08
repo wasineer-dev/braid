@@ -33,10 +33,14 @@ def ObservationGraph(Nproteins, Nk, fn, fp, alpha):
     #
     # Try stick breaking weights
     # 
-    betas = Stick_Breaking(Nk, alpha)
+    betas = Stick_Breaking(Nk, alpha) # Sample from the Dirichlet distribution
+    sizeDistribution = np.random.multinomial(Nproteins, betas, 1)
+    lstDistribution = []
+    for p in sizeDistribution[0]:
+        lstDistribution.append(p/Nproteins)
     mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
     for i in range(Nproteins):
-        mIndicatorQ[i,:] = Assign_Cluster(rng, betas)
+        mIndicatorQ[i,:] = Assign_Cluster(rng, lstDistribution)
 
     print("Cluster = " + str(mIndicatorQ))
     mObservationSuccess = np.zeros((Nproteins, Nproteins), dtype=int)
@@ -44,13 +48,9 @@ def ObservationGraph(Nproteins, Nk, fn, fp, alpha):
     for i in range(Nproteins):
         for j in range(i):
             if (np.argmax(mIndicatorQ[i]) == np.argmax(mIndicatorQ[j])):
-                for k in range(NTrials):
-                    if( rng.random() > fn ):
-                        mObservationSuccess[i][j] += 1
+                mObservationSuccess[i][j] += np.random.binomial(NTrials, 1-fn, 1)
             else:
-                for k in range(NTrials):
-                    if( rng.random() < fp ):
-                        mObservationSuccess[i][j] += 1
+                mObservationSuccess[i][j] += np.random.binomial(NTrials, fp, 1)
 
     return mObservationSuccess
 
@@ -73,19 +73,27 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
     mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
     
     nLastLogLikelihood = 0.0
-    while gamma < 1000:
+    lstExpectedLikelihood = []
+    nIteration = 0
+    while nIteration < 100:
         for i in range(Nproteins):
+            for k in range(Nk):
+                mLogLikelihood[i][k] = 0.0
             for k in range(Nk):
                 for j in mObservationG.lstAdjacency[i]:
                     if (i != j):
                         t = mObservationG.mTrials[i][j]
                         s = mObservationG.mObserved[i][j] 
                         mLogLikelihood[i][k] += (mIndicatorQ[j][k]*(t-s) + (1 - mIndicatorQ[j][k])*s*psi)
+        
+        for i in range(Nproteins):
+            totalSum = 0.0
+            for k in range(Nk):        
+                mIndicatorQ[i][k] = np.exp(-gamma*mLogLikelihood[i][k])
+                totalSum += mIndicatorQ[i][k]
+            if totalSum > 0.0:
+                mIndicatorQ[i,:] /= totalSum
 
-        for k in range(Nk):        
-            mIndicatorQ[i][k] = np.exp(-gamma*mLogLikelihood[i][k])
-        if sum(mIndicatorQ[i,:]) > 0.0:
-            mIndicatorQ[i,:] /= sum(mIndicatorQ[i,:])
         gamma *= 2.1
         nEntropy = 0.0
         nLogLikelihood = 0.0
@@ -94,10 +102,13 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
                 if (mIndicatorQ[i][k] > 0):
                     nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
                     nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
-        if (nLogLikelihood - nLastLogLikelihood < 0.00000001):
+        print('Expected log-likelihood = ' + str(nLogLikelihood))
+        if (np.abs(nLogLikelihood - nLastLogLikelihood) < 0.00000001):
             break
         else:
             nLastLogLikelihood = nLogLikelihood
+            lstExpectedLikelihood.append(nLogLikelihood)
+        nIteration += 1
 
     alpha = -np.log(fn) + np.log(1-fp)
     beta = -np.log(fp) + np.log(1-fn)
@@ -109,9 +120,7 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
                 nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
                 nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
 
-    print('Entropy = ' + str(nEntropy))
-    print('Log-Likelihood = ' + str(nLogLikelihood))
-    return nLogLikelihood - nEntropy
+    return lstExpectedLikelihood
 
 if __name__ == '__main__':
     NPROTEINS = 100

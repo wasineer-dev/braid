@@ -12,6 +12,8 @@
 # 3. Number of clusters
 
 import argparse
+import numpy as np
+import matplotlib.pyplot as plt
 
 import spoke_model.countSpokeModel as cpm
 import spoke_model.simulateLikelihood as smlt
@@ -48,7 +50,7 @@ def read_input(filename):
 
 def clustering(observationG, Nk, fn, fp):
     nProteins = observationG.nProteins
-    smlt.Likelihood(observationG, nProteins, Nk, fn, fp)
+    return smlt.Likelihood(observationG, nProteins, Nk, fn, fp)
 
 def get_args():
     parser = argparse.ArgumentParser(description='Say hello')
@@ -58,9 +60,14 @@ def get_args():
 
 def main():
     args = get_args()
-    print('Hello, ' + args.file + '!')
+    print('Hello, ' + args.file)
     observationG = read_input(args.file)
-    clustering(observationG, 400, 0.001, 0.01)
+    
+    nLogLikelihood = clustering(observationG, 400, 0.001, 0.01)
+    
+    plt.plot(range(len(nLogLikelihood)), nLogLikelihood)
+    plt.title('Gavin2002')
+    plt.show()
 
 if __name__ == '__main__':
     main()
