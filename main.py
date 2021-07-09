@@ -63,7 +63,7 @@ def main():
     print('Hello, ' + args.file)
     observationG = read_input(args.file)
     
-    nLogLikelihood = clustering(observationG, 400, 0.001, 0.01)
+    nLogLikelihood = clustering(observationG, 100, 0.01, 0.001)
     
     plt.plot(range(len(nLogLikelihood)), nLogLikelihood)
     plt.title('Gavin2002')

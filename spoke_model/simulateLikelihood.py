@@ -66,10 +66,13 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
     mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
     mAlphas = np.ones(Nk, dtype=float)
     mAlphas *= alpha
+    mComplexDistribution = np.random.dirichlet(mAlphas)
+    mIndicatorQ = rng.random((Nproteins, Nk))
     for i in range(Nproteins):
-        mIndicatorQ[i,:] = np.random.dirichlet(mAlphas)
+        totalSum = np.sum(mIndicatorQ[i,:])
+        mIndicatorQ[i,:] /= totalSum
 
-    gamma = 100
+    gamma = 0.01
     mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
     
     nLastLogLikelihood = 0.0
@@ -77,24 +80,21 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
     nIteration = 0
     while nIteration < 100:
         for i in range(Nproteins):
-            for k in range(Nk):
-                mLogLikelihood[i][k] = 0.0
+            mLogLikelihood[i,:] = 0.0
             for k in range(Nk):
                 for j in mObservationG.lstAdjacency[i]:
-                    if (i != j):
-                        t = mObservationG.mTrials[i][j]
-                        s = mObservationG.mObserved[i][j] 
-                        mLogLikelihood[i][k] += (mIndicatorQ[j][k]*(t-s) + (1 - mIndicatorQ[j][k])*s*psi)
-        
-        for i in range(Nproteins):
+                    t = mObservationG.mTrials[i][j]
+                    s = mObservationG.mObserved[i][j]
+                    mLogLikelihood[i][k] += (mIndicatorQ[j][k]*(t-s) + (1 - mIndicatorQ[j][k])*s*psi)
+    
+            mIndicatorQ[i,:] = np.exp(-mLogLikelihood[i,:])
             totalSum = 0.0
             for k in range(Nk):        
-                mIndicatorQ[i][k] = np.exp(-gamma*mLogLikelihood[i][k])
                 totalSum += mIndicatorQ[i][k]
             if totalSum > 0.0:
                 mIndicatorQ[i,:] /= totalSum
 
-        gamma *= 2.1
+        # gamma *= 2.1
         nEntropy = 0.0
         nLogLikelihood = 0.0
         for i in range(Nproteins):
@@ -103,7 +103,7 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
                     nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
                     nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
         print('Expected log-likelihood = ' + str(nLogLikelihood))
-        if (np.abs(nLogLikelihood - nLastLogLikelihood) < 0.00000001):
+        if (np.abs(nLogLikelihood - nLastLogLikelihood) < 0.00001):
             break
         else:
             nLastLogLikelihood = nLogLikelihood
@@ -120,6 +120,7 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
                 nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
                 nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
 
+    print(mIndicatorQ)
     return lstExpectedLikelihood
 
 if __name__ == '__main__':
