@@ -32,18 +32,21 @@ class CountSpokeModel:
         for indices in listIndices:
             bait = indices[0]
             for j in indices:
-                self.mObserved[j][bait] += 1
-                self.mObserved[bait][j] += 1
+                if (bait < j):
+                    self.mObserved[bait][j] += 1
+                else:
+                    self.mObserved[j][bait] += 1
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        nDim = nProteins*nProteins
-        a = np.arange(nDim).reshape(nProteins,nProteins)
-        
-        for bait in listBaits:
+        for indices in listIndices:
+            bait = indices[0]
             for j in range(nProteins):
                 self.mTrials[bait][j] += 1
                 self.mTrials[j][bait] += 1
         
+        for i in range(nProteins):
+            assert(np.sum(self.mTrials[i,:]) == np.sum(self.mTrials[:,i]))
+
         self.mPreComputed = interactionProbability(0.3, 0.4, 0.01)
         self.mPosterior = np.zeros(shape=(nProteins, nProteins), dtype=float)
 
@@ -61,7 +64,11 @@ class CountSpokeModel:
             self.lstAdjacency[i] = []
             for j in np.arange(nProteins):
                 t = self.mTrials[i][j]
-                s = self.mObserved[i][j] 
+                if (i < j):
+                    s = self.mObserved[i][j] 
+                else:
+                    s = self.mObserved[j][i] 
                 if (i != j and t > 0):
+                    assert(s <= t)
                     self.lstAdjacency[i].append(j)
     

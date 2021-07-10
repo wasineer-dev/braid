@@ -4,6 +4,7 @@ from numpy.random import default_rng
 
 import matplotlib.pyplot as plt
 import sys
+import scipy.special
 
 NTrials = 5
 
@@ -67,34 +68,33 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
     mAlphas = np.ones(Nk, dtype=float)
     mAlphas *= alpha
     mComplexDistribution = np.random.dirichlet(mAlphas)
-    mIndicatorQ = rng.random((Nproteins, Nk))
     for i in range(Nproteins):
-        totalSum = np.sum(mIndicatorQ[i,:])
-        mIndicatorQ[i,:] /= totalSum
+        mIndicatorQ[i,:] = 1. + rng.random(Nk)
+        mIndicatorQ[i,:] /= sum(mIndicatorQ[i,:])
 
     gamma = 0.01
     mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
-    
+    mIndicatorQEstimate = np.zeros((Nproteins, Nk), dtype=float)
+
     nLastLogLikelihood = 0.0
     lstExpectedLikelihood = []
     nIteration = 0
     while nIteration < 100:
+        # TODO: implement multiprocessing in python
         for i in range(Nproteins):
             mLogLikelihood[i,:] = 0.0
             for k in range(Nk):
                 for j in mObservationG.lstAdjacency[i]:
                     t = mObservationG.mTrials[i][j]
                     s = mObservationG.mObserved[i][j]
-                    mLogLikelihood[i][k] += (mIndicatorQ[j][k]*(t-s) + (1 - mIndicatorQ[j][k])*s*psi)
+                    assert(s <= t)
+                    mLogLikelihood[i][k] += (mIndicatorQ[j][k]*(t-s) + (1.0 - mIndicatorQ[j][k])*s*psi)
     
-            mIndicatorQ[i,:] = np.exp(-mLogLikelihood[i,:])
-            totalSum = 0.0
-            for k in range(Nk):        
-                totalSum += mIndicatorQ[i][k]
-            if totalSum > 0.0:
-                mIndicatorQ[i,:] /= totalSum
+            # Overflow problem. Need to compute with softmax
+            mIndicatorQEstimate[i,:] = scipy.special.softmax(-gamma*mLogLikelihood[i,:])
 
-        # gamma *= 2.1
+        mIndicatorQ = mIndicatorQEstimate
+        gamma *= 2.1
         nEntropy = 0.0
         nLogLikelihood = 0.0
         for i in range(Nproteins):
@@ -103,7 +103,8 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
                     nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
                     nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
         print('Expected log-likelihood = ' + str(nLogLikelihood))
-        if (np.abs(nLogLikelihood - nLastLogLikelihood) < 0.00001):
+        print('Entropy = ' + str(nEntropy))
+        if (np.abs(nLogLikelihood - nLastLogLikelihood) < 1.0):
             break
         else:
             nLastLogLikelihood = nLogLikelihood

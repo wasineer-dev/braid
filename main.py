@@ -42,7 +42,8 @@ def read_input(filename):
     for lst in listInput:
         indices = []
         for prot in lst:
-            indices.append(states.index(prot))
+            if (not states.index(prot) in indices):
+                indices.append(states.index(prot))
         listIndices.append(indices)
 
     observationG = cpm.CountSpokeModel(nProteins, listBaits, listIndices)
@@ -63,7 +64,7 @@ def main():
     print('Hello, ' + args.file)
     observationG = read_input(args.file)
     
-    nLogLikelihood = clustering(observationG, 100, 0.01, 0.001)
+    nLogLikelihood = clustering(observationG, 4, 0.2, 0.001)
     
     plt.plot(range(len(nLogLikelihood)), nLogLikelihood)
     plt.title('Gavin2002')
