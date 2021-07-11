@@ -50,13 +50,14 @@ def read_input(filename):
     observationG = cpm.CountSpokeModel(nProteins, listBaits, listIndices)
     return observationG
 
-def clustering(observationG, Nk, fn, fp):
+def clustering(observationG, Nk, psi):
     nProteins = observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
-    lstExpectedLikelihood = cmfa.Likelihood(observationG, nProteins, Nk, fn, fp)
-    #for i in range(nProteins):
-    #    nCluster = np.argmax(cmfa.mIndicatorQ[i,:])
-    #    print("Node = " + str(i) + str(', ') + "Cluster = " + str(nCluster))
+    lstExpectedLikelihood = cmfa.Likelihood(observationG, nProteins, Nk, psi)
+    matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
+    print("Number of clusters used: " + str(np.sum(np.sum(matQ, axis=0) > 0)))
+    plt.imshow(matQ, interpolation='nearest', aspect='equal')
+    plt.show()
     return lstExpectedLikelihood
 
 def get_args():
@@ -73,9 +74,10 @@ def main():
     args = get_args()
     print('Hello, ' + args.file)
     nK = int(args.max)
+    psi = float(args.ratio)
 
     observationG = read_input(args.file)
-    nLogLikelihood = clustering(observationG, nK, 0.2, 0.001)
+    nLogLikelihood = clustering(observationG, nK, psi)
     
     plt.plot(range(len(nLogLikelihood)), nLogLikelihood)
     plt.title('Gavin2002')
