@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 
 import spoke_model.countSpokeModel as cpm
 import spoke_model.simulateLikelihood as smlt
+import spoke_model.simulateLikelihood
 
 def read_input(filename):
     with open(filename) as fh:
@@ -51,20 +52,30 @@ def read_input(filename):
 
 def clustering(observationG, Nk, fn, fp):
     nProteins = observationG.nProteins
-    return smlt.Likelihood(observationG, nProteins, Nk, fn, fp)
+    cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
+    lstExpectedLikelihood = cmfa.Likelihood(observationG, nProteins, Nk, fn, fp)
+    #for i in range(nProteins):
+    #    nCluster = np.argmax(cmfa.mIndicatorQ[i,:])
+    #    print("Node = " + str(i) + str(', ') + "Cluster = " + str(nCluster))
+    return lstExpectedLikelihood
 
 def get_args():
     parser = argparse.ArgumentParser(description='Say hello')
     parser.add_argument('-f', '--file', metavar='file',
                         default='', help='CSV input file of protein purifications')
+    parser.add_argument('-k', '--max', metavar='numclusters',
+                        default='', help='A maximum number of possible clusters')
+    parser.add_argument('-psi', '--ratio', metavar='psi',
+                        default='', help='A ratio of log(1-fn)/log(1-fp)')
     return parser.parse_args()
 
 def main():
     args = get_args()
     print('Hello, ' + args.file)
+    nK = int(args.max)
+
     observationG = read_input(args.file)
-    
-    nLogLikelihood = clustering(observationG, 4, 0.2, 0.001)
+    nLogLikelihood = clustering(observationG, nK, 0.2, 0.001)
     
     plt.plot(range(len(nLogLikelihood)), nLogLikelihood)
     plt.title('Gavin2002')

@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 import sys
 import scipy.special
 
-NTrials = 5
-
 # A nice correction suggested by Tomáš Tunys
 def Stick_Breaking(num_weights,alpha):
     betas = np.random.beta(1,alpha, size=num_weights)
@@ -31,6 +29,7 @@ def Assign_Cluster(rng, betas):
 # 
 def ObservationGraph(Nproteins, Nk, fn, fp, alpha):
     rng = default_rng()
+    NTrials = 5
     #
     # Try stick breaking weights
     # 
@@ -55,32 +54,34 @@ def ObservationGraph(Nproteins, Nk, fn, fp, alpha):
 
     return mObservationSuccess
 
-def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
+class CMeanFieldAnnealing:
 
-    rng = default_rng()
+    def __init__(self, Nproteins, Nk):
+        self.lstExpectedLikelihood = []
+        self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
 
-    psi = (-np.log(fp) + np.log(1 - fn))/(-np.log(fn) + np.log(1 - fp))
-    print('psi = ', psi)
+    def Likelihood(self, mObservationG, Nproteins, Nk, fn, fp):
 
-    alpha = 10
+        rng = default_rng()
 
-    mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
-    mAlphas = np.ones(Nk, dtype=float)
-    mAlphas *= alpha
-    mComplexDistribution = np.random.dirichlet(mAlphas)
-    for i in range(Nproteins):
-        mIndicatorQ[i,:] = 1. + rng.random(Nk)
-        mIndicatorQ[i,:] /= sum(mIndicatorQ[i,:])
+        psi = (-np.log(fp) + np.log(1 - fn))/(-np.log(fn) + np.log(1 - fp))
+        print('psi = ', psi)
 
-    gamma = 0.01
-    mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
-    mIndicatorQEstimate = np.zeros((Nproteins, Nk), dtype=float)
+        alpha = 10
 
-    nLastLogLikelihood = 0.0
-    lstExpectedLikelihood = []
-    nIteration = 0
-    while nIteration < 100:
-        # TODO: implement multiprocessing in python
+        
+        mAlphas = np.ones(Nk, dtype=float)
+        mAlphas *= alpha
+        mComplexDistribution = np.random.dirichlet(mAlphas)
+        for i in range(Nproteins):
+            self.mIndicatorQ[i,:] = 1. + rng.random(Nk)
+            self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
+
+        gamma = 1000.0
+        mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
+
+        # TODO: refactor
+        # Initialize mLogLikelihood
         for i in range(Nproteins):
             mLogLikelihood[i,:] = 0.0
             for k in range(Nk):
@@ -88,41 +89,56 @@ def Likelihood(mObservationG, Nproteins, Nk, fn, fp):
                     t = mObservationG.mTrials[i][j]
                     s = mObservationG.mObserved[i][j]
                     assert(s <= t)
-                    mLogLikelihood[i][k] += (mIndicatorQ[j][k]*(t-s) + (1.0 - mIndicatorQ[j][k])*s*psi)
-    
+                    mLogLikelihood[i][k] += (self.mIndicatorQ[j][k]*(t-s) + (1.0 - self.mIndicatorQ[j][k])*s*psi)
             # Overflow problem. Need to compute with softmax
-            mIndicatorQEstimate[i,:] = scipy.special.softmax(-gamma*mLogLikelihood[i,:])
+            self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood[i,:])
+            self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
 
-        mIndicatorQ = mIndicatorQEstimate
-        gamma *= 2.1
+        nLastLogLikelihood = 0.0
+        nIteration = 0
+        while nIteration < 400:
+            # TODO: implement multiprocessing in python
+            i = np.random.randint(0, Nproteins) # Choose a node at random
+            mLogLikelihood[i,:] = 0.0
+            for k in range(Nk):
+                for j in mObservationG.lstAdjacency[i]:
+                    t = mObservationG.mTrials[i][j]
+                    s = mObservationG.mObserved[i][j]
+                    assert(s <= t)
+                    mLogLikelihood[i][k] += (self.mIndicatorQ[j][k]*(t-s) + (1.0 - self.mIndicatorQ[j][k])*s*psi)
+
+            # Overflow problem. Need to compute with softmax
+            self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood[i,:])
+            self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
+
+            gamma *= 0.1 # decreasing gamma
+            nEntropy = 0.0
+            nLogLikelihood = 0.0
+            for i in range(Nproteins):
+                for k in range(Nk):
+                    if (self.mIndicatorQ[i][k] > 0):
+                        nEntropy += self.mIndicatorQ[i][k]*np.log(self.mIndicatorQ[i][k])
+                        nLogLikelihood += self.mIndicatorQ[i][k]*mLogLikelihood[i][k]
+            print('Expected log-likelihood = ' + str(nLogLikelihood))
+            print('Entropy = ' + str(nEntropy))
+            if (np.abs(np.round(nLogLikelihood, decimals=3) - np.round(nLastLogLikelihood, decimals=3)) < 0.001):
+                continue
+            else:
+                nLastLogLikelihood = nLogLikelihood
+                self.lstExpectedLikelihood.append(nLogLikelihood)
+            nIteration += 1
+
+        alpha = -np.log(fn) + np.log(1-fp)
+        beta = -np.log(fp) + np.log(1-fn)
         nEntropy = 0.0
         nLogLikelihood = 0.0
         for i in range(Nproteins):
             for k in range(Nk):
-                if (mIndicatorQ[i][k] > 0):
-                    nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
-                    nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
-        print('Expected log-likelihood = ' + str(nLogLikelihood))
-        print('Entropy = ' + str(nEntropy))
-        if (np.abs(nLogLikelihood - nLastLogLikelihood) < 1.0):
-            break
-        else:
-            nLastLogLikelihood = nLogLikelihood
-            lstExpectedLikelihood.append(nLogLikelihood)
-        nIteration += 1
+                if (self.mIndicatorQ[i][k] > 0):
+                    nEntropy += self.mIndicatorQ[i][k]*np.log(self.mIndicatorQ[i][k])
+                    nLogLikelihood += self.mIndicatorQ[i][k]*mLogLikelihood[i][k]
 
-    alpha = -np.log(fn) + np.log(1-fp)
-    beta = -np.log(fp) + np.log(1-fn)
-    nEntropy = 0.0
-    nLogLikelihood = 0.0
-    for i in range(Nproteins):
-        for k in range(Nk):
-            if (mIndicatorQ[i][k] > 0):
-                nEntropy += mIndicatorQ[i][k]*np.log(mIndicatorQ[i][k])
-                nLogLikelihood += mIndicatorQ[i][k]*mLogLikelihood[i][k]
-
-    print(mIndicatorQ)
-    return lstExpectedLikelihood
+        return self.lstExpectedLikelihood
 
 if __name__ == '__main__':
     NPROTEINS = 100
@@ -133,7 +149,8 @@ if __name__ == '__main__':
     fn = 0.001
     fp = 0.01
     for k in range(2,50):
-        minCost = Likelihood(mGraph, NPROTEINS, k, fn, fp)
+        cmfa = CMeanFieldAnnealing(NPROTEINS, NCLUSTERS)
+        minCost = cmfa.Likelihood(mGraph, NPROTEINS, k, fn, fp)
         lstCostFunction.append(minCost)
 
     plt.plot(range(2,50), lstCostFunction)
