@@ -13,6 +13,7 @@ def Stick_Breaking(num_weights,alpha):
     betas /= np.sum(betas)     
     return betas
 
+# betas is a multinomial distribution
 def Assign_Cluster(rng, betas):
     t = rng.random()
     sorted_arg = np.argsort(betas)
@@ -33,7 +34,8 @@ def ObservationGraph(Nproteins, Nk, fn, fp, alpha):
     #
     # Try stick breaking weights
     # 
-    betas = Stick_Breaking(Nk, alpha) # Sample from the Dirichlet distribution
+    alphas = np.ones(Nk)*alpha
+    betas = np.random.dirichlet(alphas) # Sample from the Dirichlet distribution
     sizeDistribution = np.random.multinomial(Nproteins, betas, 1)
     lstDistribution = []
     for p in sizeDistribution[0]:
@@ -70,16 +72,15 @@ class CMeanFieldAnnealing:
         alpha = 10
         mAlphas = np.ones(Nk, dtype=float)
         mAlphas *= alpha
-        mComplexDistribution = np.random.dirichlet(mAlphas)
         for i in range(Nproteins):
             self.mIndicatorQ[i,:] = 1. + rng.random(Nk)
             self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
 
-        gamma = 1000
+        nTemperature = 1000.0
         mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
 
         # TODO: refactor
-        while gamma > 1.E-05:
+        while nTemperature > 1.E-05:
             nLastLogLikelihood = 0.0
             nIteration = 0
             while nIteration < 1000:
@@ -90,9 +91,11 @@ class CMeanFieldAnnealing:
                         t = mObservationG.mTrials[i][j]
                         s = mObservationG.mObserved[i][j]
                         assert(s <= t)
-                        mLogLikelihood[i][k] += (self.mIndicatorQ[j][k]*(t-s) + (1.0 - self.mIndicatorQ[j][k])*s*psi)
+                        # Old version: mLogLikelihood[i][k] += (self.mIndicatorQ[j][k]*(t-s) + (1.0 - self.mIndicatorQ[j][k])*s*psi)
+                        mLogLikelihood[i][k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
 
                 # Overflow problem. Need to compute with softmax
+                gamma = 1./nTemperature
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood[i,:])
                 self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
                 nEntropy = 0.0
@@ -102,26 +105,15 @@ class CMeanFieldAnnealing:
                         if (self.mIndicatorQ[i][k] > 0):
                             nEntropy += self.mIndicatorQ[i][k]*np.log(self.mIndicatorQ[i][k])
                             nLogLikelihood += self.mIndicatorQ[i][k]*mLogLikelihood[i][k]
-                print(str(nIteration) + ' :Expected log-likelihood = ' + str(nLogLikelihood))
+                print(str(nIteration) + ' T=' + "{:.6f}".format(nTemperature) + ' :Expected log-likelihood = ' + "{:.6f}".format(nLogLikelihood))
                 nIteration += 1
-                self.lstExpectedLikelihood.append(nEntropy)
+                self.lstExpectedLikelihood.append(nLogLikelihood)
                 if (np.abs(np.round(nLogLikelihood, decimals=6) - np.round(nLastLogLikelihood, decimals=6))/nLogLikelihood < 1.E-05):
                     break
                 else:
                     nLastLogLikelihood = nLogLikelihood
 
-            gamma *= 0.9
-            
-
-        alpha = -np.log(fn) + np.log(1-fp)
-        beta = -np.log(fp) + np.log(1-fn)
-        nEntropy = 0.0
-        nLogLikelihood = 0.0
-        for i in range(Nproteins):
-            for k in range(Nk):
-                if (self.mIndicatorQ[i][k] > 0):
-                    nEntropy += self.mIndicatorQ[i][k]*np.log(self.mIndicatorQ[i][k])
-                    nLogLikelihood += self.mIndicatorQ[i][k]*mLogLikelihood[i][k]
+            nTemperature *= 0.8
 
         return self.lstExpectedLikelihood
 

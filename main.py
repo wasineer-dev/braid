@@ -9,7 +9,7 @@
 # Model parameters:
 # 1. False negative rate
 # 2. False positive rate
-# 3. Number of clusters
+# 3. A maximum possible number of clusters
 
 import argparse
 import numpy as np
@@ -19,65 +19,78 @@ import spoke_model.countSpokeModel as cpm
 import spoke_model.simulateLikelihood as smlt
 import spoke_model.simulateLikelihood
 
-def read_input(filename):
-    with open(filename) as fh:
-        records = dict()
-        listInput = []
-        for line in fh:
-            lst = line.rstrip().split(',')
-            listInput.append(lst)
-            for protein in lst:
-                records[protein] = 0
-        states = list(records.keys())
-        sorted(states)
-        print('Number of proteins ' + str(len(states)))
+class CInputSet:
 
-    nProteins = len(states)
-    listBaits = []
-    for lst in listInput:
-        bait = lst[0]
-        listBaits.append(states.index(bait))
-    print('Number of purifications ' + str(len(listBaits)))
+    def __init__(self, filename):
+        super().__init__()
+        with open(filename) as fh:
+            records = dict()
+            listInput = []
+            for line in fh:
+                lst = line.rstrip().split(',')
+                listInput.append(lst)
+                for protein in lst:
+                    records[protein] = 0
+            self.vecProteins = list(records.keys())
+            sorted(self.vecProteins)
+            print('Number of proteins ' + str(len(self.vecProteins)))
+            fh.close()
 
-    listIndices = []
-    for lst in listInput:
-        indices = []
-        for prot in lst:
-            if (not states.index(prot) in indices):
-                indices.append(states.index(prot))
-        listIndices.append(indices)
+        nProteins = len(self.vecProteins)
+        listBaits = []
+        for lst in listInput:
+            bait = lst[0]
+            listBaits.append(self.vecProteins.index(bait))
+        print('Number of purifications ' + str(len(listBaits)))
 
-    observationG = cpm.CountSpokeModel(nProteins, listBaits, listIndices)
-    return observationG
+        listIndices = []
+        for lst in listInput:
+            indices = []
+            for prot in lst:
+                if (not self.vecProteins.index(prot) in indices):
+                    indices.append(self.vecProteins.index(prot))
+            listIndices.append(indices)
 
-def clustering(observationG, Nk, psi):
-    nProteins = observationG.nProteins
+        self.observationG = cpm.CountSpokeModel(nProteins, listBaits, listIndices)
+
+    def writeCluster2File(self, matQ):
+        nRows, nCols = matQ.shape
+        vecArgMax = np.argmax(matQ,axis=1)
+        with open("out.tab", "w") as fh:
+            for i in range(nRows):
+                fh.write(self.vecProteins[i] + '\t' + str(vecArgMax[i]) + '\n')
+            fh.close()
+
+def clustering(inputSet, Nk, psi):
+    nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
-    lstExpectedLikelihood = cmfa.Likelihood(observationG, nProteins, Nk, psi)
+    lstExpectedLikelihood = cmfa.Likelihood(inputSet.observationG, nProteins, Nk, psi)
     matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
     print("Number of clusters used: " + str(np.sum(np.sum(matQ, axis=0) > 0)))
-    plt.imshow(matQ, interpolation='nearest', aspect='equal')
-    plt.show()
+    inputSet.writeCluster2File(matQ)
     return lstExpectedLikelihood
 
 def get_args():
-    parser = argparse.ArgumentParser(description='Say hello')
+    parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
                         default='', help='CSV input file of protein purifications')
     parser.add_argument('-k', '--max', metavar='numclusters',
-                        default='', help='A maximum number of possible clusters')
+                        default='100', help='A maximum number of possible clusters')
     parser.add_argument('-psi', '--ratio', metavar='psi',
-                        default='', help='A ratio of log(1-fn)/log(1-fp)')
+                        default='3.4', help='A ratio of log(1-fn)/log(1-fp)')
     return parser.parse_args()
 
 def main():
     args = get_args()
+    if (args.file == ''):
+        print('Input file cannot be empty. Require a CSV file of protein purifications.')
+        exit()
     print('Hello, ' + args.file)
     nK = int(args.max)
     psi = float(args.ratio)
 
-    observationG = read_input(args.file)
-    nLogLikelihood = clustering(observationG, nK, psi)
+    inputSet = CInputSet(args.file)
+    nLogLikelihood = clustering(inputSet, nK, psi)
     
     plt.plot(range(len(nLogLikelihood)), nLogLikelihood)
     plt.title('Gavin2002')
