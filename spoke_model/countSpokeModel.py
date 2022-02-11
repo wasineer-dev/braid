@@ -34,7 +34,9 @@ class CountSpokeModel:
             for j in indices:
                 if (bait < j):
                     self.mObserved[bait][j] += 1
+                    self.mObserved[j][bait] += 1
                 else:
+                    self.mObserved[bait][j] += 1
                     self.mObserved[j][bait] += 1
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)

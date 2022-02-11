@@ -69,54 +69,45 @@ class CMeanFieldAnnealing:
 
     def Likelihood(self, mObservationG, Nproteins, Nk, psi):
 
-        rng = default_rng()
+        rng = default_rng(seed=42)
 
         # psi = (-np.log(fp) + np.log(1 - fn))/(-np.log(fn) + np.log(1 - fp))
         print('psi = ', psi)
 
-        alpha = 10
-        mAlphas = np.ones(Nk, dtype=float)
-        mAlphas *= alpha
         for i in range(Nproteins):
-            self.mIndicatorQ[i,:] = 1. + rng.random(Nk)
+            self.mIndicatorQ[i,:] = rng.random(Nk)
             self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
 
         nTemperature = 1000.0
-        mLogLikelihood = np.zeros((Nproteins, Nk), dtype=float) # Negative log-likelihood
-
         # TODO: refactor
         while nTemperature > 1.E-05:
             nLastLogLikelihood = 0.0
             nIteration = 0
-            while nIteration < 1000:
+            while nIteration < 5:
                 i = np.random.randint(0, Nproteins) # Choose a node at random
-                mLogLikelihood[i,:] = 0.0
+                mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
                 for k in range(Nk):
                     for j in mObservationG.lstAdjacency[i]:
                         t = mObservationG.mTrials[i][j]
                         s = mObservationG.mObserved[i][j]
                         assert(s <= t)
-                        mLogLikelihood[i][k] += (self.mIndicatorQ[j][k]*(t-s) + (1.0 - self.mIndicatorQ[j][k])*s*psi)
-                        ## mLogLikelihood[i][k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
+                        mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
+                        ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
 
                 # Overflow problem. Need to compute with softmax
                 gamma = 1./nTemperature
-                self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood[i,:])
-                self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
-                nLogLikelihood = np.vdot(self.mIndicatorQ, mLogLikelihood)
-                #for i in range(Nproteins):
-                 #   for k in range(Nk):
-                  #      if (self.mIndicatorQ[i][k] > 0):
-                   #         nLogLikelihood += self.mIndicatorQ[i][k]*mLogLikelihood[i][k]
-                print(str(nIteration) + ' T=' + "{:.6f}".format(nTemperature) + ' :Expected log-likelihood = ' + "{:.6f}".format(nLogLikelihood))
+                self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+                ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
+                
+                ##print(str(nIteration) + ' T=' + "{:.6f}".format(nTemperature) + ' :Expected log-likelihood = ' + "{:.6f}".format(nLogLikelihood))
                 nIteration += 1
-                self.lstExpectedLikelihood.append(nLogLikelihood)
-                if (np.abs(np.round(nLogLikelihood, decimals=6) - np.round(nLastLogLikelihood, decimals=6))/nLogLikelihood < 1.E-05):
-                    break
-                else:
-                    nLastLogLikelihood = nLogLikelihood
+                ## self.lstExpectedLikelihood.append(nLogLikelihood)
+                ## if (np.abs(np.round(nLogLikelihood, decimals=6) - np.round(nLastLogLikelihood, decimals=6))/nLogLikelihood < 1.E-05):
+                ##     continue
+                ##else:
+                ##    nLastLogLikelihood = nLogLikelihood
 
-            nTemperature *= 0.8
+            nTemperature *= 0.5
 
         return self.lstExpectedLikelihood
 
@@ -138,17 +129,15 @@ class CMeanFieldAnnealing:
 
             if j == 0:
                 # translate to origin
-                # X -= X[ind[j], :]
-                continue
+                X -= X[ind[j], :]
             else:
                 # remove subspace of this row
-                if (rownorm[ind[j]] == 0.0):
-                    continue
-                X /= rownorm[ind[j]]
+                if (rownorm[ind[j]] != 0.0):
+                    X /= rownorm[ind[j]]
                 v  = X[ind[j], :]
                 X -= np.outer(X.dot(v), v)
 
-        return np.unique(ind)
+        return ind
 
     def computeErrorRate(self, mObservationG, Nproteins):
 
