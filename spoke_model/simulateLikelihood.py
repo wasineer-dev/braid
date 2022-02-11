@@ -1,10 +1,14 @@
 
+from re import M
+from tkinter import N
 import numpy as np
 from numpy.random import default_rng
 
 import matplotlib.pyplot as plt
 import sys
 import scipy.special
+
+import cmdtools
 
 # A nice correction suggested by Tomáš Tunys
 def Stick_Breaking(num_weights,alpha):
@@ -61,6 +65,7 @@ class CMeanFieldAnnealing:
     def __init__(self, Nproteins, Nk):
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
+        self.mExpectedErrors = np.zeros((Nproteins, Nk), dtype=float)
 
     def Likelihood(self, mObservationG, Nproteins, Nk, psi):
 
@@ -91,20 +96,18 @@ class CMeanFieldAnnealing:
                         t = mObservationG.mTrials[i][j]
                         s = mObservationG.mObserved[i][j]
                         assert(s <= t)
-                        # Old version: mLogLikelihood[i][k] += (self.mIndicatorQ[j][k]*(t-s) + (1.0 - self.mIndicatorQ[j][k])*s*psi)
-                        mLogLikelihood[i][k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
+                        mLogLikelihood[i][k] += (self.mIndicatorQ[j][k]*(t-s) + (1.0 - self.mIndicatorQ[j][k])*s*psi)
+                        ## mLogLikelihood[i][k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
 
                 # Overflow problem. Need to compute with softmax
                 gamma = 1./nTemperature
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood[i,:])
                 self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
-                nEntropy = 0.0
-                nLogLikelihood = 0.0
-                for i in range(Nproteins):
-                    for k in range(Nk):
-                        if (self.mIndicatorQ[i][k] > 0):
-                            nEntropy += self.mIndicatorQ[i][k]*np.log(self.mIndicatorQ[i][k])
-                            nLogLikelihood += self.mIndicatorQ[i][k]*mLogLikelihood[i][k]
+                nLogLikelihood = np.vdot(self.mIndicatorQ, mLogLikelihood)
+                #for i in range(Nproteins):
+                 #   for k in range(Nk):
+                  #      if (self.mIndicatorQ[i][k] > 0):
+                   #         nLogLikelihood += self.mIndicatorQ[i][k]*mLogLikelihood[i][k]
                 print(str(nIteration) + ' T=' + "{:.6f}".format(nTemperature) + ' :Expected log-likelihood = ' + "{:.6f}".format(nLogLikelihood))
                 nIteration += 1
                 self.lstExpectedLikelihood.append(nLogLikelihood)
@@ -117,6 +120,103 @@ class CMeanFieldAnnealing:
 
         return self.lstExpectedLikelihood
 
+    ##
+    ## Adapt from https://github.com/zib-cmd/cmdtools/blob/dev/src/cmdtools/analysis/optimization.py
+    ##
+    def indexsearch(self, X):
+        """ Return the indices to the rows spanning the largest simplex """
+
+        n = np.size(X, axis=0)
+        k = np.size(X, axis=1)
+        X = X.copy()
+
+        ind = np.zeros(k, dtype=int)
+        for j in range(0, k):
+            # find the largest row
+            rownorm = np.linalg.norm(X, axis=1)
+            ind[j] = np.argmax(rownorm)
+
+            if j == 0:
+                # translate to origin
+                # X -= X[ind[j], :]
+                continue
+            else:
+                # remove subspace of this row
+                if (rownorm[ind[j]] == 0.0):
+                    continue
+                X /= rownorm[ind[j]]
+                v  = X[ind[j], :]
+                X -= np.outer(X.dot(v), v)
+
+        return np.unique(ind)
+
+    def computeErrorRate(self, mObservationG, Nproteins):
+
+        indRows = self.indexsearch(self.mIndicatorQ)
+    
+        print(str(self.mIndicatorQ))
+        print(str(indRows))
+
+        self.indicatorVec = np.zeros(Nproteins, dtype=int)
+        for i in range(Nproteins):
+            maxV = 0
+            argMaxValue = -1
+            for k in range(len(indRows)):
+                v = self.mIndicatorQ[indRows[k],:].dot(self.mIndicatorQ[i])
+                if (v > maxV):
+                    maxV = v
+                    argMaxValue = indRows[k]
+            assert(argMaxValue >= 0)
+            self.indicatorVec[i] = argMaxValue
+
+        rnk = np.linalg.matrix_rank(self.mIndicatorQ)
+        print("Indicator matrix had rank = " + str(rnk))
+        nClusters = len(np.unique(indRows))
+        print("Number of clusters used: " + str(nClusters))
+
+        countFn = 0
+        countFp = 0
+        sumSameCluster = 0
+        sumDiffCluster = 0
+        for i in range(Nproteins):
+            for j in mObservationG.lstAdjacency[i]:
+                t = mObservationG.mTrials[i][j]
+                s = mObservationG.mObserved[i][j]
+                assert(s <= t)
+                if (self.indicatorVec[i] == self.indicatorVec[j]):
+                    countFn += (t - s)
+                    sumSameCluster += t
+                else:
+                    countFp += s
+                    sumDiffCluster += t
+
+        fn = 0.0
+        fp = 0.0
+        if (sumSameCluster > 0):
+            fn = float(countFn)/float(sumSameCluster)
+        if (sumDiffCluster > 0):
+            fp = float(countFp)/float(sumDiffCluster)
+        return (fn, fp)
+
+    def computeResidues(self, mObservationG, Nproteins, Nk):
+    
+        (fn, fp) = self.computeErrorRate(mObservationG, Nproteins)
+
+        for i in range(Nproteins):
+            for k in range(Nk):
+                sum_t0 = 0
+                sum_t1 = 0
+                sizeNeighbors = len(mObservationG.lstAdjacency[i])
+                for j in mObservationG.lstAdjacency[i]:
+                    t = mObservationG.mTrials[i][j]
+                    if (self.indicatorVec[i] == self.indicatorVec[j] and self.indicatorVec[i] == k):
+                        sum_t0 += t
+                    else:
+                        if (self.indicatorVec[i] == k and self.indicatorVec[j] != k):
+                            sum_t1 += t                        
+                self.mExpectedErrors[i][k] += self.mIndicatorQ[i][k]*fn*sum_t0 + (1.0 - self.mIndicatorQ[j][k])*fp*sum_t1
+                self.mExpectedErrors[i][k] /= 10*sizeNeighbors
+        return (fn, fp)
     #
     # https://www.researchgate.net/publication/343831904_NumPy_SciPy_Recipes_for_Data_Science_Projections_onto_the_Standard_Simplex
     #

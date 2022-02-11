@@ -65,9 +65,17 @@ def clustering(inputSet, Nk, psi):
     nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
     lstExpectedLikelihood = cmfa.Likelihood(inputSet.observationG, nProteins, Nk, psi)
+    (fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
     matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
-    print("Number of clusters used: " + str(np.sum(np.sum(matQ, axis=0) > 0)))
+    
+    print("False negative rate = " + str(fn))
+    print("False positive rate = " + str(fp))
+    
     inputSet.writeCluster2File(matQ)
+
+    plt.hist(cmfa.mExpectedErrors.flatten())
+    plt.show()
+
     return lstExpectedLikelihood
 
 def get_args():

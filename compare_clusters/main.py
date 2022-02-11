@@ -4,13 +4,17 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
+setBenchmarkProteins = set()
+
 def jaccardIndex(vecA, vecB):
     setA = set()
     for prot in vecA:
-        setA.add(prot)
+        if (prot in setBenchmarkProteins):
+            setA.add(prot)
     setB = set()
     for prot in vecB:
-        setB.add(prot)
+        if (prot in setBenchmarkProteins):
+            setB.add(prot)
     nIntersect = setA.intersection(setB)
     return float(len(nIntersect))/len(setA.union(setB))
 
@@ -26,6 +30,7 @@ def readCYC2008():
             if lst[1] not in clusters.keys():
                 clusters[lst[1]] = []
             clusters[lst[1]].append(lst[0])
+            setBenchmarkProteins.add(lst[0])
         fh.close()
     print('CYC2008 ' + 'number of complexes = ' + str(len(clusters.keys())))
     return clusters
@@ -70,12 +75,29 @@ def get_args():
                         default='', help='Output from MFA')
     return parser.parse_args()
 
+def measurement(matA, matB):
+    matIndices = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
+    iA = list(matA.keys())
+    vecPredictions = np.zeros(len(matA.keys()), dtype='float')
+    for i in range(len(matA.keys())):
+        setA = matA[iA[i]]
+        iB = list(matB.keys())
+        for j in range(len(matB.keys())):
+            nJaccard = jaccardIndex(setA, matB[iB[j]])
+            matIndices[i][j] = nJaccard
+        vecPredictions[i] = np.sum(matIndices[i,:] > 0.1)
+    nPredictions = np.sum(vecPredictions > 0)/len(matA.keys())
+    print('Measure = ' + str(nPredictions))
+    return nPredictions
+
 def main(args):
+    readMCLOutput()
     matA = readMFAOutput(args.file)
     matB = readCYC2008()
     matIndices = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
     iA = list(matA.keys())
     lstScores = []
+    vecPredictions = np.zeros(len(matA.keys()), dtype='float')
     for i in range(len(matA.keys())):
         setA = matA[iA[i]]
         iB = list(matB.keys())
@@ -84,6 +106,18 @@ def main(args):
             matIndices[i][j] = nJaccard
             if nJaccard > 0.1:
                 lstScores.append(nJaccard)
+        vecPredictions[i] = np.sum(matIndices[i,:] > 0.1)
+
+    #
+    # Calculate Predictions, Recalls, F-Measure
+    # https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-020-01904-6
+    #
+    nPredictions = np.sum(vecPredictions > 0)/len(matA.keys())
+    print('Prediction measure = ' + str(nPredictions))
+
+    nRecalls = measurement(matB, matA)
+    nFMeasure = 2* (nPredictions * nRecalls)/(nPredictions + nRecalls)
+    print('F-Measure = ' + str(nFMeasure))
 
     matMatches = []
     nRows,nCols = matIndices.shape
@@ -98,22 +132,32 @@ def main(args):
 
     ## Output ordered by cluster
     if True:
-        with open("gavin2006_clusters.tab", "w") as fh:
+        with open("ecoli2018_clusters.tab", "w") as fh:
             fh.write("Cluster\tORF\n")
-            for k in matA.keys():
+            vecKeys = list(matA.keys())
+            vecSize = []
+            for k in vecKeys:
+                vecSize.append(len(matA[k]))
+            indices = np.argsort(vecSize)
+            sortedKeys = []
+            for i in indices:
+                sortedKeys.append(vecKeys[i])
+            for k in sortedKeys:
                 strLine = k + '\t' + matA[k][0]
                 if len(matA[k]) > 1:
-                    if len(matA[k]) > 50:
+                    if len(matA[k]) > 10:
                         print('Cluster ' + k + ', containing ' + str(len(matA[k])) + ' members')
                     for strName in matA[k][1:]:
-                        strLine += ('\t' + strName)
-                if len(matA[k]) > 50:
+                        strLine += (',' + strName)
+                if len(matA[k]) > 2:
                     print(strLine)
                 strLine += '\n'
-                fh.write(strLine)
+                if (len(matA[k]) > 2):
+                    fh.write(strLine)
             fh.close()
     
-    plt.hist(lstSizes)
+    print('MRF largest cluster = ' + str(maxSize))
+    plt.hist(lstSizes, range(200))
     plt.title('Complex sizes in Gavin2002')
     plt.show()
 
