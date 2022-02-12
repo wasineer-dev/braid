@@ -126,13 +126,17 @@ def main(args):
             matMatches.append(100.*matIndices[i,:])
 
     lstSizes = []
+    singletons = 0
     for k in matA.keys():
-        lstSizes.append(len(matA[k]))
+        if (len(matA[k]) > 1):
+            lstSizes.append(len(matA[k]))
+        else:
+            singletons += 1
     maxSize = np.max(lstSizes)
 
     ## Output ordered by cluster
     if True:
-        with open("ecoli2018_clusters.tab", "w") as fh:
+        with open("gavin2002_clusters.tab", "w") as fh:
             fh.write("Cluster\tORF\n")
             vecKeys = list(matA.keys())
             vecSize = []

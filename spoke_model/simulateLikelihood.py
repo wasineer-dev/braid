@@ -65,7 +65,7 @@ class CMeanFieldAnnealing:
     def __init__(self, Nproteins, Nk):
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
-        self.mExpectedErrors = np.zeros((Nproteins, Nk), dtype=float)
+        self.mExpectedErrors = []
 
     def Likelihood(self, mObservationG, Nproteins, Nk, psi):
 
@@ -79,12 +79,12 @@ class CMeanFieldAnnealing:
             self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
 
         nTemperature = 1000.0
-        # TODO: refactor
-        while nTemperature > 1.E-05:
+        # TODO: refactor 
+        while nTemperature > 10:
             nLastLogLikelihood = 0.0
             nIteration = 0
-            while nIteration < 5:
-                i = np.random.randint(0, Nproteins) # Choose a node at random
+            for i in range(Nproteins):
+                # i = np.random.randint(0, Nproteins) # Choose a node at random
                 mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
                 for k in range(Nk):
                     for j in mObservationG.lstAdjacency[i]:
@@ -95,19 +95,13 @@ class CMeanFieldAnnealing:
                         ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
 
                 # Overflow problem. Need to compute with softmax
-                gamma = 1./nTemperature
+                gamma = nTemperature
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
                 ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
                 
-                ##print(str(nIteration) + ' T=' + "{:.6f}".format(nTemperature) + ' :Expected log-likelihood = ' + "{:.6f}".format(nLogLikelihood))
                 nIteration += 1
-                ## self.lstExpectedLikelihood.append(nLogLikelihood)
-                ## if (np.abs(np.round(nLogLikelihood, decimals=6) - np.round(nLastLogLikelihood, decimals=6))/nLogLikelihood < 1.E-05):
-                ##     continue
-                ##else:
-                ##    nLastLogLikelihood = nLogLikelihood
 
-            nTemperature *= 0.5
+            nTemperature *= 0.8
 
         return self.lstExpectedLikelihood
 
@@ -140,27 +134,11 @@ class CMeanFieldAnnealing:
         return ind
 
     def computeErrorRate(self, mObservationG, Nproteins):
-
-        indRows = self.indexsearch(self.mIndicatorQ)
-    
-        print(str(self.mIndicatorQ))
-        print(str(indRows))
-
-        self.indicatorVec = np.zeros(Nproteins, dtype=int)
-        for i in range(Nproteins):
-            maxV = 0
-            argMaxValue = -1
-            for k in range(len(indRows)):
-                v = self.mIndicatorQ[indRows[k],:].dot(self.mIndicatorQ[i])
-                if (v > maxV):
-                    maxV = v
-                    argMaxValue = indRows[k]
-            assert(argMaxValue >= 0)
-            self.indicatorVec[i] = argMaxValue
+        self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
 
         rnk = np.linalg.matrix_rank(self.mIndicatorQ)
         print("Indicator matrix had rank = " + str(rnk))
-        nClusters = len(np.unique(indRows))
+        nClusters = len(np.unique(self.indicatorVec))
         print("Number of clusters used: " + str(nClusters))
 
         countFn = 0
@@ -191,8 +169,9 @@ class CMeanFieldAnnealing:
     
         (fn, fp) = self.computeErrorRate(mObservationG, Nproteins)
 
+        inds = np.unique(self.indicatorVec)
         for i in range(Nproteins):
-            for k in range(Nk):
+            for k in inds:
                 sum_t0 = 0
                 sum_t1 = 0
                 sizeNeighbors = len(mObservationG.lstAdjacency[i])
@@ -203,9 +182,19 @@ class CMeanFieldAnnealing:
                     else:
                         if (self.indicatorVec[i] == k and self.indicatorVec[j] != k):
                             sum_t1 += t                        
-                self.mExpectedErrors[i][k] += self.mIndicatorQ[i][k]*fn*sum_t0 + (1.0 - self.mIndicatorQ[j][k])*fp*sum_t1
-                self.mExpectedErrors[i][k] /= 10*sizeNeighbors
+                residues = self.mIndicatorQ[i][k]*fn*sum_t0 + (1.0 - self.mIndicatorQ[i][k])*fp*sum_t1
+                residues /= 10*sizeNeighbors
+                self.mExpectedErrors.append(residues)
         return (fn, fp)
+
+    def computeEntropy(self, Nproteins, Nk):
+        self.mEntropy = np.zeros(Nproteins, dtype=float)
+        for i in range(Nproteins):
+            for k in range(Nk):
+                p = self.mIndicatorQ[i][k]
+                if (p > 0):
+                    self.mEntropy[i] += (-p*np.log(p))
+        
     #
     # https://www.researchgate.net/publication/343831904_NumPy_SciPy_Recipes_for_Data_Science_Projections_onto_the_Standard_Simplex
     #

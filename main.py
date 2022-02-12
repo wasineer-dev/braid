@@ -58,22 +58,25 @@ class CInputSet:
         vecArgMax = np.argmax(matQ,axis=1)
         with open("out.tab", "w") as fh:
             for i in range(nRows):
-                fh.write(self.vecProteins[i] + '\t' + str(vecArgMax[i]) + '\n')
+                fh.write(self.vecProteins[i] + '\t' + str(vecArgMax[i]) + '\t' + str(matQ[i][vecArgMax[i]]) + '\n')
             fh.close()
 
 def clustering(inputSet, Nk, psi):
+    fn = 0.8
+    fp = 0.04
     nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
     lstExpectedLikelihood = cmfa.Likelihood(inputSet.observationG, nProteins, Nk, psi)
     (fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
+    cmfa.computeEntropy(nProteins, Nk)
     matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
     
     print("False negative rate = " + str(fn))
     print("False positive rate = " + str(fp))
     
-    inputSet.writeCluster2File(matQ)
+    inputSet.writeCluster2File(cmfa.mIndicatorQ)
 
-    plt.hist(cmfa.mExpectedErrors.flatten())
+    plt.hist(cmfa.mEntropy)
     plt.show()
 
     return lstExpectedLikelihood
@@ -99,10 +102,6 @@ def main():
 
     inputSet = CInputSet(args.file)
     nLogLikelihood = clustering(inputSet, nK, psi)
-    
-    plt.plot(range(len(nLogLikelihood)), nLogLikelihood)
-    plt.title('Gavin2002')
-    plt.show()
 
 if __name__ == '__main__':
     main()
