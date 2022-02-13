@@ -101,7 +101,7 @@ class CMeanFieldAnnealing:
                 
                 nIteration += 1
 
-            nTemperature *= 0.8
+            nTemperature *= 0.5
 
         return self.lstExpectedLikelihood
 

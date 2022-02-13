@@ -136,7 +136,7 @@ def main(args):
 
     ## Output ordered by cluster
     if True:
-        with open("gavin2002_clusters.tab", "w") as fh:
+        with open("gavin2006_clusters.tab", "w") as fh:
             fh.write("Cluster\tORF\n")
             vecKeys = list(matA.keys())
             vecSize = []

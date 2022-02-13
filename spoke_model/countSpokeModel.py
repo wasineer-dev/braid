@@ -74,3 +74,15 @@ class CountSpokeModel:
                     assert(s <= t)
                     self.lstAdjacency[i].append(j)
     
+    def write2cytoscape(self, matQ, vecProteins):
+        nRows, nCols = matQ.shape
+        indicators = np.argmax(matQ, axis = 1)
+        with open("out.sif", "w") as fh:
+            for i in np.arange(nRows):
+                for j in self.lstAdjacency[i]:
+                    t = self.mTrials[i][j]
+                    if (i >= j):
+                        continue
+                    if (t > 0 and indicators[i] == indicators[j]):
+                        fh.write(vecProteins[i] + '\t' + str(indicators[i]) + '\t' + str(vecProteins[j]) + '\n')
+            fh.close()

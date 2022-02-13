@@ -75,7 +75,7 @@ def clustering(inputSet, Nk, psi):
     print("False positive rate = " + str(fp))
     
     inputSet.writeCluster2File(cmfa.mIndicatorQ)
-
+    inputSet.observationG.write2cytoscape(cmfa.mIndicatorQ, inputSet.vecProteins)
     plt.hist(cmfa.mEntropy)
     plt.show()
 
