@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import spoke_model.countSpokeModel as cpm
-import spoke_model.simulateLikelihood as smlt
+import meanfield.simulateLikelihood as smlt
 
 import inputFile.inputFile as inputFile
 
