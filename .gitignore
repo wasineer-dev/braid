@@ -17,3 +17,4 @@ datasets/Babu_et_al_2017_Ecoli_CEP_predicted_complexes.cys
 out.sif
 convert2GeneSymbol.sif
 inputFile/__pycache__/inputFile.cpython-39.pyc
+meanfield/__pycache__/simulateLikelihood.cpython-39.pyc
