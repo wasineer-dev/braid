@@ -16,3 +16,7 @@ Model parameters:
 
 Example:
 py main.py -f gavin2002.csv -psi 3.4 -k 500
+
+Output:
+out.tab: a tab separating file containing a cluster annotation for each protein, one per line. 
+out.sif: output clustering result in the Simple Interaction File format which you can import into Cytoscape.
