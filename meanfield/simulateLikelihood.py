@@ -4,6 +4,7 @@ from numpy.random import default_rng
 import matplotlib.pyplot as plt
 import sys
 import scipy.special
+import scipy.stats
 
 # A nice correction suggested by Tomáš Tunys
 def Stick_Breaking(num_weights,alpha):
@@ -55,16 +56,31 @@ def ObservationGraph(Nproteins, Nk, fn, fp, alpha):
 
     return mObservationSuccess
 
+def tail_bound(k, n, p):
+    a = float(k)/float(n)
+    return np.exp(-2.0*n*np.power(p - a, 2))
+
+def chernoff_bound(k, n, p):    
+    if n == 0:
+        return 1.0
+        
+    a = float(k)/float(n)
+    if a == 0:
+        kl = -np.log(1.0 - p)
+    else:
+        kl = a*(np.log(a) - np.log(p)) + (1.0 - a)*(np.log(1.0 - a) - np.log(1.0 - p))
+    return np.exp(-n*kl)
+
 class CMeanFieldAnnealing:
 
     def __init__(self, Nproteins, Nk):
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
-        self.mExpectedErrors = []
+        self.mResidues = []
 
     def Likelihood(self, mObservationG, Nproteins, Nk, psi):
 
-        rng = default_rng(seed=42)
+        rng = default_rng()
 
         # psi = (-np.log(fp) + np.log(1 - fn))/(-np.log(fn) + np.log(1 - fp))
         print('psi = ', psi)
@@ -164,22 +180,35 @@ class CMeanFieldAnnealing:
     
         (fn, fp) = self.computeErrorRate(mObservationG, Nproteins)
 
-        inds = np.unique(self.indicatorVec)
         for i in range(Nproteins):
-            for k in inds:
-                sum_t0 = 0
-                sum_t1 = 0
-                sizeNeighbors = len(mObservationG.lstAdjacency[i])
-                for j in mObservationG.lstAdjacency[i]:
-                    t = mObservationG.mTrials[i][j]
-                    if (self.indicatorVec[i] == self.indicatorVec[j] and self.indicatorVec[i] == k):
-                        sum_t0 += t
-                    else:
-                        if (self.indicatorVec[i] == k and self.indicatorVec[j] != k):
-                            sum_t1 += t                        
-                residues = self.mIndicatorQ[i][k]*fn*sum_t0 + (1.0 - self.mIndicatorQ[i][k])*fp*sum_t1
-                residues /= 10*sizeNeighbors
-                self.mExpectedErrors.append(residues)
+            a = default_rng().random()
+            n = 0
+            k = 0
+            for j in mObservationG.lstAdjacency[i]:
+                t = mObservationG.mTrials[i][j]
+                s = mObservationG.mObserved[i][j]
+                if (self.indicatorVec[i] == self.indicatorVec[j]):                     
+                    n += t
+                    k += (t - s)
+
+            if n == 0:
+                continue
+
+            # Note: refer to Probability Integral Theorem
+            # Pr(Y(s) <= y) < Left tail bound of the Binomial(t, fn)
+            if (k <= n*fn):
+                residues = a*scipy.stats.binom.pmf(k, n, fn) + (1.0 - a)*tail_bound(k, n, fn)
+            else:
+                residues = a*scipy.stats.binom.pmf(k, n, fn) + (1.0 - a)*(1.0 - tail_bound(n - k, n, 1-fn))
+            self.mResidues.append(residues)
+
+        cdf = default_rng().random(len(self.mResidues))
+        result = scipy.stats.ks_2samp(self.mResidues, cdf)
+        print(result)
+
+        #result = scipy.stats.chisquare(np.histogram(self.mResidues)[0], np.histogram(cdf)[0])
+        #print(result)
+
         return (fn, fp)
 
     def computeEntropy(self, Nproteins, Nk):

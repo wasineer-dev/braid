@@ -35,9 +35,10 @@ def clustering(inputSet, Nk, psi):
     
     inputSet.writeCluster2File(cmfa.mIndicatorQ)
     inputSet.observationG.write2cytoscape(cmfa.mIndicatorQ, inputSet.vecProteins)
-    plt.hist(cmfa.mEntropy)
-    plt.show()
 
+    plt.hist(cmfa.mResidues)
+    plt.show()
+    
     return lstExpectedLikelihood
 
 def get_args():
