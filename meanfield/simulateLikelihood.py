@@ -91,11 +91,12 @@ class CMeanFieldAnnealing:
 
         nTemperature = 1000.0
         # TODO: refactor 
-        while nTemperature > 10:
+        while nTemperature >= 1.0:
             nLastLogLikelihood = 0.0
             nIteration = 0
             for i in range(Nproteins):
                 # i = np.random.randint(0, Nproteins) # Choose a node at random
+                """ 
                 mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
                 for k in range(Nk):
                     for j in mObservationG.lstAdjacency[i]:
@@ -104,13 +105,19 @@ class CMeanFieldAnnealing:
                         assert(s <= t)
                         mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
                         ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
+                """
+
+                fn_out = np.matmul(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
+                fp_out = np.matmul(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
+
+                mLogLikelihood = fn_out + fp_out
 
                 # Overflow problem. Need to compute with softmax
                 gamma = nTemperature
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
                 ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
                 
-                nIteration += 1
+            nIteration += 1
 
             nTemperature *= 0.5
 
