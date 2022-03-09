@@ -17,8 +17,8 @@ Require a Python >= 3.5 installation. Since it depends on some packages that can
 
 #### Example
 
-   py main.py -f gavin2002.csv -psi 3.4 -k 500
-
+  `py main.py -f gavin2002.csv -psi 3.4 -k 500`
+  
 #### Output
 
  out.tab: a tab separating file containing a cluster annotation for each protein, one per line.
