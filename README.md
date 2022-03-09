@@ -13,12 +13,13 @@ Require a Python >= 3.5 installation. Since it depends on some packages that can
    
 #### Model parameters
  1. The log-ratio of false negative rate and false positive rate (-psi)
- 2. Maximum possible number of clusters (-k), e.g. 600 for gavin2002 dataset and 700 for gavin2006
+ 2. Maximum possible number of clusters (-k), e.g. 600 for gavin2002 dataset and 800 for gavin2006
 
-Example:
+#### Example
+
    py main.py -f gavin2002.csv -psi 3.4 -k 500
 
-Output:
+#### Output
 
  out.tab: a tab separating file containing a cluster annotation for each protein, one per line.
 
