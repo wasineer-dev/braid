@@ -19,7 +19,7 @@ def jaccardIndex(vecA, vecB):
     return float(len(nIntersect))/len(setA.union(setB))
 
 def readCYC2008():
-    fileName = "../curation_yeast/CYC2008_complex.tab"
+    fileName = "CYC2008_complex.txt"
     clusters = {}
     proteins = {}
     with open(fileName) as fh:
@@ -27,16 +27,17 @@ def readCYC2008():
         for line in fh:
             lst = line.rstrip().split('\t')
             # print(lst[0] + '\t' + lst[1])
-            if lst[1] not in clusters.keys():
-                clusters[lst[1]] = []
-            clusters[lst[1]].append(lst[0])
+            complex = lst[2]
+            if complex not in clusters.keys():
+                clusters[complex] = []
+            clusters[complex].append(lst[0])
             setBenchmarkProteins.add(lst[0])
         fh.close()
     print('CYC2008 ' + 'number of complexes = ' + str(len(clusters.keys())))
     return clusters
 
 def readMCLOutput():
-    fileName = "../curation_yeast/Annotated_YHTP2008_complex.tab"
+    fileName = "Annotated_YHTP2008_complex.txt"
     clusters = {}
     proteins = {}
     nK = 0
@@ -135,7 +136,7 @@ def main(args):
     maxSize = np.max(lstSizes)
 
     ## Output ordered by cluster
-    if True:
+    if False:
         with open("gavin2006_clusters.tab", "w") as fh:
             fh.write("Cluster\tORF\n")
             vecKeys = list(matA.keys())
