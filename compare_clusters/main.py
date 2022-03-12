@@ -3,8 +3,12 @@ import argparse
 
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set_theme()
 
 setBenchmarkProteins = set()
+setObservedProteins = set()
 
 def jaccardIndex(vecA, vecB):
     setA = set()
@@ -17,6 +21,18 @@ def jaccardIndex(vecA, vecB):
             setB.add(prot)
     nIntersect = setA.intersection(setB)
     return float(len(nIntersect))/len(setA.union(setB))
+
+def complexCoverage(vecA, vecB):
+    setA = set()
+    for prot in vecA:
+        if (prot in setBenchmarkProteins):
+            setA.add(prot)
+    setB = set()
+    for prot in vecB:
+        if (prot in setBenchmarkProteins):
+            setB.add(prot)
+    nIntersect = setA.intersection(setB)
+    return float(len(nIntersect))/len(setB)
 
 def readCYC2008():
     fileName = "CYC2008_complex.txt"
@@ -70,6 +86,50 @@ def readMFAOutput(fileName):
     print('MRF ' + 'number of complexes = ' + str(len(clusters.keys())))
     return clusters
 
+def readEcoliMFAOutput(fileName):
+    clusters = {}
+    proteins = {}
+    with open(fileName) as fh:
+        for line in fh:
+            lst = line.rstrip().split('\t')
+            prot = lst[0].split('__')[0]
+            #print(prot + '\t' + lst[1])
+            if lst[1] not in clusters.keys():
+                clusters[lst[1]] = []
+            clusters[lst[1]].append(prot.strip())
+            setObservedProteins.add(prot.strip())
+        fh.close()
+    print('MRF ' + 'number of complexes = ' + str(len(clusters.keys())))
+    return clusters
+
+def readEColi2018Benchmark():
+    fileName = "ecoli_bait_prey_complexes.txt"
+    clusters = {}
+    proteins = {}
+    with open(fileName) as fh:
+        fh.readline() # skip header
+        for line in fh:
+            lst = line.rstrip().split('\t')
+            complex = lst[0]
+            lstProteins = []
+            for prot in lst[2].strip("\"").split(','):
+                lstProteins.append(prot.strip())
+            #print(complex, '\t', lstProteins)
+            if complex not in clusters.keys():
+                clusters[complex] = lstProteins
+            for prot in lstProteins:
+                setBenchmarkProteins.add(prot.strip())
+        fh.close()
+
+    for k in clusters.keys():
+        for prot in clusters[k]:
+            if prot not in proteins.keys():
+                proteins[prot] = set()
+            proteins[prot].add(k)
+
+    print("Number of benchmark proteins = ", len(setBenchmarkProteins))        
+    return (proteins, clusters)
+
 def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
@@ -80,30 +140,48 @@ def measurement(matA, matB):
     matIndices = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
     iA = list(matA.keys())
     vecPredictions = np.zeros(len(matA.keys()), dtype='float')
+    nClusters = sum(list( len(matA[i]) > 0 for i in matA.keys()) )
     for i in range(len(matA.keys())):
         setA = matA[iA[i]]
-        iB = list(matB.keys())
-        for j in range(len(matB.keys())):
-            nJaccard = jaccardIndex(setA, matB[iB[j]])
-            matIndices[i][j] = nJaccard
-        vecPredictions[i] = np.sum(matIndices[i,:] > 0.1)
-    nPredictions = np.sum(vecPredictions > 0)/len(matA.keys())
+        if (len(setA) > 1):
+            iB = list(matB.keys())
+            for j in range(len(matB.keys())):
+                nJaccard = jaccardIndex(setA, matB[iB[j]])
+                matIndices[i][j] = nJaccard
+            vecPredictions[i] = np.sum(matIndices[i,:] > 0.1)
+    nPredictions = np.sum(vecPredictions > 0)/nClusters
     print('Measure = ' + str(nPredictions))
     return nPredictions
 
+def sortBySize(matA):
+    vecKeys = list(matA.keys())
+    vecSize = []
+    for k in vecKeys:
+        vecSize.append(len(matA[k]))
+    indices = np.argsort(vecSize)
+    sortedKeys = []
+    for i in indices:
+        sortedKeys.append(vecKeys[i])
+    return sortedKeys
+
 def main(args):
-    readMCLOutput()
-    matA = readMFAOutput(args.file)
-    matB = readCYC2008()
+    # readMCLOutput()
+    matA = readEcoliMFAOutput(args.file)
+    # matB = readCYC2008()
+    y_actual, matB = readEColi2018Benchmark()
+
+    print("Number of proteins considered = ", len(setBenchmarkProteins.intersection(setObservedProteins)))
+
     matIndices = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
+    matCoverage = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
     iA = list(matA.keys())
     lstScores = []
     vecPredictions = np.zeros(len(matA.keys()), dtype='float')
-    for i in range(len(matA.keys())):
-        setA = matA[iA[i]]
-        iB = list(matB.keys())
-        for j in range(len(matB.keys())):
-            nJaccard = jaccardIndex(setA, matB[iB[j]])
+    for i, a in zip(range(len(matA.keys())), sortBySize(matA)):
+        setA = matA[a]
+        for j, b in zip(range(len(matB.keys())), sortBySize(matB)):
+            matCoverage[i][j] = complexCoverage(setA, matB[b])
+            nJaccard = jaccardIndex(setA, matB[b])
             matIndices[i][j] = nJaccard
             if nJaccard > 0.1:
                 lstScores.append(nJaccard)
@@ -123,8 +201,7 @@ def main(args):
     matMatches = []
     nRows,nCols = matIndices.shape
     for i in range(nRows):
-        if np.max(matIndices[i,:]) > 0.1:
-            matMatches.append(100.*matIndices[i,:])
+        matMatches.append(100.*matIndices[i,:])
 
     lstSizes = []
     singletons = 0
@@ -139,14 +216,6 @@ def main(args):
     if False:
         with open("gavin2006_clusters.tab", "w") as fh:
             fh.write("Cluster\tORF\n")
-            vecKeys = list(matA.keys())
-            vecSize = []
-            for k in vecKeys:
-                vecSize.append(len(matA[k]))
-            indices = np.argsort(vecSize)
-            sortedKeys = []
-            for i in indices:
-                sortedKeys.append(vecKeys[i])
             for k in sortedKeys:
                 strLine = k + '\t' + matA[k][0]
                 if len(matA[k]) > 1:
@@ -164,6 +233,9 @@ def main(args):
     print('MRF largest cluster = ' + str(maxSize))
     plt.hist(lstSizes, range(200))
     plt.title('Complex sizes in Gavin2002')
+    plt.show()
+
+    sns.heatmap(matCoverage)
     plt.show()
 
 if __name__ == '__main__':

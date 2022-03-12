@@ -28,13 +28,15 @@ def parse_input(filename):
             lst = line.rstrip().split()
             bait = lst[2] 
             prey = lst[3]
+            avg_num_peptides = int(lst[11])
             if not lst[0] in records.keys():
                 records[lst[0]] = dict()
 
             if not bait in records[lst[0]].keys():
                 records[lst[0]][bait] = []
 
-            records[lst[0]][bait].append(prey)
+            if avg_num_peptides >= 5:
+                records[lst[0]][bait].append(prey)
 
     proteins = dict()
     with open('ecoli_nature2018_apms.txt', 'w') as fhOut:
