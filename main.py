@@ -36,7 +36,10 @@ def clustering(inputSet, Nk, psi):
     inputSet.writeCluster2File(cmfa.mIndicatorQ)
     inputSet.observationG.write2cytoscape(cmfa.mIndicatorQ, inputSet.vecProteins)
 
-    plt.hist(cmfa.mResidues)
+    #fig, (ax1, ax2) = plt.subplots(2)
+    #ax1.hist(cmfa.expectedErrors)
+    #ax2.hist(cmfa.mResidues)
+    plt.scatter(cmfa.expectedErrors, cmfa.mResidues) 
     plt.show()
     
     return lstExpectedLikelihood

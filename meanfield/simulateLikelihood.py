@@ -1,3 +1,4 @@
+from unittest import expectedFailure
 import numpy as np
 from numpy.random import default_rng
 
@@ -76,8 +77,7 @@ class CMeanFieldAnnealing:
     def __init__(self, Nproteins, Nk):
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
-        self.mResidues = []
-
+        
     def Likelihood(self, mObservationG, Nproteins, Nk, psi):
 
         rng = default_rng()
@@ -187,34 +187,53 @@ class CMeanFieldAnnealing:
     
         (fn, fp) = self.computeErrorRate(mObservationG, Nproteins)
 
+        # Filter singletons
+        clusters = []
+        singletons = []
+        for k in range(Nk): 
+            if (sum(self.indicatorVec == k) > 1):
+                clusters.append(k)
+            else:
+                singletons.append(k)
+        setProteins = set()
+        indicators = dict()
         for i in range(Nproteins):
-            a = default_rng().random()
-            n = 0
-            k = 0
+            if self.indicatorVec[i] in clusters: 
+                setProteins.add(i)
+                indicators[i] = self.indicatorVec[i]
+
+        countFn = np.zeros(Nk)
+        countFp = np.zeros(Nk)
+        trialFn = np.zeros(Nk)
+        trialFp = np.zeros(Nk)
+        for i in setProteins:
+            cl = indicators[i]    
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
-                if (self.indicatorVec[i] == self.indicatorVec[j]):                     
-                    n += t
-                    k += (t - s)
+                if (self.indicatorVec[i] == cl) and (self.indicatorVec[j] == cl):      
+                    trialFn[cl] += t
+                    countFn[cl] += (t - s)
+                if (self.indicatorVec[i] == cl) and (self.indicatorVec[j] != cl):
+                    countFp[cl] += s
+                    trialFp[cl] += t
 
-            if n == 0:
-                continue
+        self.expectedErrors = np.floor(fn*trialFn) + np.floor(fp*trialFp)
+        self.mResidues = countFn + countFp
 
-            # Note: refer to Probability Integral Theorem
-            # Pr(Y(s) <= y) < Left tail bound of the Binomial(t, fn)
-            if (k <= n*fn):
-                residues = a*scipy.stats.binom.pmf(k, n, fn) + (1.0 - a)*tail_bound(k, n, fn)
-            else:
-                residues = a*scipy.stats.binom.pmf(k, n, fn) + (1.0 - a)*(1.0 - tail_bound(n - k, n, 1-fn))
-            self.mResidues.append(residues)
-
-        cdf = default_rng().random(len(self.mResidues))
-        result = scipy.stats.ks_2samp(self.mResidues, cdf)
+        expectedErrors = list( self.expectedErrors[i] for i in clusters)
+        residues = list( self.mResidues[i] for i in clusters)
+        
+        hA = np.histogram(expectedErrors, 100)
+        hB = np.histogram(residues, 100)
+        result = scipy.stats.ks_2samp(hA[0], hB[0])
         print(result)
 
-        #result = scipy.stats.chisquare(np.histogram(self.mResidues)[0], np.histogram(cdf)[0])
-        #print(result)
+        result = scipy.stats.cramervonmises_2samp(hA[0], hB[0])
+        print(result)
+
+        self.expectedErrors = expectedErrors
+        self.mResidues = residues
 
         return (fn, fp)
 
