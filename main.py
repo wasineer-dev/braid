@@ -26,7 +26,7 @@ def clustering(inputSet, Nk, psi):
     nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
     lstExpectedLikelihood = cmfa.Likelihood(inputSet.observationG, nProteins, Nk, psi)
-    (fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
+    (regr, fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
     cmfa.computeEntropy(nProteins, Nk)
     matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
     
@@ -36,10 +36,19 @@ def clustering(inputSet, Nk, psi):
     inputSet.writeCluster2File(cmfa.mIndicatorQ)
     inputSet.observationG.write2cytoscape(cmfa.mIndicatorQ, inputSet.vecProteins)
 
-    #fig, (ax1, ax2) = plt.subplots(2)
-    #ax1.hist(cmfa.expectedErrors)
-    #ax2.hist(cmfa.mResidues)
-    plt.scatter(cmfa.expectedErrors, cmfa.mResidues) 
+    X = cmfa.expectedErrors
+    y = cmfa.mResidues
+    pred_ols = regr.get_prediction()
+    iv_l = pred_ols.summary_frame()["obs_ci_lower"]
+    iv_u = pred_ols.summary_frame()["obs_ci_upper"]
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    ax.plot(X, y, "o", label="data")
+    ax.plot(X, regr.fittedvalues, "r--.", label="OLS")
+    ax.plot(X, iv_u, "r--")
+    ax.plot(X, iv_l, "r--")
+    ax.legend(loc="best")
     plt.show()
     
     return lstExpectedLikelihood

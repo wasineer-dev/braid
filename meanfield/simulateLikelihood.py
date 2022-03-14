@@ -248,11 +248,16 @@ class CMeanFieldAnnealing:
         self.expectedErrors = expectedErrors
         self.mResidues = residues
 
+        # Ordinary Least Square
         X = np.reshape(expectedErrors, (-1,1))
         est = sm.OLS(residues,  X)
         est2 = est.fit()
         print(est2.summary())
-        
+
+        glm_poisson = sm.GLM(residues, X, family=sm.families.Poisson(sm.families.links.log()))
+        glm_results = glm_poisson.fit()
+        print(glm_results.summary())
+
         # Create linear regression object
         regr = linear_model.LinearRegression()
         # Train the model using the training sets
@@ -261,32 +266,8 @@ class CMeanFieldAnnealing:
         y_pred = regr.predict(X)
         print("Linear Regression evaluation:")
         self.estimator_summary(regr, residues, y_pred)
-
-        ridge_glm = Pipeline(
-        [
-            ("regressor", Ridge(alpha=1e-06)),
-        ]
-        ).fit(
-            np.reshape(expectedErrors, (-1,1)), residues
-        )
-
-        y_pred = ridge_glm.predict(np.reshape(expectedErrors, (-1,1)))
-        print("Ridge evaluation:")
-        self.estimator_summary(ridge_glm["regressor"], residues, y_pred)
         
-        poisson_glm = Pipeline(
-        [
-            ("regressor", PoissonRegressor(alpha=1e-12, max_iter=300)),
-        ]
-        )
-        poisson_glm.fit(
-            np.reshape(expectedErrors, (-1,1)), residues
-        )
-        y_pred = poisson_glm.predict(np.reshape(expectedErrors, (-1,1)))
-        print("PoissonRegressor evaluation:")
-        self.estimator_summary(poisson_glm["regressor"], residues, y_pred)
-
-        return (fn, fp)
+        return (est2, fn, fp)
 
     def computeEntropy(self, Nproteins, Nk):
         self.mEntropy = np.zeros(Nproteins, dtype=float)
