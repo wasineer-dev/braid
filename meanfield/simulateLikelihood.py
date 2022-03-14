@@ -7,6 +7,14 @@ import sys
 import scipy.special
 import scipy.stats
 
+from sklearn import datasets, linear_model
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import PoissonRegressor, Ridge
+from sklearn.pipeline import Pipeline
+
+import statsmodels.api as sm
+from scipy import stats
+
 # A nice correction suggested by Tomáš Tunys
 def Stick_Breaking(num_weights,alpha):
     betas = np.random.beta(1,alpha, size=num_weights)
@@ -183,6 +191,14 @@ class CMeanFieldAnnealing:
             fp = float(countFp)/float(sumDiffCluster)
         return (fn, fp)
 
+    def estimator_summary(self, regr, y_actual, y_pred):
+        # The coefficients
+        print("Coefficients: \n", regr.coef_)
+        # The mean squared error
+        print("Mean squared error: %.2f" % mean_squared_error(y_actual, y_pred))
+        # The coefficient of determination: 1 is perfect prediction
+        print("Coefficient of determination: %.2f" % r2_score(y_actual, y_pred))
+        
     def computeResidues(self, mObservationG, Nproteins, Nk):
     
         (fn, fp) = self.computeErrorRate(mObservationG, Nproteins)
@@ -223,17 +239,52 @@ class CMeanFieldAnnealing:
 
         expectedErrors = list( self.expectedErrors[i] for i in clusters)
         residues = list( self.mResidues[i] for i in clusters)
-        
-        hA = np.histogram(expectedErrors, 100)
-        hB = np.histogram(residues, 100)
-        result = scipy.stats.ks_2samp(hA[0], hB[0])
+        result = scipy.stats.ks_2samp(residues, expectedErrors)
         print(result)
 
-        result = scipy.stats.cramervonmises_2samp(hA[0], hB[0])
+        result = scipy.stats.cramervonmises_2samp(residues, expectedErrors)
         print(result)
 
         self.expectedErrors = expectedErrors
         self.mResidues = residues
+
+        X = np.reshape(expectedErrors, (-1,1))
+        est = sm.OLS(residues,  X)
+        est2 = est.fit()
+        print(est2.summary())
+        
+        # Create linear regression object
+        regr = linear_model.LinearRegression()
+        # Train the model using the training sets
+        regr.fit(X, residues)
+        # Make predictions using the testing set
+        y_pred = regr.predict(X)
+        print("Linear Regression evaluation:")
+        self.estimator_summary(regr, residues, y_pred)
+
+        ridge_glm = Pipeline(
+        [
+            ("regressor", Ridge(alpha=1e-06)),
+        ]
+        ).fit(
+            np.reshape(expectedErrors, (-1,1)), residues
+        )
+
+        y_pred = ridge_glm.predict(np.reshape(expectedErrors, (-1,1)))
+        print("Ridge evaluation:")
+        self.estimator_summary(ridge_glm["regressor"], residues, y_pred)
+        
+        poisson_glm = Pipeline(
+        [
+            ("regressor", PoissonRegressor(alpha=1e-12, max_iter=300)),
+        ]
+        )
+        poisson_glm.fit(
+            np.reshape(expectedErrors, (-1,1)), residues
+        )
+        y_pred = poisson_glm.predict(np.reshape(expectedErrors, (-1,1)))
+        print("PoissonRegressor evaluation:")
+        self.estimator_summary(poisson_glm["regressor"], residues, y_pred)
 
         return (fn, fp)
 
