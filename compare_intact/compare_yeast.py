@@ -87,6 +87,22 @@ def readMFAOutput(fileName):
         print(uniprots)
     return predictions
 
+def measurement(matA, matB):
+    matIndices = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
+    iA = list(matA.keys())
+    vecPredictions = np.zeros(len(matA.keys()), dtype='float')
+    nClusters = sum(list( len(matA[i]) > 0 for i in matA.keys()) )
+    for i in range(len(matA.keys())):
+        setA = matA[iA[i]]
+        if (len(setA) > 1):
+            iB = list(matB.keys())
+            for j in range(len(matB.keys())):
+                nJaccard = jaccardIndex(setA, matB[iB[j]])
+                matIndices[i][j] = nJaccard
+            vecPredictions[i] = np.sum(matIndices[i,:] > 0.1)
+    nPredictions = np.sum(vecPredictions > 0)/nClusters
+    return nPredictions
+
 def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
@@ -114,6 +130,12 @@ def main(args):
     #
     nPredictions = np.sum(vecPredictions > 0)/len(matA.keys())
     print('Prediction measure = ' + str(nPredictions))
+
+    nRecalls = measurement(matB, matA)
+    print('Recalls = ' + str(nRecalls))
+    
+    nFMeasure = 2* (nPredictions * nRecalls)/(nPredictions + nRecalls)
+    print('F-Measure = ' + str(nFMeasure))
 
     sns.heatmap(matIndices)
     plt.show()

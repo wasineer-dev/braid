@@ -1,4 +1,3 @@
-import mygene
 import argparse
 
 import pandas as pd
@@ -7,8 +6,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 sns.set_theme()
-
-mg = mygene.MyGeneInfo()
 
 setBenchmarkProteins = set()
 setObservedProteins = set()
@@ -37,7 +34,7 @@ def complexCoverage(vecA, vecB):
     nIntersect = setA.intersection(setB)
     return float(len(nIntersect))/len(setB)
 
-# S. cerevisiae, IntAct complex file (tsv format)
+# E.coli, IntAct complex file (tsv format)
 # Download on 12.03.2022
 def readIntActComplex():
     df = pd.read_table("83333.tsv")
@@ -84,7 +81,6 @@ def readEcoliMFAOutput(fileName):
     for k in clusters.keys():
         for prot in clusters[k]:
             setObservedProteins.add(prot)
-        if len(clusters[k]) > 1:
             predictions[k] = clusters[k]
 
     with open('symbols_ecoli.txt', 'w') as fh:
@@ -111,8 +107,7 @@ def readEcoliBabu2018():
 
     predictions = {}
     for k in clusters.keys():
-        if len(clusters[k]) > 1:
-            predictions[k] = clusters[k]
+        predictions[k] = clusters[k]
     return predictions
 
 def measurement(matA, matB):
@@ -134,6 +129,14 @@ def measurement(matA, matB):
     #
     nPredictions = np.sum(vecPredictions > 0)/len(matA.keys())
     print('Prediction measure = ' + str(nPredictions))
+
+    iB = list(matB.keys())
+    vecPredictions = np.zeros(len(matB.keys()), dtype='float')
+    for i, b in zip(range(len(matB.keys())), matB.keys()):
+        vecPredictions[i] = np.sum(matIndices[:,i] > 0.1)
+    nRecalls = np.sum(vecPredictions > 0)/len(matB.keys())
+    print("Recalls:", nRecalls)
+    
     return matIndices
 
 def get_args():
@@ -146,15 +149,14 @@ def main(args):
     matB = readIntActComplex()
     matA = readEcoliMFAOutput(args.file)
     matIndices = measurement(matA, matB)
-    
     sns.heatmap(matIndices)
     plt.show()
-
+ 
     matC = readEcoliBabu2018()
     matIndices = measurement(matC, matB)
     sns.heatmap(matIndices)
     plt.show()
-
+    
 if __name__ == '__main__':
     main(get_args())    
 

@@ -38,10 +38,10 @@ class CInputSet:
 
         self.observationG = cpmFunc(nProteins, listBaits, listIndices)
 
-    def writeCluster2File(self, matQ):
+    def writeCluster2File(self, matQ, indVec):
         nRows, nCols = matQ.shape
-        vecArgMax = np.argmax(matQ,axis=1)
         with open("out.tab", "w") as fh:
             for i in range(nRows):
-                fh.write(self.vecProteins[i] + '\t' + str(vecArgMax[i]) + '\t' + str(matQ[i][vecArgMax[i]]) + '\n')
+                ind = indVec[i]
+                fh.write(self.vecProteins[i] + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')
             fh.close()

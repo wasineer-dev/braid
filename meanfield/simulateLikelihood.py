@@ -134,10 +134,17 @@ class CMeanFieldAnnealing:
     ##
     ## Adapt from https://github.com/zib-cmd/cmdtools/blob/dev/src/cmdtools/analysis/optimization.py
     ##
+    def inner_simplex_algorithm(self, X):
+        """
+        Return the transformation A mapping those rows of X
+        which span the largest simplex onto the unit simplex.
+        """
+        ind = self.indexsearch(X)
+        return np.linalg.inv(X[ind, :])
+
     def indexsearch(self, X):
         """ Return the indices to the rows spanning the largest simplex """
 
-        n = np.size(X, axis=0)
         k = np.size(X, axis=1)
         X = X.copy()
 
@@ -152,15 +159,34 @@ class CMeanFieldAnnealing:
                 X -= X[ind[j], :]
             else:
                 # remove subspace of this row
-                if (rownorm[ind[j]] != 0.0):
-                    X /= rownorm[ind[j]]
+                X /= rownorm[ind[j]]
                 v  = X[ind[j], :]
                 X -= np.outer(X.dot(v), v)
 
         return ind
 
+    def find_lin_dependent(self):
+        N = np.size(self.mIndicatorQ, axis=0)
+        k = np.size(self.mIndicatorQ, axis=1)
+        self.indicatorVec = np.zeros(N, dtype=int)
+        ind = self.indexsearch(self.mIndicatorQ)
+        for id in ind:
+            for i in range(0,N):
+                inner_product = np.inner(
+                    self.mIndicatorQ[i],
+                    self.mIndicatorQ[id])
+
+                norm_i = np.linalg.norm(self.mIndicatorQ[i])
+                norm_j = np.linalg.norm(self.mIndicatorQ[id])
+
+                distance = np.abs(inner_product - norm_i*norm_j)
+                if distance < 1E-5:
+                    self.indicatorVec[i] = id
+            self.indicatorVec[id] = id
+                    
     def computeErrorRate(self, mObservationG, Nproteins):
-        self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
+        
+        self.find_lin_dependent()
 
         rnk = np.linalg.matrix_rank(self.mIndicatorQ)
         print("Indicator matrix had rank = " + str(rnk))
@@ -242,8 +268,8 @@ class CMeanFieldAnnealing:
         result = scipy.stats.ks_2samp(residues, expectedErrors)
         print(result)
 
-        result = scipy.stats.cramervonmises_2samp(residues, expectedErrors)
-        print(result)
+        #result = scipy.stats.cramervonmises_2samp(residues, expectedErrors)
+        #print(result)
 
         self.expectedErrors = expectedErrors
         self.mResidues = residues
