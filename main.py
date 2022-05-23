@@ -17,9 +17,11 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 import spoke_model.countSpokeModel as cpm
+import spoke_model.countBioplexSpokeModel as cpmBioplex
 import meanfield.simulateLikelihood as smlt
 
 import inputFile.inputFile as inputFile
+import inputFile.inputBioplex as inputBioplex
 
 def clustering(inputSet, Nk, psi):
     fn = 0.8
@@ -67,6 +69,8 @@ def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
                         default='', help='CSV input file of protein purifications')
+    parser.add_argument('-bp', '--bioplex', metavar='bioplex',
+                        default=False, help='Indicate if the input is in Bioplex format')
     parser.add_argument('-k', '--max', metavar='numclusters',
                         default='100', help='A maximum number of possible clusters')
     parser.add_argument('-psi', '--ratio', metavar='psi',
@@ -82,7 +86,10 @@ def main():
     nK = int(args.max)
     psi = float(args.ratio)
 
-    inputSet = inputFile.CInputSet(args.file, cpm.CountSpokeModel)
+    if args.bioplex:
+        inputSet = inputBioplex.CInputBioplex(args.file, cpmBioplex.CountBioplexSpoke)
+    else:
+        inputSet = inputFile.CInputSet(args.file, cpm.CountSpokeModel)
     nLogLikelihood = clustering(inputSet, nK, psi)
 
 if __name__ == '__main__':
