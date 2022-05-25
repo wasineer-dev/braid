@@ -42,12 +42,17 @@ class CountBioplexMatrix:
                 self.mObserved[j][i] += 1
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        for bait in df['bait_symbol']:
+        for bait, prey in zip(df['bait_symbol'], df['symbol']):
             i = indices[bait]
             for j in range(nProteins):
                 self.mTrials[i][j] += 1
                 self.mTrials[j][i] += 1
-        
+            if (isinstance(prey, str)) and not prey.isdigit():
+                k = indices[prey]
+                for j in range(nProteins):
+                    self.mTrials[k][j] += 1
+                    self.mTrials[j][k] += 1
+                
         for i in range(nProteins):
             assert(np.sum(self.mTrials[i,:]) == np.sum(self.mTrials[:,i]))
 

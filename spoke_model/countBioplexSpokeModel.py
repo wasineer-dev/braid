@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-N_MAX_TRIAL = 10
+N_MAX_TRIAL = 30
 
 class CountBioplexSpoke:
 
