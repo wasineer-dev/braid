@@ -12,13 +12,18 @@ class CInputBioplex:
         prey_set = set()
 
         for bait in df['bait_symbol']:
-            bait_set.add(bait)
+            if (isinstance(bait, str)) and not bait.isdigit():
+                bait_set.add(bait)
 
         for prey in df['symbol']:
-            prey_set.add(prey)
+            if (isinstance(prey, str)) and not prey.isdigit():
+                prey_set.add(prey)
 
         proteins_set = prey_set.union(bait_set)
         self.vecProteins = list(proteins_set)
+        self.vecProteins.sort()
+        for v in self.vecProteins[:100]:
+            print(v)
         self.observationG = cpmFunc(filename)
 
     def writeCluster2File(self, matQ, indVec):
@@ -26,5 +31,5 @@ class CInputBioplex:
         with open("out.tab", "w") as fh:
             for i in range(nRows):
                 ind = indVec[i]
-                fh.write(self.vecProteins[i] + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')
+                fh.write(str(self.vecProteins[i]) + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')
             fh.close()

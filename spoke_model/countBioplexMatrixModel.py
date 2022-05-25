@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 
-N_MAX_TRIAL = 10
-
-class CountBioplexSpoke:
+class CountBioplexMatrix:
 
     def __init__(self, filePath):
 
@@ -44,11 +42,11 @@ class CountBioplexSpoke:
                 self.mObserved[j][i] += 1
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        for bait in bait_set:
+        for bait in df['bait_symbol']:
             i = indices[bait]
             for j in range(nProteins):
-                self.mTrials[i][j] = N_MAX_TRIAL
-                self.mTrials[j][i] = N_MAX_TRIAL
+                self.mTrials[i][j] += 1
+                self.mTrials[j][i] += 1
         
         for i in range(nProteins):
             assert(np.sum(self.mTrials[i,:]) == np.sum(self.mTrials[:,i]))
