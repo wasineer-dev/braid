@@ -16,11 +16,7 @@ class CountBioplexSpoke:
             
         self.nProteins = len(np.unique(proteins_list))
         nProteins = self.nProteins
-
-        print('Number of baits = ', len(np.unique(bait_list)))
-        print('Number of preys = ', len(np.unique(prey_list)))
-        print('Number of proteins = ', nProteins)
-
+        
         npSortedProteins = np.sort(np.unique(proteins_list))  # sorted proteins list
         bait_inds = np.searchsorted(npSortedProteins,bait_list) # array([[2, 1, 0, 2,...]])
         prey_inds = np.searchsorted(npSortedProteins,prey_list)
