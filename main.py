@@ -37,7 +37,7 @@ def clustering(inputSet, Nk, psi):
     print("False positive rate = " + str(fp))
     
     inputSet.writeCluster2File(cmfa.mIndicatorQ, cmfa.indicatorVec)
-    inputSet.observationG.write2cytoscape(cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.vecProteins)
+    inputSet.observationG.write2cytoscape(cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
 
     X = cmfa.expectedErrors
     y = cmfa.mResidues
@@ -69,7 +69,7 @@ def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
                         default='', help='CSV input file of protein purifications')
-    parser.add_argument('-bp', '--bioplex', metavar='bioplex',
+    parser.add_argument('-bp', '--bioplex', action='store_true',
                         default=False, help='Indicate if the input is in Bioplex format')
     parser.add_argument('-k', '--max', metavar='numclusters',
                         default='100', help='A maximum number of possible clusters')

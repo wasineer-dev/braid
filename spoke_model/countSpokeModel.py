@@ -25,23 +25,16 @@ def interactionProbability(rho, fnRate, fpRate):
 
 class CountSpokeModel:
     
-    def __init__(self, nProteins, listBaits, listIndices):
+    def __init__(self, nProteins, bait_inds, incidence):
 
         self.nProteins = nProteins
         self.mObserved = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        for indices in listIndices:
-            bait = indices[0]
-            for j in indices:
-                if (bait < j):
-                    self.mObserved[bait][j] += 1
-                    self.mObserved[j][bait] += 1
-                else:
-                    self.mObserved[bait][j] += 1
-                    self.mObserved[j][bait] += 1
+        for i, bait in zip(range(len(bait_inds)), bait_inds):
+            self.mObserved[bait,:] += incidence[i,:]
+            self.mObserved[:,bait] += incidence[i,:]
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        for indices in listIndices:
-            bait = indices[0]
+        for bait in bait_inds:
             for j in range(nProteins):
                 self.mTrials[bait][j] += 1
                 self.mTrials[j][bait] += 1

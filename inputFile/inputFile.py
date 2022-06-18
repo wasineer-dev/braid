@@ -8,40 +8,41 @@ class CInputSet:
 
     def __init__(self, filename, cpmFunc):
         super().__init__()
+
+        listBaits = list()
         with open(filename) as fh:
-            records = dict()
-            listInput = []
+            setProteins = set()
             for line in fh:
                 lst = line.rstrip().split(',')
-                listInput.append(lst)
-                for protein in lst:
-                    records[protein] = 0
-            self.vecProteins = list(records.keys())
-            sorted(self.vecProteins)
-            print('Number of proteins ' + str(len(self.vecProteins)))
+                bait = lst[0]
+                listBaits.append(bait)
+                setProteins = setProteins.union(set(lst))
+            print('Number of proteins ' + str(len(setProteins)))
             fh.close()
 
-        nProteins = len(self.vecProteins)
-        listBaits = []
-        for lst in listInput:
-            bait = lst[0]
-            listBaits.append(self.vecProteins.index(bait))
-        print('Number of purifications ' + str(len(listBaits)))
+        self.aSortedProteins = np.sort(np.array(list(setProteins), dtype='U21'))
+        bait_inds = np.searchsorted(self.aSortedProteins, np.array(listBaits, dtype='U21'))
+        
+        print('Number of purifications ' + str(len(bait_inds)))
 
-        listIndices = []
-        for lst in listInput:
-            indices = []
-            for prot in lst:
-                if (not self.vecProteins.index(prot) in indices):
-                    indices.append(self.vecProteins.index(prot))
-            listIndices.append(indices)
-
-        self.observationG = cpmFunc(nProteins, listBaits, listIndices)
+        nProteins = len(self.aSortedProteins)
+        incidence = np.zeros(shape=(len(bait_inds), nProteins), dtype=int)
+        with open(filename) as fh:
+            lineCount = 0
+            for line in fh:
+                lst = line.rstrip().split(',')
+                prey_inds = np.searchsorted(self.aSortedProteins, np.array(lst, dtype='U21'))           
+                for id in prey_inds:
+                    incidence[lineCount][id] = 1
+                lineCount += 1
+            fh.close()
+            
+        self.observationG = cpmFunc(nProteins, bait_inds, incidence)
 
     def writeCluster2File(self, matQ, indVec):
         nRows, nCols = matQ.shape
         with open("out.tab", "w") as fh:
             for i in range(nRows):
                 ind = indVec[i]
-                fh.write(self.vecProteins[i] + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')
+                fh.write(self.aSortedProteins[i] + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')
             fh.close()
