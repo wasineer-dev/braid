@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+N_MAX_TRIAL = 30
+
 class CountBioplexSpoke:
 
     def __init__(self, filePath):
@@ -55,3 +57,15 @@ class CountBioplexSpoke:
                 if (i != j and t > 0):
                     assert(s <= t)
                     self.lstAdjacency[i].append(j)
+
+    def write2cytoscape(self, indicators, matQ, vecProteins):
+        nRows, nCols = matQ.shape
+        with open("out.sif", "w") as fh:
+            for i in np.arange(nRows):
+                for j in self.lstAdjacency[i]:
+                    t = self.mTrials[i][j]
+                    if (i >= j):
+                        continue
+                    if (t > 0 and indicators[i] == indicators[j]):
+                        fh.write(str(vecProteins[i]) + '\t' + str(indicators[i]) + '\t' + str(vecProteins[j]) + '\n')
+            fh.close()
