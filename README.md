@@ -12,6 +12,7 @@ In addition if you obtain the code from the development branch, you will need to
 
 #### Input file 
   (-f) a CSV file containing a list of bait-preys experiments. The first protein at the beginning of every line is a bait protein.
+  (-bp) must be given if your input file is Bioplex 2.0 or Bioplex 3.0.
    
 #### Model parameters
  1. The log-ratio of false negative rate and false positive rate (-psi)
@@ -20,7 +21,8 @@ In addition if you obtain the code from the development branch, you will need to
 #### Example
 
   `py main.py -f gavin2002.csv -psi 3.4 -k 500`
-  
+  or
+  `py main.py -f [Bioplex file] -bp -psi 3.4 -k 500`
 #### Output
 
  out.tab: a tab separating file containing a cluster annotation for each protein, one per line.
