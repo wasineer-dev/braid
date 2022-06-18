@@ -18,3 +18,10 @@ out.sif
 convert2GeneSymbol.sif
 inputFile/__pycache__/inputFile.cpython-39.pyc
 meanfield/__pycache__/simulateLikelihood.cpython-39.pyc
+gavin2002_genes_05.sif
+gavin2002_genes_08.sif
+gavin2006_genes_08.sif
+.DS_Store
+gavin2006_simplex.sif
+inputFile/__pycache__/inputBioplex.cpython-39.pyc
+BioPlex2.sif

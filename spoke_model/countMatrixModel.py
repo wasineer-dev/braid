@@ -23,28 +23,24 @@ def interactionProbability(rho, fnRate, fpRate):
     return mPreComputed
     
 
-class CountSpokeModel:
+class CountMatrixModel:
     
     def __init__(self, nProteins, listBaits, listIndices):
 
         self.nProteins = nProteins
         self.mObserved = np.zeros(shape=(nProteins, nProteins), dtype=int)
         for indices in listIndices:
-            bait = indices[0]
-            for j in indices:
-                if (bait < j):
-                    self.mObserved[bait][j] += 1
-                    self.mObserved[j][bait] += 1
-                else:
-                    self.mObserved[bait][j] += 1
-                    self.mObserved[j][bait] += 1
-
+            list_of_pairs = [(i,j) for i in indices for j in indices] 
+            for bait,j in list_of_pairs:
+                self.mObserved[bait][j] += 1
+                self.mObserved[j][bait] += 1
+                
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
         for indices in listIndices:
-            bait = indices[0]
-            for j in range(nProteins):
-                self.mTrials[bait][j] += 1
-                self.mTrials[j][bait] += 1
+            for bait in indices:
+                for j in range(nProteins):
+                    self.mTrials[bait][j] += 1
+                    self.mTrials[j][bait] += 1
         
         for i in range(nProteins):
             assert(np.sum(self.mTrials[i,:]) == np.sum(self.mTrials[:,i]))

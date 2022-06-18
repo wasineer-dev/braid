@@ -1,3 +1,4 @@
+from unittest import expectedFailure
 import numpy as np
 from numpy.random import default_rng
 
@@ -5,6 +6,14 @@ import matplotlib.pyplot as plt
 import sys
 import scipy.special
 import scipy.stats
+
+from sklearn import datasets, linear_model
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import PoissonRegressor, Ridge
+from sklearn.pipeline import Pipeline
+
+import statsmodels.api as sm
+from scipy import stats
 
 # A nice correction suggested by Tomáš Tunys
 def Stick_Breaking(num_weights,alpha):
@@ -76,8 +85,7 @@ class CMeanFieldAnnealing:
     def __init__(self, Nproteins, Nk):
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
-        self.mResidues = []
-
+        
     def Likelihood(self, mObservationG, Nproteins, Nk, psi):
 
         rng = default_rng()
@@ -126,10 +134,17 @@ class CMeanFieldAnnealing:
     ##
     ## Adapt from https://github.com/zib-cmd/cmdtools/blob/dev/src/cmdtools/analysis/optimization.py
     ##
+    def inner_simplex_algorithm(self, X):
+        """
+        Return the transformation A mapping those rows of X
+        which span the largest simplex onto the unit simplex.
+        """
+        ind = self.indexsearch(X)
+        return np.linalg.inv(X[ind, :])
+
     def indexsearch(self, X):
         """ Return the indices to the rows spanning the largest simplex """
 
-        n = np.size(X, axis=0)
         k = np.size(X, axis=1)
         X = X.copy()
 
@@ -144,15 +159,34 @@ class CMeanFieldAnnealing:
                 X -= X[ind[j], :]
             else:
                 # remove subspace of this row
-                if (rownorm[ind[j]] != 0.0):
-                    X /= rownorm[ind[j]]
+                X /= rownorm[ind[j]]
                 v  = X[ind[j], :]
                 X -= np.outer(X.dot(v), v)
 
         return ind
 
+    def find_lin_dependent(self):
+        N = np.size(self.mIndicatorQ, axis=0)
+        k = np.size(self.mIndicatorQ, axis=1)
+        self.indicatorVec = np.zeros(N, dtype=int)
+        ind = self.indexsearch(self.mIndicatorQ)
+        for id in ind:
+            for i in range(0,N):
+                inner_product = np.inner(
+                    self.mIndicatorQ[i],
+                    self.mIndicatorQ[id])
+
+                norm_i = np.linalg.norm(self.mIndicatorQ[i])
+                norm_j = np.linalg.norm(self.mIndicatorQ[id])
+
+                distance = np.abs(inner_product - norm_i*norm_j)
+                if distance < 1E-5:
+                    self.indicatorVec[i] = id
+            self.indicatorVec[id] = id
+                    
     def computeErrorRate(self, mObservationG, Nproteins):
-        self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
+        
+        self.find_lin_dependent()
 
         rnk = np.linalg.matrix_rank(self.mIndicatorQ)
         print("Indicator matrix had rank = " + str(rnk))
@@ -183,40 +217,83 @@ class CMeanFieldAnnealing:
             fp = float(countFp)/float(sumDiffCluster)
         return (fn, fp)
 
+    def estimator_summary(self, regr, y_actual, y_pred):
+        # The coefficients
+        print("Coefficients: \n", regr.coef_)
+        # The mean squared error
+        print("Mean squared error: %.2f" % mean_squared_error(y_actual, y_pred))
+        # The coefficient of determination: 1 is perfect prediction
+        print("Coefficient of determination: %.2f" % r2_score(y_actual, y_pred))
+        
     def computeResidues(self, mObservationG, Nproteins, Nk):
     
         (fn, fp) = self.computeErrorRate(mObservationG, Nproteins)
 
+        # Filter singletons
+        clusters = []
+        singletons = []
+        for k in range(Nk): 
+            if (sum(self.indicatorVec == k) > 1):
+                clusters.append(k)
+            else:
+                singletons.append(k)
+        setProteins = set()
+        indicators = dict()
         for i in range(Nproteins):
-            a = default_rng().random()
-            n = 0
-            k = 0
+            if self.indicatorVec[i] in clusters: 
+                setProteins.add(i)
+                indicators[i] = self.indicatorVec[i]
+
+        countFn = np.zeros(Nk)
+        countFp = np.zeros(Nk)
+        trialFn = np.zeros(Nk)
+        trialFp = np.zeros(Nk)
+        for i in setProteins:
+            cl = indicators[i]    
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
-                if (self.indicatorVec[i] == self.indicatorVec[j]):                     
-                    n += t
-                    k += (t - s)
+                if (self.indicatorVec[i] == cl) and (self.indicatorVec[j] == cl):      
+                    trialFn[cl] += t
+                    countFn[cl] += (t - s)
+                if (self.indicatorVec[i] == cl) and (self.indicatorVec[j] != cl):
+                    countFp[cl] += s
+                    trialFp[cl] += t
 
-            if n == 0:
-                continue
+        self.expectedErrors = np.floor(fn*trialFn) + np.floor(fp*trialFp)
+        self.mResidues = countFn + countFp
 
-            # Note: refer to Probability Integral Theorem
-            # Pr(Y(s) <= y) < Left tail bound of the Binomial(t, fn)
-            if (k <= n*fn):
-                residues = a*scipy.stats.binom.pmf(k, n, fn) + (1.0 - a)*tail_bound(k, n, fn)
-            else:
-                residues = a*scipy.stats.binom.pmf(k, n, fn) + (1.0 - a)*(1.0 - tail_bound(n - k, n, 1-fn))
-            self.mResidues.append(residues)
-
-        cdf = default_rng().random(len(self.mResidues))
-        result = scipy.stats.ks_2samp(self.mResidues, cdf)
+        expectedErrors = list( self.expectedErrors[i] for i in clusters)
+        residues = list( self.mResidues[i] for i in clusters)
+        result = scipy.stats.ks_2samp(residues, expectedErrors)
         print(result)
 
-        #result = scipy.stats.chisquare(np.histogram(self.mResidues)[0], np.histogram(cdf)[0])
+        #result = scipy.stats.cramervonmises_2samp(residues, expectedErrors)
         #print(result)
 
-        return (fn, fp)
+        self.expectedErrors = expectedErrors
+        self.mResidues = residues
+
+        # Ordinary Least Square
+        X = np.reshape(expectedErrors, (-1,1))
+        est = sm.OLS(residues,  X)
+        est2 = est.fit()
+        print(est2.summary())
+
+        glm_poisson = sm.GLM(residues, X, family=sm.families.Poisson(sm.families.links.log()))
+        glm_results = glm_poisson.fit()
+        print(glm_results.summary())
+
+        # Create linear regression object
+        regr = linear_model.LinearRegression()
+        # Train the model using the training sets
+        regr.fit(X, residues)
+        # Make predictions using the testing set
+        y_pred = regr.predict(X)
+        print("Linear Regression evaluation:")
+        self.estimator_summary(regr, residues, y_pred)
+        
+        return (est2, fn, fp)
 
     def computeEntropy(self, Nproteins, Nk):
         self.mEntropy = np.zeros(Nproteins, dtype=float)
