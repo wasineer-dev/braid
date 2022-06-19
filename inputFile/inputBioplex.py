@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 #
 # TODO: cpmFunc can be countSpokeModel or countMatrixModel
 #
@@ -26,6 +27,7 @@ class CInputBioplex:
         
         for v in self.aSortedProteins[:100]:
             print(v)
+
         self.observationG = cpmFunc(filePath)
 
     def writeCluster2File(self, matQ, indVec):

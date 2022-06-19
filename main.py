@@ -23,12 +23,18 @@ import meanfield.simulateLikelihood as smlt
 import inputFile.inputFile as inputFile
 import inputFile.inputBioplex as inputBioplex
 
+from time import time as timer
+
 def clustering(inputSet, Nk, psi):
     fn = 0.8
     fp = 0.04
     nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
+    ts = timer()
     lstExpectedLikelihood = cmfa.Likelihood(inputSet.observationG, nProteins, Nk, psi)
+    te = timer()
+    print("Time running MFA: ", te-ts)
+
     (regr, fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
     cmfa.computeEntropy(nProteins, Nk)
     matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
