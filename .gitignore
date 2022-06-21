@@ -25,3 +25,6 @@ gavin2006_genes_08.sif
 gavin2006_simplex.sif
 inputFile/__pycache__/inputBioplex.cpython-39.pyc
 BioPlex2.sif
+meanfield/fast_matmul.py
+__pycache__/main.cpython-39.pyc
+meanfield/__pycache__/fast_matmul.cpython-39.pyc

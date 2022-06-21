@@ -15,71 +15,6 @@ from sklearn.pipeline import Pipeline
 import statsmodels.api as sm
 from scipy import stats
 
-# A nice correction suggested by Tomáš Tunys
-def Stick_Breaking(num_weights,alpha):
-    betas = np.random.beta(1,alpha, size=num_weights)
-    betas[1:] *= np.cumprod(1 - betas[:-1])  
-    betas /= np.sum(betas)     
-    return betas
-
-# betas is a multinomial distribution
-def Assign_Cluster(rng, betas):
-    t = rng.random()
-    sorted_arg = np.argsort(betas)
-    indicator = np.zeros(len(betas))
-    cumulativeSum = 0.0
-    for i in range(len(betas)):
-        if t >= cumulativeSum and t < (cumulativeSum + betas[sorted_arg[i]]):
-            indicator[sorted_arg[i]] = 1
-            return indicator
-        cumulativeSum += betas[sorted_arg[i]]
-    assert(True)
-#
-# Observation graph
-# 
-def ObservationGraph(Nproteins, Nk, fn, fp, alpha):
-    rng = default_rng()
-    NTrials = 5
-    #
-    # Try stick breaking weights
-    # 
-    alphas = np.ones(Nk)*alpha
-    betas = np.random.dirichlet(alphas) # Sample from the Dirichlet distribution
-    sizeDistribution = np.random.multinomial(Nproteins, betas, 1)
-    lstDistribution = []
-    for p in sizeDistribution[0]:
-        lstDistribution.append(p/Nproteins)
-    mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
-    for i in range(Nproteins):
-        mIndicatorQ[i,:] = Assign_Cluster(rng, lstDistribution)
-
-    print("Cluster = " + str(mIndicatorQ))
-    mObservationSuccess = np.zeros((Nproteins, Nproteins), dtype=int)
-
-    for i in range(Nproteins):
-        for j in range(i):
-            if (np.argmax(mIndicatorQ[i]) == np.argmax(mIndicatorQ[j])):
-                mObservationSuccess[i][j] += np.random.binomial(NTrials, 1-fn, 1)
-            else:
-                mObservationSuccess[i][j] += np.random.binomial(NTrials, fp, 1)
-
-    return mObservationSuccess
-
-def tail_bound(k, n, p):
-    a = float(k)/float(n)
-    return np.exp(-2.0*n*np.power(p - a, 2))
-
-def chernoff_bound(k, n, p):    
-    if n == 0:
-        return 1.0
-        
-    a = float(k)/float(n)
-    if a == 0:
-        kl = -np.log(1.0 - p)
-    else:
-        kl = a*(np.log(a) - np.log(p)) + (1.0 - a)*(np.log(1.0 - a) - np.log(1.0 - p))
-    return np.exp(-n*kl)
-
 class CMeanFieldAnnealing:
 
     def __init__(self, Nproteins, Nk):
@@ -98,36 +33,36 @@ class CMeanFieldAnnealing:
             self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
 
         nTemperature = 1000.0
-        # TODO: refactor 
-        while nTemperature >= 1.0:
-            nLastLogLikelihood = 0.0
-            nIteration = 0
-            for i in range(Nproteins):
-                # i = np.random.randint(0, Nproteins) # Choose a node at random
-                """ 
-                mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
-                for k in range(Nk):
-                    for j in mObservationG.lstAdjacency[i]:
-                        t = mObservationG.mTrials[i][j]
-                        s = mObservationG.mObserved[i][j]
-                        assert(s <= t)
-                        mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
-                        ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
-                """
+        while nTemperature > 0.0:
+            print('Temperature: ', nTemperature)
+            tmp = np.zeros(shape=(Nproteins, Nk), dtype=float)
+            while not np.allclose(tmp, self.mIndicatorQ, 1e-5):
+                nIteration = 1
+                np.copyto(tmp, self.mIndicatorQ)
+                for i in range(Nproteins):
+                    # i = np.random.randint(0, Nproteins) # Choose a node at random
+                    """ 
+                    mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
+                    for k in range(Nk):
+                        for j in mObservationG.lstAdjacency[i]:
+                            t = mObservationG.mTrials[i][j]
+                            s = mObservationG.mObserved[i][j]
+                            assert(s <= t)
+                            mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
+                            ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
+                    """
 
-                fn_out = np.matmul(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
-                fp_out = np.matmul(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
+                    fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
+                    fp_out = np.dot(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
 
-                mLogLikelihood = fn_out + fp_out
+                    mLogLikelihood = fn_out + fp_out
 
-                # Overflow problem. Need to compute with softmax
-                gamma = nTemperature
-                self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
-                ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
-                
-            nIteration += 1
-
-            nTemperature *= 0.5
+                    # Overflow problem. Need to compute with softmax
+                    gamma = nTemperature
+                    self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+                    ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
+                nIteration += 1
+            nTemperature = nTemperature - 100.0
 
         return self.lstExpectedLikelihood
 
@@ -183,10 +118,16 @@ class CMeanFieldAnnealing:
                 if distance < 1E-5:
                     self.indicatorVec[i] = id
             self.indicatorVec[id] = id
-                    
+
+    def find_argmax(self):
+        N = np.size(self.mIndicatorQ, axis=0)
+        k = np.size(self.mIndicatorQ, axis=1)
+        self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
+
     def computeErrorRate(self, mObservationG, Nproteins):
         
-        self.find_lin_dependent()
+        # self.find_lin_dependent()
+        self.find_argmax()
 
         rnk = np.linalg.matrix_rank(self.mIndicatorQ)
         print("Indicator matrix had rank = " + str(rnk))
@@ -329,24 +270,3 @@ class CMeanFieldAnnealing:
             k = vecArgMax[vecIndices[i]]
             matImage[i][k] = 255
         return matImage
-
-if __name__ == '__main__':
-    NPROTEINS = 100
-    NCLUSTERS = 10
-    mGraph = ObservationGraph(NPROTEINS, NCLUSTERS, 0.001, 0.01, 10)
-
-    lstCostFunction = []
-    fn = 0.001
-    fp = 0.01
-    for k in range(2,50):
-        cmfa = CMeanFieldAnnealing(NPROTEINS, NCLUSTERS)
-        minCost = cmfa.Likelihood(mGraph, NPROTEINS, k, 3.0)
-        lstCostFunction.append(minCost)
-
-    plt.plot(range(2,50), lstCostFunction)
-    plt.show()
-
-#fig = plt.figure()
-#ax = plt.axes(projection='3d')
-#ax.plot3D(mA[:,0], mA[:,1], mA[:,2])
-#plt.show()
