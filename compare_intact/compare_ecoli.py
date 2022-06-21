@@ -7,6 +7,9 @@ import seaborn as sns
 
 sns.set_theme()
 
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+from sklearn.metrics.cluster import contingency_matrix, pair_confusion_matrix, adjusted_rand_score
+
 setBenchmarkProteins = set()
 setObservedProteins = set()
 
@@ -39,10 +42,11 @@ def complexCoverage(vecA, vecB):
 def readIntActComplex():
     df = pd.read_table("83333.tsv")
     nRows, nCols = df.shape
+    N_COL = 4
     clusters = {}
     for i in range(nRows):
         prots = set()
-        for p in df.iloc[i][nCols-1].split('|'):
+        for p in df.iloc[i][4].split('|'):
             prots.add(p.split('(')[0])    
         print(df.iloc[i][0], prots)
         clusters[df.iloc[i][0]] = prots
@@ -56,8 +60,10 @@ def mapSymbol2Uniprot():
     nRows, nCols = df.shape
     uniprots = {}
     for i in range(nRows):
-        gene_symbol = df.iloc[i][1].split("_")[0]
-        uniprots[gene_symbol.lower()] = df.iloc[i][0]
+        #gene_symbol = df.iloc[i][1].split("_")[0]
+        gene_names = df.iloc[i][2].split(" ")
+        for gene in gene_names:
+            uniprots[gene] = df.iloc[i][0]
     return uniprots
 
 def readEcoliMFAOutput(fileName):
@@ -67,11 +73,11 @@ def readEcoliMFAOutput(fileName):
     with open(fileName) as fh:
         for line in fh:
             lst = line.rstrip().split('\t')
-            prot = lst[0].split('__')[0]
+            prot = lst[0]
             #print(prot + '\t' + lst[1])
             if lst[1] not in clusters.keys():
                 clusters[lst[1]] = []
-            prot = prot.strip().lower()
+            prot = prot.strip()
             if (prot in uniprots.keys()):
                 clusters[lst[1]].append(uniprots[prot])
         fh.close()
@@ -99,8 +105,8 @@ def readEcoliBabu2018():
         complex = df.iloc[i][0]
         lstProteins = []
         for prot in df.iloc[i][2].strip("\"").split(','):
-            if (prot.strip().lower() in uniprots.keys()):
-                lstProteins.append(uniprots[prot.strip().lower()])
+            if (prot.strip() in uniprots.keys()):
+                lstProteins.append(uniprots[prot.strip()])
         # print(complex, '\t', lstProteins)
         if complex not in clusters.keys():
             clusters[complex] = lstProteins
@@ -110,34 +116,22 @@ def readEcoliBabu2018():
         predictions[k] = clusters[k]
     return predictions
 
-def measurement(matA, matB):
-    matIndices = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
-    matCoverage = np.zeros((len(matA.keys()), len(matB.keys())), dtype='float')
-    iA = list(matA.keys())
-    vecPredictions = np.zeros(len(matA.keys()), dtype='float')
-    for i, a in zip(range(len(matA.keys())), matA.keys()):
-        setA = matA[a]
-        for j, b in zip(range(len(matB.keys())), matB.keys()):
-            matCoverage[i][j] = complexCoverage(setA, matB[b])
-            nJaccard = jaccardIndex(setA, matB[b])
-            matIndices[i][j] = nJaccard
-        vecPredictions[i] = np.sum(matIndices[i,:] > 0.1)
+def getLabels(prot, clusters):
+    for k in clusters.keys():
+        if prot in clusters[k]:
+            return k
+    return None
 
-    #
-    # Calculate Predictions, Recalls, F-Measure
-    # https://bmcmicrobiol.biomedcentral.com/articles/10.1186/s12866-020-01904-6
-    #
-    nPredictions = np.sum(vecPredictions > 0)/len(matA.keys())
-    print('Prediction measure = ' + str(nPredictions))
-
-    iB = list(matB.keys())
-    vecPredictions = np.zeros(len(matB.keys()), dtype='float')
-    for i, b in zip(range(len(matB.keys())), matB.keys()):
-        vecPredictions[i] = np.sum(matIndices[:,i] > 0.1)
-    nRecalls = np.sum(vecPredictions > 0)/len(matB.keys())
-    print("Recalls:", nRecalls)
-    
-    return matIndices
+def listPrediction(setProteins, labels, predicts):
+    z_true = list()
+    z_pred = list()
+    for prot in setProteins:
+        true_label = getLabels(prot, labels)
+        predict_label = getLabels(prot, predicts)
+        if true_label != None and predict_label != None:
+            z_true.append(true_label)
+            z_pred.append(predict_label)
+    return (z_true, z_pred)
 
 def get_args():
     parser = argparse.ArgumentParser(description='MFA')
@@ -148,15 +142,22 @@ def get_args():
 def main(args):
     matB = readIntActComplex()
     matA = readEcoliMFAOutput(args.file)
-    matIndices = measurement(matA, matB)
-    sns.heatmap(matIndices)
-    plt.show()
- 
     matC = readEcoliBabu2018()
-    matIndices = measurement(matC, matB)
-    sns.heatmap(matIndices)
-    plt.show()
     
+    z_true, z_pred = listPrediction(setObservedProteins, matB, matA)
+
+    m = pair_confusion_matrix(z_true, z_pred)
+    print(m)
+
+    print(adjusted_rand_score(z_true, z_pred))
+
+    z_true, z_pred = listPrediction(setObservedProteins, matB, matC)
+
+    m = pair_confusion_matrix(z_true, z_pred)
+    print(m)
+
+    print(adjusted_rand_score(z_true, z_pred))
+
 if __name__ == '__main__':
     main(get_args())    
 

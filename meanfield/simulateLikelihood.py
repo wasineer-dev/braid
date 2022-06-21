@@ -15,6 +15,16 @@ from sklearn.pipeline import Pipeline
 import statsmodels.api as sm
 from scipy import stats
 
+from numba import njit
+
+@njit(parallel=True)
+def use_numba(Nproteins, Nk, A, B, indicatorQ):
+    fn_out = np.dot(A, indicatorQ) 
+    fp_out = np.dot(B, np.ones((Nproteins, Nk)) - indicatorQ)
+
+    mLogLikelihood = fn_out + fp_out
+    return mLogLikelihood
+
 class CMeanFieldAnnealing:
 
     def __init__(self, Nproteins, Nk):
@@ -28,10 +38,15 @@ class CMeanFieldAnnealing:
         # psi = (-np.log(fp) + np.log(1 - fn))/(-np.log(fn) + np.log(1 - fp))
         print('psi = ', psi)
 
+        alphas = 0.5*np.ones(Nk, dtype=float)
+        self.mPrior = scipy.stats.dirichlet.rvs(alphas)
+
         for i in range(Nproteins):
             self.mIndicatorQ[i,:] = rng.random(Nk)
             self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
 
+        matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
+        matB = np.array(psi*mObservationG.mObserved, dtype=float)
         nTemperature = 1000.0
         while nTemperature > 0.0:
             print('Temperature: ', nTemperature)
@@ -51,17 +66,27 @@ class CMeanFieldAnnealing:
                             mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
                             ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
                     """
+                    if 0:
+                        mLogLikelihood = use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
+                    else:
+                        fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
+                        fp_out = np.dot(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
 
-                    fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
-                    fp_out = np.dot(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
-
-                    mLogLikelihood = fn_out + fp_out
+                        mLogLikelihood = fn_out + fp_out - np.log(self.mPrior)
 
                     # Overflow problem. Need to compute with softmax
                     gamma = nTemperature
-                    self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+                    vecTmp = self.mIndicatorQ[i,:]
+                    vecIndicator = scipy.special.softmax(-gamma*mLogLikelihood)
                     ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
+                    self.mIndicatorQ[i,:] = vecIndicator
                 nIteration += 1
+            # update prior
+            counts = np.sum(self.mIndicatorQ, axis=0)
+            counts = counts/np.sum(counts)
+            pseudo_counts = counts/(np.ones(Nk,dtype=float) - counts)
+            alphas += pseudo_counts
+            self.mPrior = scipy.stats.dirichlet.rvs(alphas)    
             nTemperature = nTemperature - 100.0
 
         return self.lstExpectedLikelihood

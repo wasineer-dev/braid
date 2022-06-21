@@ -25,34 +25,25 @@ def interactionProbability(rho, fnRate, fpRate):
 
 class CountMatrixModel:
     
-    def __init__(self, nProteins, listBaits, listIndices):
+    def __init__(self, nProteins, bait_inds, incidence):
 
         self.nProteins = nProteins
         self.mObserved = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        for indices in listIndices:
-            list_of_pairs = [(i,j) for i in indices for j in indices] 
-            for bait,j in list_of_pairs:
-                self.mObserved[bait][j] += 1
-                self.mObserved[j][bait] += 1
-                
+        for i, bait in zip(range(len(bait_inds)), bait_inds):
+            for j in range(nProteins):
+                if incidence[i,j]:
+                    self.mObserved[j,:] += incidence[i,:] 
+                    self.mObserved[:,j] += incidence[i,:]
+    
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        for indices in listIndices:
-            for bait in indices:
-                for j in range(nProteins):
-                    self.mTrials[bait][j] += 1
-                    self.mTrials[j][bait] += 1
-        
+        for i, bait in zip(range(len(bait_inds)), bait_inds):
+            for j in range(nProteins):
+                if incidence[i,j]:
+                    self.mTrials[j,:] += np.ones(nProteins, dtype=int) 
+                    self.mTrials[:,j] += np.ones(nProteins, dtype=int)
+
         for i in range(nProteins):
             assert(np.sum(self.mTrials[i,:]) == np.sum(self.mTrials[:,i]))
-
-        self.mPreComputed = interactionProbability(0.3, 0.4, 0.01)
-        self.mPosterior = np.zeros(shape=(nProteins, nProteins), dtype=float)
-
-        for i in np.arange(nProteins):
-            for j in np.arange(i+1):
-                t = self.mTrials[i][j]
-                s = self.mObserved[i][j]
-                self.mPosterior[i][j] =self.mPreComputed[t][s]
 
         #
         # Create the adjacency list
@@ -69,7 +60,7 @@ class CountMatrixModel:
                 if (i != j and t > 0):
                     assert(s <= t)
                     self.lstAdjacency[i].append(j)
-    
+                    
     def write2cytoscape(self, indicators, matQ, vecProteins):
         nRows, nCols = matQ.shape
         with open("out.sif", "w") as fh:

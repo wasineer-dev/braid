@@ -26,8 +26,8 @@ def parse_input(filename):
         fh.readline() # skip the header     
         for line in fh:
             lst = line.rstrip().split()
-            bait = lst[2] 
-            prey = lst[3]
+            bait = lst[2].split('_')[0] 
+            prey = lst[3].split('_')[0]
             avg_num_peptides = int(lst[11])
             if not lst[0] in records.keys():
                 records[lst[0]] = dict()
@@ -35,7 +35,7 @@ def parse_input(filename):
             if not bait in records[lst[0]].keys():
                 records[lst[0]][bait] = []
 
-            if avg_num_peptides >= 5:
+            if avg_num_peptides > 0:
                 records[lst[0]][bait].append(prey)
 
     proteins = dict()
