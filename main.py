@@ -69,7 +69,12 @@ def clustering(inputSet, Nk, psi):
     ax2.set_ylabel('Pearson Residuals')
     ax2.set_xlabel('Fitted values')
     plt.show()
-    
+
+    fig, ax3 = plt.subplots(figsize=(8,6))
+    ax3.plot(range(Nk), cmfa.mWeights[0])
+    ax3.set_title('Prior weights')
+    plt.show()
+
     return lstExpectedLikelihood
 
 def get_args():

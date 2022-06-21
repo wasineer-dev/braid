@@ -1,3 +1,4 @@
+from math import inf
 from unittest import expectedFailure
 import numpy as np
 from numpy.random import default_rng
@@ -39,7 +40,8 @@ class CMeanFieldAnnealing:
         print('psi = ', psi)
 
         alphas = 0.5*np.ones(Nk, dtype=float)
-        self.mPrior = scipy.stats.dirichlet.rvs(alphas)
+        self.mWeights = scipy.stats.dirichlet.rvs(alphas) 
+        self.mAverageWeights = scipy.special.digamma(alphas) - scipy.special.digamma(np.sum(alphas))
 
         for i in range(Nproteins):
             self.mIndicatorQ[i,:] = rng.random(Nk)
@@ -71,22 +73,22 @@ class CMeanFieldAnnealing:
                     else:
                         fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
                         fp_out = np.dot(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
-
-                        mLogLikelihood = fn_out + fp_out - np.log(self.mPrior)
-
+                        
+                        mLogLikelihood = fn_out + fp_out
+                        # mLogLikelihood = mLogLikelihood - np.dot(self.mIndicatorQ[i,:], np.log(self.mPrior[0]))
+                        mLogLikelihood = mLogLikelihood - self.mAverageWeights 
+                    
                     # Overflow problem. Need to compute with softmax
                     gamma = nTemperature
-                    vecTmp = self.mIndicatorQ[i,:]
                     vecIndicator = scipy.special.softmax(-gamma*mLogLikelihood)
                     ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
                     self.mIndicatorQ[i,:] = vecIndicator
                 nIteration += 1
-            # update prior
-            counts = np.sum(self.mIndicatorQ, axis=0)
-            counts = counts/np.sum(counts)
-            pseudo_counts = counts/(np.ones(Nk,dtype=float) - counts)
-            alphas += pseudo_counts
-            self.mPrior = scipy.stats.dirichlet.rvs(alphas)    
+                alphas = 0.5*np.ones(Nk, dtype=float)
+                alphas += np.sum(self.mIndicatorQ, axis=0)
+                self.mWeights = scipy.stats.dirichlet.rvs(alphas)
+                self.mAverageWeights = scipy.special.digamma(alphas) - scipy.special.digamma(np.sum(alphas))
+
             nTemperature = nTemperature - 100.0
 
         return self.lstExpectedLikelihood
