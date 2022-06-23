@@ -1,5 +1,3 @@
-from math import inf
-from unittest import expectedFailure
 import numpy as np
 from numpy.random import default_rng
 
@@ -90,7 +88,7 @@ class CMeanFieldAnnealing:
                 self.mAverageWeights = scipy.special.digamma(alphas) - scipy.special.digamma(np.sum(alphas))
 
             nTemperature = nTemperature - 100.0
-
+        self.mPosteriorWeights = self.mWeights[0]
         return self.lstExpectedLikelihood
 
     ##

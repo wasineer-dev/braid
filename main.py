@@ -30,24 +30,26 @@ def clustering(inputSet, Nk, psi):
     fn = 0.8
     fp = 0.04
     nProteins = inputSet.observationG.nProteins
-    cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk)
+    cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
+
+    funcInfer = cmfa
+
     ts = timer()
-    lstExpectedLikelihood = cmfa.Likelihood(inputSet.observationG, nProteins, Nk, psi)
+    lstExpectedLikelihood = funcInfer.Likelihood(inputSet.observationG, nProteins, Nk, psi)
     te = timer()
     print("Time running MFA: ", te-ts)
 
-    (regr, fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
-    cmfa.computeEntropy(nProteins, Nk)
-    matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
+    (regr, fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)
+    funcInfer.computeEntropy(nProteins, Nk)
     
     print("False negative rate = " + str(fn))
     print("False positive rate = " + str(fp))
     
-    inputSet.writeCluster2File(cmfa.mIndicatorQ, cmfa.indicatorVec)
-    inputSet.observationG.write2cytoscape(cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
+    inputSet.writeCluster2File(funcInfer.mIndicatorQ, funcInfer.indicatorVec)
+    inputSet.observationG.write2cytoscape(funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
 
-    X = cmfa.expectedErrors
-    y = cmfa.mResidues
+    X = funcInfer.expectedErrors
+    y = funcInfer.mResidues
     pred_ols = regr.get_prediction()
     iv_l = pred_ols.summary_frame()["obs_ci_lower"]
     iv_u = pred_ols.summary_frame()["obs_ci_upper"]
@@ -71,7 +73,7 @@ def clustering(inputSet, Nk, psi):
     plt.show()
 
     fig, ax3 = plt.subplots(figsize=(8,6))
-    ax3.plot(range(Nk), cmfa.mWeights[0])
+    ax3.plot(range(Nk), funcInfer.mPosteriorWeights)
     ax3.set_title('Prior weights')
     plt.show()
 
