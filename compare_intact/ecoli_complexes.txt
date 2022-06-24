@@ -1,0 +1,540 @@
+ackA	acnB	arcB	atpE	bamA	bamB	bamD	bamE	clpB	cysQ	degP	dksA	dsbA	dsbC	eda	fklB	flu	ghrB	glgB	glk	glmU	glyQ	glyS	gyrB	hemX	hflC	hflD	hflK	hflX	hfq	hslU	hslV	lolA	malQ	mlaF	msrA	murA	narP	ndh	nusB	otsA	purA	purB	pykA	rdgC	ribE	rne	rnr	rodZ	roxA	rpoS	rseB	rsmA	secD	secF	secG	skp	slyD	sspA	sspB	surA	tamA	tamB	tatA	thiL	tpx	ubiE	wrbA	yajC	ybgI	yceH	yfgM	ygfZ	yggX	yraP	sodA	ybdK	yhgF	lptF	osmY	yjgA	rraB	treC	
+amiC	ampH	apbE	baeS	clsA	cusS	cydC	cydD	cyoC	dacD	dppA	dppB	fkpA	ftsI	ftsW	ftsY	glpQ	gspF	lgt	livK	lptD	macA	mdtB	mlaF	mraY	mrdA	mreC	msbA	nuoA	ompW	pgsA	pstC	rpoB	rpoC	secE	secY	tap	tbpA	tcyJ	torY	trg	wcaJ	yaaU	yfeW	ygiH	yiaD	yicJ	yihN	yobA	znuA	fhuA	fliL	alsB	cirA	
+ansB	bamA	clpX	copA	cydB	dnaJ	dppA	dppB	ftsX	ftsY	fusA	gapA	glpD	icd	ihfB	kch	lolD	lpxD	mdtC	minD	mltB	mrdA	mreC	msbA	pgsA	phoR	prc	pstS	recA	rne	rpoA	secD	secG	secY	tig	tolC	udp	yiaD	fdnH	ubiD	mdtE	dgcE	rpoC	hfq	mgtA	glpF	dacB	mdh	
+atpF	bamA	cyoA	cyoB	fetB	fhuB	ggt	gsiC	gsiD	lgt	macA	mdtB	mrdA	narX	nuoA	nuoB	nuoI	nuoK	nuoL	nuoM	nuoN	oppB	oppC	phoR	pstS	rbsB	rna	wcaJ	yehU	yobA	yojI	ddpC	ytfL	mltB	mgtA	dppB	rbsC	yihY	yqhA	yjbB	
+carA	fabD	gcvP	glnS	guaA	ldhA	msbA	pdxJ	prfB	sucD	tyrS	argS	aroK	aspS	atpB	bcp	dapA	fabA	gcvH	glgC	gltX	hemB	metG	mlaF	ndk	pck	pepD	ribB	ribC	rimM	speB	tktB	zwf	gpmM	dut	efp	purH	rimP	
+apbE	atpC	atpF	atpH	bamA	ccmG	cpoB	cusA	cyoA	cyoB	cyoC	fhuB	fsr	ggt	macA	mdlA	mppA	nuoA	nuoN	oppB	oppC	pstS	rstB	tcyJ	tolB	tolQ	tolR	ybaL	yfdH	yobA	yraP	znuA	zupT	atpB	atpE	dsbA	rbsB	
+carA	carB	leuS	purC	pyrI	yadH	allC	bcp	btuE	dppA	fabD	fmt	folD	map	msrB	pepN	phnD	preA	prlC	purH	purM	ribB	ribC	rluD	serA	thiL	yaiE	ymdB	pyrB	mlaA	
+adeP	ampH	bacA	bamA	bamD	clsA	copA	fliR	ftsI	gadC	infB	kch	lgt	macA	mdtB	mltB	oppB	plsC	pnp	potD	pstS	secD	secG	ugpE	yeeO	lolC	glpF	osmY	yiaD	
+appC	brnQ	clpX	cydB	cyoA	cyoB	lon	lptD	msbA	nusB	plaP	ribE	secD	secF	tig	yajC	acrB	add	alaS	metK	ndh	proP	recA	trxA	ubiE	ugpC	
+aas	baeS	dauA	ftsI	ftsX	gapA	macA	mdtB	mppA	mraY	oppB	pgk	prc	proW	secG	secY	ybiO	corA	ftsY	cpdB	dppB	nikA	xylF	
+carA	csrA	cysS	dppA	garR	gpsA	hisC	moaC	moeA	mog	panC	purD	purL	purM	purT	pyrD	rfbC	ribA	ribB	ribC	sodC	yhfA	purH	
+bamD	bamE	ihfA	macA	pykA	rluB	rne	rodZ	sdhD	secG	sohB	yfgM	yraP	atpE	dksA	mlaD	yibN	hemX	hflC	hflK	tatA	ubiE	
+bamD	cpoB	ftsB	ihfA	ihfB	macA	mlaA	mlaF	mltB	ompW	pal	ppiD	secG	sohB	tolB	tolC	tolQ	dsbC	ftsQ	envZ	tamA	secE	
+lpxK	phoR	aroC	dnaX	ftsK	gltL	ilvI	iscA	iscR	mutS	nagZ	rarA	rimO	tdk	trpB	usg	xseA	ybiT	tsaD	recJ	asd	
+bamB	clpA	copA	cysA	der	grxB	guaB	lolC	metQ	pbpC	putA	rlmN	rodZ	secD	secF	yfgM	yfhM	pepB	ubiD	yjbJ	uvrD	
+btuE	fabD	gcvP	gcvT	ileS	katE	leuS	pbpG	argS	dapA	gcvH	kdsA	nagB	rdgC	rimM	sucD	yajQ	fkpA	pepP	zraS	
+argR	cysS	fmt	folD	gshB	mnmA	proA	purL	purM	rfbD	rluD	rng	rsmI	speE	trxC	yfiH	purH	gpsA	dsdA	trmL	
+dppC	kdpA	pntA	pntB	potD	trg	ybaL	ynaI	dgcF	potC	tcyP	dppB	glrK	leuE	wcaJ	yjbB	kup	yohK	
+carA	dauA	frr	ileS	leuS	msbA	ndk	sucC	sucD	yajQ	aspS	cysI	fabD	gabD	pepB	rimP	glnA	
+bamA	dnaE	folC	gmk	ispA	ispH	queA	rnhB	sufB	ugd	uup	yaaA	yegQ	miaA	rsmG	hsdM	
+ftsK	phoR	alaC	ispU	mglA	plsX	queC	recJ	rimO	trpB	usg	plsC	dnaG	era	gldA	metL	
+arcB	atpF	bamA	ftsB	lptD	lptF	mlaA	mltB	ppiD	secF	sspB	tolQ	ybbP	yejM	tamA	lptG	
+copA	cydB	dppC	nuoA	sdhA	sdhB	tolB	tolQ	tolR	bcr	ompW	glpQ	dppB	cpoB	kch	tolA	
+emrA	emrB	glpD	mprA	msbA	mscK	narK	proV	proW	thrS	tolC	ybhG	yeaG	mdtE	mlaD	yhiI	
+arcB	emrB	ftsX	glpD	glpF	glpT	phoR	potC	prc	pstS	tolQ	ugpA	uvrA	yaaJ	znuA	ytfL	
+amiC	apbE	bamA	cyoA	cyoB	dppB	gyrA	gyrB	manY	oppB	oppC	trg	yeeO	yddW	corA	phnD	
+rfbD	atpE	folD	galK	gcvH	msrB	nuoJ	rfbB	rfbC	rsmI	sufS	glpF	atpB	cysQ	yqgE	
+dnaG	ftsK	ispE	mutL	mutS	nagC	nagZ	rarA	recJ	rimO	trpB	ubiB	xseA	yggW	radA	
+atpB	atpE	glgC	kdsA	mlaA	prlC	rfbB	trxB	ybbN	ydhF	yeaD	msrA	aroK	yqcA	
+yadH	bioB	msrC	purC	ribA	ribC	sufC	sufS	atpB	gor	yeeN	sufA	tsaE	
+lapB	lpxB	lpxK	diaA	ispU	lpxH	parC	rarA	recJ	amiC	bamD	radA	rapZ	
+acrB	ccmE	fetB	gntT	mdtF	ompN	sstT	ybjP	yedX	hemY	yidC	yihP	yjbB	
+ldtA	acs	aldB	ansA	astC	dppA	gcvH	purH	purL	sodC	uvrB	yafV	msrA	
+exbB	lgt	oxyR	phoR	plaP	prc	pstS	ydcS	yedX	arcB	rbsB	ubiD	lgoT	
+azoR	folA	folD	hyaD	mak	rdgB	rluD	sufB	thyA	trmL	ydhF	cysQ	lplA	
+hypD	cysA	ftsK	hypE	mutS	tdk	xseA	yehX	yggW	diaA	fbp	mcrB	
+mdtA	mdtB	mdtC	nuoB	prc	mdtD	baeS	infB	nuoA	tolC	nupC	sdaC	
+acrA	clpX	fliP	fliR	minD	mscK	ppiD	slp	hslU	infB	recA	yibN	
+cpsB	folC	gmd	ispA	ligA	prmA	rnhB	ugd	wcaA	yaaA	gmk	miaA	
+ddlA	gcvH	map	rluD	yccU	yqhD	elbB	fic	gpsA	mlaF	rimI	sseA	
+cspE	lolC	lolD	lolE	lpxK	tsf	rluC	gapA	ynjE	lysS	metK	
+acrB	ccmE	ccmG	lapA	mlaA	secD	yajC	atpF	rodZ	yfgM	zipA	
+fliF	fliG	fliM	cheY	flgG	flgI	flhA	fliH	trg	fliN	
+leuS	csrA	galK	galM	pepP	prfB	psiF	gpsA	pck	yghA	
+narG	narH	bacA	clsA	lgoT	mdtC	mltB	nrfA	tcyJ	znuA	
+frmB	dnaX	nudL	yaiI	yehX	zapE	dmsA	yhgF	recF	recJ	
+dauA	acnA	btuE	cysI	fdx	menB	ppiB	rimP	ycaR	grxC	
+glnQ	phoR	glnP	ilvI	nagZ	arcB	ftsX	mlaA	plsC	yehX	
+ampH	bamA	macA	rbfA	dacD	gadC	arcB	glpF	slt	
+hyaA	hybA	hybC	hybO	macA	sohB	ybbP	fdoG	yqhA	
+clpX	lon	mdlA	mdlB	ppiD	tig	atpF	ybaB	ffh	
+fhuB	glpA	glpC	glpT	glpQ	ggt	glpF	nrfC	ftsB	
+bamD	cydA	glpC	htpX	lipA	rodZ	ispG	nrfC	nrfB	
+folD	glgP	preA	rng	rsmI	trmL	yafV	yidA	phnP	
+carA	thiL	ushA	yajL	argG	glgP	lplA	mnmA	yjdJ	
+curA	hdhA	nemA	panC	yqhD	dkgA	elaA	qor	yqfB	
+diaA	dnaB	pyrH	spoT	tcyN	tsaD	ydiJ	yfbR	yjiR	
+acrA	prs	putA	yebQ	bamB	crp	murA	proP	
+add	dhaL	ffh	mscS	dadA	gntR	tdcD	fecC	
+waaC	waaF	waaO	waaP	waaS	waaU	waaY	waaQ	
+bamA	clpA	copA	cusA	cusB	prc	metK	tnaA	
+apbE	cysD	cysN	napA	torZ	ftsB	tauA	amiC	
+copA	entS	sucB	ugpA	ugpE	yddW	yedY	malK	
+copA	pgm	tolB	tolQ	tolR	ycbZ	cpoB	mgtA	
+anmK	aroB	elaA	gcvH	glgP	lipB	rlmH	trmL	
+bepA	hisF	ilvC	mnmA	moaE	prfA	ribD	purD	
+lptA	ubiB	ubiD	ftsQ	nudL	torZ	fre	
+yadG	djlA	dauA	ftsP	ggt	yedY	dgkA	
+grxB	aroG	rhlE	yegP	msrA	ppk	yjdM	
+yadH	yajO	dsbA	gabT	aas	dmsA	gstA	
+adeP	corA	cpdB	msbA	osmY	dmsA	deoB	
+fdhE	fdnG	fdnH	fdoH	fdnI	fdoI	fdoG	
+clpB	ugpA	ugpB	ugpE	ybjQ	malK	ubiE	
+rlmI	yfdH	amiA	def	rimP	smpB	rnr	
+fruA	iscU	mraY	msbA	nuoE	dgcC	feoB	
+bamD	rluC	lptA	metC	rppH	tamA	hfq	
+can	cspD	rdgC	atpB	cspA	rluE	yggX	
+amiA	hemC	rlmI	rsmB	spoT	tgt	rlmB	
+folD	hyaC	hyaD	argR	thyA	garR	treA	
+dgcP	glnD	rssB	ttcA	folC	parE	tcdA	
+dnaE	ilvI	tsaE	uvrY	yceA	miaA	metH	
+eco	mtn	ftsH	phoU	ubiG	yifE	
+selD	ydeN	ynaI	fkpA	mepA	phnD	
+lsrB	uxuA	ybhG	brnQ	yaaJ	lgoT	
+glpF	malF	malG	yeeO	yfeW	ytfL	
+phoP	yaaJ	dauA	dgcE	ftsX	ynfM	
+ggt	glpX	ybiO	arcB	trg	glpF	
+fadL	nuoN	rseP	nuoK	nuoL	emrA	
+ycgB	btuR	lpxK	yeaH	cysA	garD	
+rpe	yeiG	yobA	argE	elaA	gshA	
+nuoJ	pdxB	ubiX	fdx	gpsA	rlmM	
+argS	fmt	mak	speE	yfiH	nfi	
+dapE	ispE	mutM	recJ	ybeY	rlmB	
+adhP	argG	nemA	tag	ysgA	ahr	
+fabD	nagB	ppiA	ppiB	zraS	aspA	
+dauA	fkpA	hyaA	lpcA	fklB	
+sufD	ybfF	sufB	ansA	srlD	
+lptD	ybjP	artM	yohK	sanA	
+gadC	ydbK	murG	yhiM	gadA	
+copA	lldD	slyA	mgtA	pstS	
+cusS	luxS	cpdB	lgt	osmY	
+yaaJ	ybjS	prc	amiC	pbpG	
+hepA	ygiH	der	mutS	tbpA	
+ldtB	phoA	manY	rne	ydbK	
+dnaJ	prs	ygiM	hemY	rhlB	
+ybjL	sdaC	clsA	ftsH	nadE	
+ssuA	ssuD	ssuE	cysP	sbp	
+tolQ	tolR	ycjF	djlA	lptC	
+kdpC	kdpD	kdpA	kdpB	glpF	
+bglX	xylF	galR	xylA	rbsD	
+sapC	ftsL	sapB	sapF	proQ	
+recR	rnc	pth	yjcE	ptsN	
+ybhF	ybhR	ybhS	ybhG	rbbA	
+dppB	dppC	dppD	dppF	dppA	
+ccmE	ccmH	ccmF	tsf	rodZ	
+frdA	frdB	frdC	mscM	psd	
+yadS	rlmD	ybhF	dgkA	yjcE	
+prfA	ribD	solA	purL	garR	
+hyfB	thrB	ykgF	hyfC	tdcD	
+entC	rlmF	uvrB	rluE	ybjI	
+gabD	ileS	maeA	yghU	phnD	
+ybaA	dsdA	trxC	yffB	yjdN	
+kdsB	kdsC	panD	yfgO	dapF	
+pcnB	rsfS	def	malQ	rsuA	
+trpB	yhbT	yhbU	ubiB	asd	
+hisC	proA	ycgM	ispB	purD	
+dmlA	nagA	nfsA	argE	ilvE	
+mdtF	ompN	flu	eptC	
+rseP	entF	putP	yhiD	
+msbA	nanA	nanE	dut	
+mrdA	mreC	ygeR	yibQ	
+nagE	ptsG	yfeW	yohK	
+mtlA	ydjX	hflC	hflK	
+cpoB	ruvA	yeeE	tcdA	
+hyaA	hyaD	hyaE	treA	
+dinB	intF	ytfL	apbE	
+secD	ssuC	ghxP	yjcE	
+ybbO	glnP	ybhG	clsA	
+fabI	sapA	polA	tpiA	
+lgoT	nikA	lsrB	yjjA	
+ggt	hyaA	mlaF	ppiC	
+lipA	yegT	dnaJ	yehU	
+xseB	cpdB	fkpA	xseA	
+pdhR	ftsW	ggt	baeS	
+mlaB	yadH	mlaF	mlaE	
+dmsA	dmsB	ynfF	ynfG	
+rsxD	rsxA	rsxG	rsxE	
+etk	gfcE	gfcD	etp	
+fepG	entB	fepD	entA	
+rlmG	trpD	rlmB	ygiF	
+moaA	narJ	narZ	rapZ	
+livF	livG	livK	yjbB	
+dusB	panF	ydiF	rfe	
+hpt	srlB	yaiI	yjjU	
+dadX	malX	nfsA	tabA	
+atpB	atpE	ychN	mioC	
+bcr	kduD	ydfH	lgoD	
+chbF	nagA	yidA	ulaD	
+amiC	hisG	lpxA	hflX	
+pyrH	truD	recF	relA	
+hrpA	rarA	yegD	glnL	
+allR	torS	ybiV	sad	
+hisS	suhB	folP	mlaF	
+ansA	dnaE	ligA	hsdR	
+gmk	murD	rsmG	pbpG	
+dsbA	lpxH	trmJ	holC	
+ravA	rimO	tsaD	ubiB	
+hisG	yceF	gpsA	envZ	
+atpE	cysC	moeA	atpB	
+gltI	gstB	fdx	kdsB	
+dgcT	mscK	ybeZ	lolB	
+glxR	allC	kch	mlaE	
+ybhG	yhhJ	rbbA	yhiI	
+atoB	lgt	rfe	slt	
+hycC	hycE	hycG	hycB	
+folP	kdsD	pth	cysE	
+tufA	wcaJ	tufB	
+phnK	phnO	phnH	
+ybbW	allB	glxK	
+artM	artQ	artP	
+sstT	yqjE	yqjK	
+yejB	yejE	yejF	
+wbbH	wzzB	galF	
+fdhF	alsB	lgoD	
+bssS	yceI	mdtH	
+fruA	uhpB	treB	
+fhuA	qmcA	tonB	
+araF	znuA	zinT	
+rcsD	ybhG	rcsB	
+gabD	csiD	gabT	
+acrB	tsx	yjiY	
+aceB	yedF	aceA	
+frlR	fadD	ugpB	
+yeiQ	nagK	ugpA	
+trg	ymbA	ydcL	
+gatB	manY	yehU	
+trg	tmk	nlpA	
+ldtD	trg	nlpC	
+kdpD	udk	nupG	
+prc	ugpQ	malS	
+rnt	hemD	tamB	
+fbaB	ybaL	pgi	
+copA	qseC	zntA	
+mltB	trg	mltA	
+kefB	fetB	kefG	
+bamA	fabZ	yeeA	
+uspG	rna	hybA	
+fetB	ydgA	ydhJ	
+dsbG	hslU	hslV	
+ompW	dgcF	tatB	
+bacA	lpxM	rfaD	
+ybaP	amiC	recF	
+wcaJ	yfdH	wzzE	
+cra	rbsB	yeeO	
+manY	yaaJ	gatA	
+yggE	ileS	ggt	
+apbE	yaaJ	yfiF	
+yciF	ybaL	trg	
+msbA	lpxK	waaG	
+flgK	narX	fliC	
+fliI	fliR	yjbQ	
+eutB	eutC	eutE	
+ycjP	ycjQ	ycjR	
+phnM	phnN	nrdG	
+hyuA	xdhA	xdhD	
+sapD	sapF	csrD	
+ptsH	rimP	hpf	
+sapC	yejL	metJ	
+hybE	thiM	hybD	
+glpR	rbsR	fsaB	
+aroF	truA	ulaA	
+gfcE	yedV	kduI	
+hisG	pcm	tatC	
+cyoE	hrpB	ruvA	
+yafV	ybgL	xdhB	
+lsrF	lsrG	tam	
+aroL	bioD	pheA	
+fhuC	fhuD	fhuB	
+nhaA	patZ	pheA	
+narI	narK	sppA	
+mdtH	mraZ	priA	
+prkB	yheT	recF	
+dinB	frvX	yjeF	
+trpA	ygeY	glgX	
+gmd	wzc	wza	
+bglX	ygjR	exuT	
+mrp	purC	serB	
+dbpA	lpxC	mcrB	
+gsiB	nikB	dinF	
+napC	napG	napA	
+fepA	fiu	cirA	
+pstS	ynfM	yjgR	
+nfsB	yihI	rraB	
+atpB	yjdI	yjdJ	
+kduD	malI	ugpA	
+trpB	yaeQ	ypfH	
+lepA	parE	yhgE	
+paaJ	ypfJ	trmA	
+kdgR	trg	yecJ	
+cmoB	ilvE	yedP	
+ybdH	purT	tcyL	
+hda	holB	yggT	
+rhsD	entF	metC	
+rsxB	yciO	rbbA	
+ldtA	sbmC	dacD	
+avtA	rimJ	recF	
+ligA	xerC	basR	
+aroP	fetB	tnaA	
+mdtD	xerD	gspF	
+glnP	opgH	yihY	
+gsiB	yjhU	yjhH	
+folC	hscA	parE	
+gsiB	hisD	waaH	
+dfp	tgt	rhtC	
+nudL	rimO	waaJ	
+dcp	dfp	msrC	
+ratB	rluC	tsaD	
+ptsP	ytfL	zapE	
+ybhJ	rsuA	tcyL	
+gloA	rdgB	yhhW	
+carB	pdeR	yqhC	
+fur	mrdB	cas2	
+gltJ	gltL	ndh	
+gspD	wza	adeP	
+gsiB	ynbC	trxA	
+ssuB	clpB	napA	
+ampH	apbE	creA	
+ubiC	yegQ	ytfL	
+dppA	rdgB	pepQ	
+ydgI	metK	phoU	
+envZ	macA	lexA	
+msbA	pinE	pspE	
+ybeX	corA	nuoA	
+ddlB	dauA	trg	
+yjfL	yjfC	
+napA	ubiI	
+yfcZ	amiC	
+bamD	mltB	
+bamA	bamD	
+seqA	yfdH	
+lysP	cadC	
+ibpB	dcuS	
+ybcH	nfrA	
+yehA	yehC	
+elyC	tynA	
+yigF	rarD	
+ydcT	ydcU	
+dgcZ	ydeI	
+ompL	yihO	
+mdfA	lpxP	
+narQ	acrD	
+yhjD	yjfK	
+lacY	pheP	
+clcA	xanP	
+hdeB	hdeA	
+cysW	adeQ	
+dcrB	uspA	
+wbbI	yicL	
+rseA	rpoE	
+ldtE	ydiH	
+ycfP	spy	
+yebE	yebF	
+osmC	ynfD	
+cheZ	tap	
+yaaU	tyrR	
+ycaC	oppA	
+pfkA	cpxP	
+mlrA	mepA	
+yicI	yicJ	
+dhaL	yeiB	
+yccS	dsbC	
+tbpA	thiD	
+gadC	stpA	
+mscK	yjiJ	
+ytfG	cpdB	
+degP	idnT	
+ynaI	plsB	
+yidC	tnaB	
+dtpB	hslU	
+erpA	fkpA	
+ubiJ	ytfL	
+tyrP	ftsH	
+exuR	ggt	
+ompF	lgt	
+dauA	srmB	
+clpS	npr	
+lpxM	raiA	
+sbcB	aldB	
+atoS	eutT	
+atoC	metB	
+dtpA	setB	
+yiaT	ghxQ	
+mngB	uidA	
+osmB	ynfB	
+yfhG	pgpC	
+yghG	pppA	
+rfbX	yeiE	
+uidC	uidB	
+yciT	yciW	
+chbA	ruvC	
+deoR	ybjJ	
+fucI	tsgA	
+menD	fucU	
+melA	idnO	
+lpxL	norR	
+paoC	yjfI	
+dcyD	phnL	
+macB	pitB	
+xapB	waaL	
+aroM	ydbD	
+ydhK	aaeA	
+argA	argB	
+ybhI	fumB	
+yfbM	garK	
+gcd	hsrA	
+pspB	pspC	
+yjhB	tsr	
+araA	uacT	
+pdeF	hemE	
+pdxA	yigB	
+yegW	xapA	
+abgT	yfcS	
+hcr	fadH	
+dpiB	fecD	
+yqiI	fimA	
+napH	pflD	
+rutA	rbsA	
+ybdR	ulaG	
+abgB	ydjK	
+acpT	rffA	
+acrF	uspB	
+fldA	proX	
+rcsF	cycA	
+yheU	slmA	
+zapD	dppA	
+eptB	uhpA	
+nhaB	paaD	
+rihA	ybhH	
+yggN	trmI	
+ydiZ	yniA	
+yohF	treF	
+murI	aphA	
+ybiA	menI	
+rluA	pdxK	
+ldcC	potE	
+yahF	ispF	
+yhjC	yhjE	
+ptrB	gudP	
+ampE	yeeJ	
+soxR	nrdG	
+speF	nikR	
+cvrA	ycjY	
+hyfF	focB	
+ygcE	yhdZ	
+gloC	ppx	
+lsrK	ydiO	
+yciK	tyrB	
+rpiA	mtlD	
+ybiU	ybiW	
+basS	adiA	
+ybiY	gntT	
+kefC	yciA	
+rlmC	yedI	
+dgcN	malT	
+metI	speA	
+cyaA	yigA	
+phr	cysZ	
+gutM	selA	
+yciU	yeiP	
+dcd	nrdB	
+rstB	mipA	
+purK	purF	
+ppsR	folP	
+mhpA	barA	
+cobB	thiH	
+nadA	lhr	
+cobU	yqaB	
+btuD	arnD	
+eamA	metA	
+eptA	opgB	
+rsmH	ydjA	
+sdaA	yheO	
+ydiJ	dsdC	
+ltaE	mug	
+ydjZ	tar	
+aes	tdcD	
+ybeL	dgkA	
+ygeW	ygfM	
+chaA	lamB	
+appA	ppc	
+yijE	prfC	
+fsaA	dapF	
+polB	metC	
+ybgJ	pqiB	
+hisD	uxaA	
+ybjG	degQ	
+pyrD	yfgD	
+motB	bcsZ	
+ybjX	yedX	
+yafV	yfcD	
+gfcE	yghQ	
+rlmJ	arsC	
+tgt	fau	
+yaiA	yaiE	
+ompN	ydgH	
+ydhI	ydhJ	
+ycaO	hsdM	
+argO	fecB	
+modC	mepA	
+yceG	hisG	
+dapB	eutD	
+obgE	yhbE	
+yhgF	bcsE	
+yqeB	dacB	
+ycaD	proP	
+ydgJ	sodC	
+nagC	yfcE	
+sdhC	sdhD	
+metN	ychA	
+yeiL	def	
+thpR	csrA	
+mglA	yjjI	
+ispA	rstA	
+glnP	fabR	
+grxA	yffB	
+nikA	nikD	
+kdsB	pepE	
+crl	aas	
+fhuB	glpB	
+mtfA	purC	
+tbpA	ybjT	
+yqjC	gor	
+elfD	wza	
+wza	wzyE	
+ydhS	ysgA	
+yqjG	rpe	
+prfA	aer	
+prfA	yidB	
+rapZ	yrbL	
+ansB	bcsG	
+abrB	gsiB	
+gsiB	dgcI	
+nuoG	livH	
+hemB	yieL	
+rimO	yqeF	
+allE	garR	
+mscK	cobS	
+mscK	fliQ	
+yobA	wcaK	
+yafD	pdeR	
+mscK	ychE	
+kdsA	yhgN	
+shiA	yjbB	
+ybhP	dmsA	
+clpB	gspA	
+ynaI	nanR	
+rsmJ	yiaD	
+trxB	puuE	
+rhsC	rluD	
+cydA	ygdD	
+yedY	yqcC	
+yafN	ybhG	
+ybcJ	yjdM	
+sgbE	yidC	
+yigM	yjcE	
+ybiX	apbE	
+chbC	tcyJ	
+tcyJ	rnpA	
+clsA	thiC	
+ppiD	yigE	
+trg	glgS	
+yagB	trg	
+trg	ydfJ	
+trg	yicH	
+trg	zapA	
+phoR	yajD	
+yncD	nuoA	
+prc	bcsC	
+prc	fimF	
+msbA	yecN	

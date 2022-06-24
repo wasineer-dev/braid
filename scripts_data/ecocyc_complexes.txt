@@ -1,0 +1,1162 @@
+fsaA	
+fabB	
+lsrB	lsrD	lsrC	lsrA	
+tolC	
+kdpF	kdpA	kdpB	kdpC	
+rbsK	
+kdpD	
+yggF	
+rarA	
+rng	
+aceE	
+ugpC	ugpA	ugpE	ugpB	
+torS	
+pldA	
+asnS	
+ariR	
+hcaC	hcaD	hcaF	hcaE	
+asnC	
+tldD	tldE	
+hslV	
+dgkA	
+modC	modB	modA	
+yghU	
+glpA	glpB	glpC	
+adiC	
+citD	citF	citE	
+glpK	
+gmm	
+ubiK	ubiJ	ubiI	ubiH	ubiG	ubiF	ubiE	
+allB	
+cynS	
+leuC	leuD	
+oxc	
+apt	
+dxs	
+glgC	
+gabD	
+tyrB	
+chbA	chbC	chbB	
+mreC	
+oppB	oppC	oppD	oppF	mppA	
+eutM	
+fecE	fecC	fecD	fecB	
+pqiB	
+cheA	cheW	trg	
+purU	
+uidA	
+thrS	
+bioB	
+dgoR	
+uspG	
+paoA	paoB	paoC	
+yhdZ	yhdY	yhdX	yhdW	
+yjfP	
+eutB	eutC	
+fieF	
+srlD	
+glnG	
+lysC	
+ycjR	
+yicI	
+hipB	
+sapF	sapC	sapB	sapD	
+grpE	
+dsbG	
+hisG	
+rhaD	
+aroC	
+mazE	
+rnt	
+narQ	
+rlmI	
+gltI	gltK	gltJ	gltL	
+cas2	cas1	
+deoA	
+wza	wzc	
+gpp	
+hypT	
+phoA	
+ypdF	
+diaA	
+nikR	
+xylA	
+paaY	
+ivy	
+trmL	
+gpmA	
+citD	
+tmk	
+glpX	
+yihS	
+ibpB	
+nanR	
+sbcC	sbcD	
+ihfA	ihfB	
+znuC	znuB	znuA	
+frmR	
+argR	
+lamB	
+tesB	
+scpB	
+cheA	cheW	tar	
+glnK	
+bamE	bamC	bamD	bamA	bamB	
+nrdF	
+yjfF	ytfR	ytfT	ytfQ	
+rpsR	rpsF	
+glpE	
+nhaA	
+yajC	secF	secD	secY	secG	secE	yidC	
+fabG	
+ydjH	
+holE	dnaQ	dnaE	holA	holB	dnaX	dnaN	holD	holC	
+pal	tolA	tolB	tolR	tolQ	
+potA	potB	potC	potD	
+degQ	
+chbF	
+mnmE	
+aceE	aceF	lpd	
+ribE	
+ubiV	ubiU	
+pnp	
+xdhD	ygfM	
+hdhA	
+mog	
+actP	
+ydiB	
+dapE	
+metA	
+ispU	
+yhdH	
+hflK	hflC	
+norV	
+ispF	
+serA	
+codA	
+dacA	
+hflC	hflK	ftsH	
+guaC	
+tolC	acrA	acrB	
+tar	
+ccmH	ccmF	
+mrcB	
+rraB	
+rihB	
+higA	
+panC	
+glnA	
+cysD	cysN	
+moaD	moaE	
+mtlA	
+ravA	
+pdxY	
+abgB	abgA	
+alr	
+narY	narZ	narV	
+gabT	
+cheA	cheW	tap	
+araD	
+cysE	
+pheA	
+hemA	
+lptE	lptD	lptG	lptC	lptA	lptB	lptF	
+grxD	
+ccmC	ccmD	ccmE	
+tsaE	tsaD	tsaB	
+menF	
+fadB	fadA	
+purE	
+yiaK	
+atpE	
+fimA	fimF	fimG	fimH	
+zapD	
+preT	preA	
+pepQ	
+glmS	
+lpd	
+yafQ	dinJ	
+clpP	clpA	
+fadI	fadJ	
+asnB	
+phoU	
+rimK	
+cytR	
+mngR	
+hisD	
+dapA	
+htpG	
+nudE	
+ansB	
+speC	
+slmA	
+mrcA	
+rho	
+glpQ	
+metC	
+rffH	
+appA	
+cysC	
+nagA	
+menB	
+mazG	
+gatC	gatB	gatA	
+nagB	
+rffC	
+hypD	hypC	
+ptsG	crr	
+ilvB	ilvN	
+malP	
+ppsR	
+yqhD	
+exbD	exbB	tonB	fhuA	
+fbaA	
+lhr	
+clcA	
+cynT	
+ycjP	ycjO	ycjN	ycjV	
+aceA	
+mdtP	mdtO	mdtN	
+ilvC	
+dps	
+atpE	atpF	atpB	
+dgcC	
+kefF	
+atoA	
+livK	livM	livH	livG	livF	
+ribA	
+metR	
+glxR	
+selA	
+dut	
+rdcA	
+nrdD	
+tehB	
+aroF	
+livF	livG	livH	livM	livJ	
+proA	
+truA	
+amtB	
+phoR	
+tusB	tusC	tusD	
+bioD	
+idnO	
+treR	
+melA	
+fruK	
+lpp	
+gdhA	
+puuA	
+rlmH	
+cobU	
+pncC	
+ppnN	
+envZ	
+sufA	
+cysM	
+trpS	
+fdnG	fdnH	fdnI	
+hpt	
+xerC	xerD	
+accB	
+recF	
+nrfD	nrfC	
+fnr	
+cysA	cysW	cysU	cysP	
+tdcB	
+atoS	
+entB	entD	entF	entE	
+nanM	
+folB	
+pyrB	pyrI	
+yfcF	
+thiM	
+uhpA	
+gsiA	gsiB	gsiD	gsiC	
+secE	secG	secY	
+ribB	
+fucI	
+ispE	
+yfaU	
+cobB	
+patZ	
+bioA	
+proV	proW	proX	
+qorA	
+cheW	cheA	tsr	
+kbl	
+xdhA	xdhB	xdhC	
+hypB	
+mukF	
+sxy	crp	
+ssb	
+clpA	
+fepC	fepD	fepG	fepB	
+pykA	
+argE	
+xylB	
+mepA	
+zntR	
+ydgA	
+queD	
+uspD	
+udp	
+pheS	pheT	
+yphD	yphF	yphE	
+insC1	
+pepD	
+rhaA	
+ptsG	mlc	
+tap	
+slyA	
+yiaO	yiaN	yiaM	
+cysH	
+yejF	yejB	yejE	yejA	
+yeiG	
+fabH	
+torS	
+mscS	
+rsmI	
+aes	
+nanY	
+sodB	
+yadG	yadH	
+flhD	flhC	
+ppk	rne	rhlB	pnp	eno	
+chpB	chpS	
+galU	
+pgaD	pgaC	
+dcuB	dcuS	
+metK	
+mgsA	
+pfkA	
+yoeB	yefM	
+tolC	emrA	emrB	
+flhA	flhB	fliO	fliP	fliQ	fliR	fliH	fliI	fliJ	
+ybiB	
+nadR	
+cpxA	
+putA	
+ldcC	
+galE	
+rne	
+cusC	cusB	cusF	cusA	
+ycaC	
+ldhA	
+mhpC	
+cheA	cheW	trg	
+yfcE	
+clpP	clpA	clpX	
+thiD	
+torS	
+pdxK	
+mazF	mazE	
+yjjX	
+panD	
+curA	
+ygaP	
+sspB	
+glyA	
+sdhA	sdhB	sdhC	sdhD	
+dgcM	
+moaC	
+ydhR	
+pyrE	
+alaC	
+dosP	
+sufS	
+gltB	gltD	
+nrdA	nrdB	
+murC	
+frvB	frvA	
+narX	
+hldE	
+narQ	
+csdE	
+gnsA	
+ghrB	
+fumB	
+bglF	
+cspD	
+paaG	paaF	
+caiB	
+tcyN	tcyL	tcyJ	
+maeB	
+efeB	
+pepP	
+ydfG	
+fabA	
+paoD	
+emrE	
+atpA	
+cra	
+kdsA	
+entH	
+ynfE	ynfF	ynfG	ynfH	
+sucA	
+bolA	grxD	
+aroH	
+folP	
+murQ	
+cheA	cheW	tar	
+hslU	
+mhpB	
+bglJ	rcsB	
+amn	
+gldA	
+skp	
+xseA	xseB	
+pyrG	
+pgi	
+pabC	
+glnL	
+sad	
+icd	
+bglF	
+hchA	
+ybdK	
+dppD	dppF	dppB	dppC	dppA	
+hyaA	hyaB	hyaC	
+gmhA	
+accC	
+frlR	
+torR	
+dgcZ	
+ydcS	ydcT	ydcV	ydcU	
+epd	
+fucA	
+metL	
+exbD	exbB	tonB	cirA	
+nsrR	
+rbsA	rbsC	rbsB	
+dsbC	
+eutN	
+adiA	
+mcrB	
+casA	casB	casC	casD	casE	
+glnQ	glnP	glnH	
+dcyD	
+menD	
+cheA	cheW	tap	
+aldA	
+cusS	
+fis	
+xapA	
+pptA	
+trmJ	
+nanA	
+yiiM	
+nfuA	
+talB	
+rutC	
+rplJ	rplL	
+entB	
+lolE	lolD	lolC	
+psuG	
+glpF	
+tatB	tatC	tatE	tatA	
+glnB	
+tolC	acrD	acrA	
+mlaB	mlaD	mlaE	mlaF	
+hdeB	
+lptD	lptE	
+speD	
+ydjI	
+dnaX	
+phnC	phnE	phnD	
+gatD	
+mnmG	
+proC	
+gnd	
+queF	
+glcD	glcE	glcF	
+sdhD	sdhC	sdhB	sdhA	
+glrK	
+ygiN	
+pyrH	
+artI	artM	artQ	artP	
+murP	crr	
+ppsA	
+ygeA	
+sppA	
+tolC	macB	macA	
+ugd	
+trmD	
+lon	
+fic	yhfG	
+rnlA	
+astC	
+pabB	pabA	
+umuC	umuD	
+hyfG	hyfI	hyfA	hyfB	hyfC	hyfD	hyfE	hyfF	hyfH	
+glaH	
+lpxD	
+araB	
+narG	narH	narI	
+nudF	
+dnaE	dnaQ	holE	
+tsaB	tsaD	
+wecE	
+serC	
+menE	
+gspC	gspD	gspE	gspF	gspG	gspH	gspI	gspJ	gspK	gspL	gspM	gspO	
+hupA	hupB	
+cpxP	
+hypT	
+clpX	
+eda	
+roxA	
+rraA	
+rhaS	
+ycdX	
+iaaA	
+hisS	
+secB	
+hslU	hslV	
+argI	
+manX	
+nfsA	
+glgP	
+rfe	
+arsB	
+glmU	
+rpsJ	nusB	
+glnK	
+aceK	
+gntK	
+mscM	
+cmtB	cmtA	
+mdh	
+eutS	
+exbD	exbB	tonB	fepA	
+fbaB	
+glnB	
+yajL	
+ilvE	
+guaB	
+yfcG	
+hfq	
+atpC	atpH	atpA	atpG	atpD	
+ptsI	
+aspS	
+gstA	
+ymdB	
+rlmB	
+rfbB	
+eutD	
+aroD	
+proB	
+rsmE	
+hyi	
+deoD	
+yihI	
+fdnI	fdnH	fdnG	
+gcvP	
+cueR	
+coaD	
+pspF	
+dosP	dosC	
+cysK	
+folX	
+ygaZ	ygaH	
+betB	
+chbR	
+metJ	
+tauA	tauC	tauB	
+entE	
+folM	
+pyrI	
+ynjC	ynjD	ynjB	
+cpxR	
+tesA	
+dmsA	dmsB	dmsC	
+ahr	
+araA	
+potG	potH	potI	potF	
+rhmD	
+mnmE	mnmG	
+dadA	
+yoeB	
+purM	
+bioF	
+mukE	mukF	
+dadX	
+ppnP	
+rihA	
+argB	
+upp	
+yeaW	
+lpxB	
+uspC	
+dacC	
+cydD	cydC	
+tolC	mdtC	mdtB	mdtA	
+rhaM	
+ribC	
+yrdA	
+higA	higB	
+osmF	yehY	yehX	yehW	
+cysJ	cysI	
+yfbR	
+gutQ	
+rclA	
+zraP	
+nikD	nikE	nikB	nikC	nikA	
+ruvC	ruvB	ruvA	
+zapA	
+dnaN	
+rutD	
+degS	
+fabF	
+purK	
+fliG	fliM	fliN	
+dfp	
+ygjH	
+osmC	
+sthA	
+clpP	clpX	
+aaeA	aaeB	
+pdxH	
+uraA	
+mcrB	mcrC	
+torC	torA	
+secA	
+puuD	
+speF	
+dosC	
+ahpC	ahpF	
+speE	
+wecC	
+dnaB	dnaT	priB	priA	priC	dnaG	
+napB	napA	
+nlpI	
+ispD	
+rpiB	
+tdcF	
+patD	
+maeA	
+tcdA	
+fecA	exbD	exbB	tonB	
+proS	
+mnaT	
+rnc	
+kdsC	
+ybcN	
+mtn	
+pepA	
+yagE	
+pdeL	
+gmk	
+cysB	
+frc	
+hyuA	
+cas1	
+lsrR	
+gpsA	
+ndk	
+csgF	csgG	
+parE	parC	
+atoS	
+wecB	
+gmd	
+argA	
+ascF	
+ssuD	
+rdgB	
+ynaI	
+fdoG	fdoH	fdoI	
+lysS	
+lacZ	
+ridA	
+eutL	
+selD	
+envZ	
+katG	
+thrA	
+ygeX	
+hinT	
+ftsQ	ftsB	ftsL	
+cobT	
+gpt	
+speA	
+norV	
+fdhE	
+iscA	
+dcd	
+gshB	
+alaS	
+treB	crr	
+msbA	
+ulaG	
+tadA	
+galT	
+argD	
+gltA	
+zur	
+lipA	
+nanK	
+fliN	fliM	fliG	flgH	motA	motB	flgB	flgC	flgF	flgG	flgI	fliF	
+ybbP	ybbA	
+atpB	atpF	atpE	atpD	atpG	atpA	atpH	atpC	
+aqpZ	
+relB	relE	
+yddE	
+cheA	cheW	trg	
+sgcB	sgcC	sgcA	
+alsA	alsC	alsB	
+aspC	
+mscL	
+ulaD	
+dacB	
+dapB	
+oppC	oppD	oppF	oppB	oppA	
+aphA	
+ispH	
+nadA	
+dctA	dcuS	
+cyoD	cyoA	cyoB	cyoC	
+pfkB	
+adhE	
+fliF	flgI	flgG	flgF	flgC	flgB	motB	motA	flgH	fliG	fliM	fliN	flgE	flgK	flgL	fliC	fliD	
+glsA	
+crcB	
+ldcA	
+lpxA	
+ilvI	ilvH	
+nadK	
+argP	
+pxpC	pxpB	pxpA	
+glmM	
+tpiA	
+ybhS	ybhR	ybhF	
+thiG	thiH	
+rbsD	
+cspE	
+thiF	
+sucD	sucC	
+xylG	xylH	xylF	
+fklB	
+hybA	hybB	hybO	hybC	
+tdcG	
+pdeF	
+paaZ	
+nrdE	nrdF	
+mglA	mglC	mglB	
+rfaD	
+ompF	
+clpB	
+hyaC	hyaB	hyaA	
+mrcB	
+purF	
+leuB	
+nuoB	nuoC	nuoE	nuoF	nuoG	nuoI	
+ispB	
+bdcA	
+tnaA	
+clpP	
+ftnA	
+uvrD	
+ychF	
+rcsB	rcsA	
+tdh	
+hokC	
+cutA	
+moeA	
+msrQ	msrP	
+argF	
+cysG	
+ppa	
+fcl	
+cmoA	
+dnaJ	
+nuoA	nuoH	nuoJ	nuoK	nuoL	nuoM	nuoN	nuoI	nuoG	nuoF	nuoE	nuoC	nuoB	
+recD	recC	recB	
+nrdG	
+rbn	
+yqjG	
+cas2	
+lyxK	
+ppk	
+btuB	exbD	exbB	tonB	
+gsk	
+purB	
+bcsB	bcsA	
+hisB	
+pta	
+eco	
+iadA	
+phnP	
+yhdE	
+gss	
+lexA	
+tgt	
+crp	
+holC	holD	
+icd	
+mdaB	
+gadB	
+nrdE	
+agaB	agaC	agaD	
+trpB	
+rcsB	gadE	
+rapZ	
+lpd	gcvP	gcvH	gcvT	
+metN	metI	metQ	
+citF	
+nrdD	
+tolC	emrK	emrY	
+mqsA	mqsR	
+rsmH	
+folE	
+ttdA	ttdB	
+nrdB	
+orn	
+kdpE	
+fhuE	exbD	exbB	tonB	
+entA	
+thrB	
+pyrB	
+dcuS	
+kdsD	
+tpx	
+yefM	
+ilvD	
+glyS	glyQ	
+appC	appB	appX	
+ccmB	ccmA	
+dcuR	
+arcB	
+epmA	
+ddlB	
+hisH	hisF	
+speB	
+manZ	manY	manX	
+mukB	
+focA	
+symE	
+cheW	cheA	tsr	
+frdA	frdB	frdC	frdD	
+accA	accD	
+cheZ	
+kch	
+ybaB	
+uspA	
+fabZ	
+ddpB	ddpC	ddpA	ddpD	ddpF	
+cheW	cheA	tsr	
+atpD	
+rseB	
+yafQ	dinJ	
+ybdL	
+sucB	
+artJ	artQ	artM	artP	
+asnA	
+prlF	yhaV	
+pflB	
+arsR	
+fiu	exbD	exbB	tonB	
+lysA	
+araG	araH	araF	
+ansA	
+slyD	
+dsdC	
+barA	
+cysE	cysK	
+panB	
+purA	
+yciF	
+torS	
+aidB	
+tyrS	
+bidA	
+nudK	
+atoA	atoD	
+csrD	
+caiF	
+thyA	
+ftsE	ftsX	
+paaI	
+proP	
+msrC	
+ccmD	ccmC	ccmB	ccmA	
+pdeK	
+speG	
+hisQ	hisP	hisM	argT	
+hspQ	
+garL	
+minC	
+dgcE	
+rpiA	
+cheA	cheW	trg	
+hisP	hisM	hisQ	hisJ	
+dnaB	
+phoE	
+fdhD	
+hemW	
+ppx	
+mdtJ	mdtI	
+napG	napH	
+yjtD	
+menI	
+tdk	
+psd	
+tktA	
+pepT	
+hsdM	hsdR	hsdS	
+ibpA	
+ompR	
+rusA	
+purR	
+trxB	
+modE	
+bglG	
+groL	groS	
+rfbA	
+frlB	
+nrfA	nrfB	
+creC	
+secD	secF	yajC	
+parC	
+hypA	hypB	
+fabI	
+citD	citF	citE	
+minD	minC	
+mutL	mutS	mutH	
+poxB	
+ssuE	
+rhlB	
+ybdG	
+moeB	
+cadA	
+pykF	
+ybgI	
+dapD	
+csrA	
+cheA	cheW	tar	
+cheA	cheW	tar	
+pepB	
+hycD	hycC	hycF	hycG	hycB	hycE	
+feaB	
+sufB	sufC	sufD	
+priB	
+ygeW	
+tsr	
+guaA	
+glnL	
+coaA	
+dnaT	
+prpC	
+caiT	
+yfdE	
+gor	
+nirD	nirB	
+nagE	
+argG	
+pdxA	
+allD	
+lacA	
+bglG	
+metG	
+tyrA	
+dhaK	dhaL	dhaM	
+kefC	
+torR	
+cpxA	
+nudC	
+fdhF	hycE	hycB	hycG	hycF	hycC	hycD	
+fucO	
+atpF	
+adeD	
+matP	
+astB	
+ulaC	ulaB	ulaA	
+fliA	rpoB	rpoC	rpoA	
+hisC	
+asd	
+mazF	
+scpA	
+cheA	cheW	tap	
+spy	
+pyrC	
+gcl	
+trpE	trpD	
+rpoB	rpoC	rpoA	rpoE	
+allC	
+arnA	
+ggt	
+cydA	cydB	cydX	cydH	
+torR	
+agp	
+frmA	
+fruB	fruA	
+azoR	
+rpoB	rpoC	rpoA	rpoH	
+csdA	
+malZ	
+fumA	
+ilvG	ilvM	
+kdpD	
+carB	carA	
+ydjA	
+hemF	
+glf	
+cheA	
+rpoB	rpoC	rpoA	rpoS	
+fbp	
+ssuA	ssuC	ssuB	
+atoD	
+fucU	
+acnA	
+deaD	
+dxr	
+thiQ	thiP	thiB	
+rpoB	rpoC	rpoA	rpoN	
+aroG	
+erpA	
+paaX	
+garD	
+dgt	
+malK	malF	malG	malE	
+tynA	
+ompC	
+rpoB	rpoC	rpoA	fecI	
+marR	
+prs	
+creC	
+sucA	sucB	lpd	
+fadD	
+hipB	hipA	
+zapB	
+gdx	
+rpoB	rpoC	rpoA	rpoD	
+rcdA	
+trpA	trpB	
+sbp	cysW	cysU	cysA	
+hiuH	
+glnG	
+ribD	
+ibaG	grxD	
+yfbU	
+ilvA	
+mukB	mukF	mukE	
+btuD	btuC	btuF	
+ebgA	ebgC	
+mobB	
+wrbA	
+pdxB	
+metB	
+letB	
+serS	
+gyrA	gyrB	
+pstB	pstA	pstC	pstS	
+frlC	
+hdeA	
+cheA	cheW	tap	
+agaV	agaW	
+cmoB	
+nadE	
+evgS	
+nadC	
+tauD	
+fhuC	fhuB	fhuD	
+dtd	
+ybiO	
+can	
+phoQ	
+lysU	
+ompR	
+hemB	
+tonB	exbB	exbD	
+uvrB	uvrC	uvrA	
+pdxJ	
+phnL	phnH	phnG	phnI	
+mprA	
+ttcA	
+katE	
+hupA	
+phoR	
+bfr	
+tolC	mdtE	mdtF	
+ubiD	
+phnJ	phnI	phnH	phnG	
+rplL	
+trg	
+hemL	
+yeaX	yeaW	
+trpR	
+prpB	
+sodA	
+araC	
+rnlB	rnlA	
+rep	
+moaB	
+gadA	
+dhaM	
+nrdD	nrdG	
+srlA	srlB	srlE	
+phoQ	
+purC	
+kbaY	
+entB	
+dnaX	holB	holA	
+dapF	
+gapA	
+cheA	
+ydiE	
+metF	
+citE	
+pntB	pntA	
+tolC	acrE	acrF	
+lsrF	
+aldB	
+tamB	tamA	
+folD	
+patA	
+ltaE	
+nrdA	
+yieF	
+paaE	paaA	paaC	paaB	
+yihU	
+fryC	fryB	fryA	
+mhpD	
+eno	
+ppc	
+acpS	
+aspA	
+degP	
+tktB	
+murR	
+sbmA	
+relB	
+nfsB	
+accD	accA	accC	accB	
+bglG	
+gloA	
+rpoA	rpoC	rpoB	
+malY	
+kduI	
+arnE	arnF	
+cheW	cheA	tsr	
+pyrF	
+alaA	
+cdd	
+glnG	
+iscS	
+gltD	gltB	
+glpD	
+adhP	
+frwC	frwB	frwD	ptsA	
+glsB	
+narX	
+cysJ	
+zupT	
+nhoA	
+fumC	
+atoB	
+pflB	
+mpaA	
+cfa	
+mntR	
+maa	
+hemG	
+fsaB	

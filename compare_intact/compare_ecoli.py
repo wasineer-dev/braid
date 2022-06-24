@@ -53,6 +53,13 @@ def readIntActComplex():
     for k in clusters.keys():
         for prot in clusters[k]:
             setBenchmarkProteins.add(prot)
+    
+    with open("ecoli_intact_complexes.txt", "w") as fh:
+        for k, cl in enumerate(clusters):
+            for prot in clusters[cl]:
+                fh.write(prot + '\t')
+            fh.write('\n')
+        fh.close()
     return clusters
 
 def mapSymbol2Uniprot():
@@ -89,10 +96,11 @@ def readEcoliMFAOutput(fileName):
             setObservedProteins.add(prot)
             predictions[k] = clusters[k]
 
-    with open('symbols_ecoli.txt', 'w') as fh:
-        for prot in setObservedProteins:
-            p = prot + '_ECOLI'
-            fh.write(p + '\n')
+    with open("ecoli_mrf_complexes.txt", "w") as fh:
+        for k, cl in enumerate(clusters):
+            for prot in clusters[cl]:
+                fh.write(prot + '\t')
+            fh.write('\n')
         fh.close()
     return predictions
 
@@ -105,11 +113,18 @@ def readEcoliBabu2018():
         complex = df.iloc[i][0]
         lstProteins = []
         for prot in df.iloc[i][2].strip("\"").split(','):
-            if (prot.strip() in uniprots.keys()):
+            if (prot in uniprots.keys()):
                 lstProteins.append(uniprots[prot.strip()])
-        # print(complex, '\t', lstProteins)
         if complex not in clusters.keys():
             clusters[complex] = lstProteins
+            # print(complex, '\t', lstProteins)
+
+    with open("ecoli_babu18_complexes.txt", "w") as fh:
+        for k, cl in enumerate(clusters):
+            for prot in clusters[cl]:
+                fh.write(prot + '\t')
+            fh.write('\n')
+        fh.close()
 
     predictions = {}
     for k in clusters.keys():
