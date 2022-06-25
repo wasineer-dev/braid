@@ -38,16 +38,14 @@ def clustering(inputSet, Nk, psi):
     lstExpectedLikelihood = funcInfer.Likelihood(inputSet.observationG, nProteins, Nk, psi)
     te = timer()
     print("Time running MFA: ", te-ts)
-
     (regr, fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)
-    funcInfer.computeEntropy(nProteins, Nk)
     
     print("False negative rate = " + str(fn))
     print("False positive rate = " + str(fp))
-    
     inputSet.writeCluster2File(funcInfer.mIndicatorQ, funcInfer.indicatorVec)
     inputSet.observationG.write2cytoscape(funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
 
+    """
     X = funcInfer.expectedErrors
     y = funcInfer.mResidues
     pred_ols = regr.get_prediction()
@@ -76,7 +74,7 @@ def clustering(inputSet, Nk, psi):
     ax3.plot(range(Nk), funcInfer.mPosteriorWeights)
     ax3.set_title('Prior weights')
     plt.show()
-
+    """
     return lstExpectedLikelihood
 
 def get_args():

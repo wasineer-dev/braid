@@ -10,9 +10,11 @@ class CInputBioplex:
         super().__init__()
 
         df = pd.read_csv(filePath, sep='\t')
+        df_filtered = df[df.apply(lambda x: not x['bait_symbol'].isnumeric() and x['bait_symbol'] != "nan", axis=1)]
+        df_filtered = df[df.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
 
-        bait_list = np.array(df['bait_symbol'], dtype='U21')
-        prey_list = np.array(df['symbol'], dtype='U21')
+        bait_list = np.array(df_filtered['bait_symbol'], dtype='U21')
+        prey_list = np.array(df_filtered['symbol'], dtype='U21')
 
         proteins_list = np.append(bait_list, prey_list)
             
@@ -32,8 +34,16 @@ class CInputBioplex:
 
     def writeCluster2File(self, matQ, indVec):
         nRows, nCols = matQ.shape
-        with open("out.tab", "w") as fh:
+        with open("bioplex_out.tab", "w") as fh:
             for i in range(nRows):
                 ind = indVec[i]
                 fh.write(str(self.aSortedProteins[i]) + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')
+            fh.close()
+        with open("bioplex_out.csv", "w") as fh:
+            for k in range(nCols):
+                for i in range(nRows):
+                    ind = indVec[i]
+                    if (ind == k):
+                        fh.write(self.aSortedProteins[i] + '\t')
+                fh.write('\n')
             fh.close()
