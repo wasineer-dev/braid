@@ -30,3 +30,4 @@ __pycache__/main.cpython-39.pyc
 meanfield/__pycache__/fast_matmul.cpython-39.pyc
 meanfield/__pycache__/betaProcessPrior.cpython-39.pyc
 out.csv
+scripts_data/parse_ecocyc_complexes.py

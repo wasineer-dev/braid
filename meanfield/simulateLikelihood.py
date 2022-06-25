@@ -50,10 +50,11 @@ class CMeanFieldAnnealing:
         nTemperature = 1000.0
         while nTemperature > 0.0:
             print('Temperature: ', nTemperature)
-            tmp = np.zeros(shape=(Nproteins, Nk), dtype=float)
-            while not np.allclose(tmp, self.mIndicatorQ, 1e-5):
+            mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
+            tmp = 0.0
+            while not np.allclose(tmp, mExpectation, 1e-5):
                 nIteration = 1
-                np.copyto(tmp, self.mIndicatorQ)
+                tmp = mExpectation
                 for i in range(Nproteins):
                     # i = np.random.randint(0, Nproteins) # Choose a node at random
                     """ 
