@@ -31,3 +31,10 @@ meanfield/__pycache__/fast_matmul.cpython-39.pyc
 meanfield/__pycache__/betaProcessPrior.cpython-39.pyc
 out.csv
 scripts_data/parse_ecocyc_complexes.py
+bioplex2_0_mrf.csv
+compare_intact/bioplex20_mrf_complexes.txt
+bioplex_out.csv
+bioplex_out.tab
+bioplex20_mrf_complexes.txt
+cl1_bioplex.txt
+

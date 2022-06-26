@@ -11,7 +11,6 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import PoissonRegressor, Ridge
 from sklearn.pipeline import Pipeline
 
-import statsmodels.api as sm
 from scipy import stats
 
 from numba import njit
@@ -49,9 +48,9 @@ class CMeanFieldAnnealing:
         matB = np.array(psi*mObservationG.mObserved, dtype=float)
         nTemperature = 1000.0
         while nTemperature > 0.0:
-            print('Temperature: ', nTemperature)
             mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
             tmp = 0.0
+            print('Temperature: ', nTemperature, 'Expectation = ', mExpectation)
             while not np.allclose(tmp, mExpectation, 1e-5):
                 nIteration = 1
                 tmp = mExpectation
@@ -74,8 +73,8 @@ class CMeanFieldAnnealing:
                         fp_out = np.dot(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
                         
                         mLogLikelihood = fn_out + fp_out
-                        # mLogLikelihood = mLogLikelihood - np.dot(self.mIndicatorQ[i,:], np.log(self.mPrior[0]))
                         mLogLikelihood = mLogLikelihood - self.mAverageWeights 
+                        
                     
                     # Overflow problem. Need to compute with softmax
                     gamma = nTemperature
@@ -83,12 +82,13 @@ class CMeanFieldAnnealing:
                     ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
                     self.mIndicatorQ[i,:] = vecIndicator
                 nIteration += 1
+                mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
                 alphas = 0.5*np.ones(Nk, dtype=float)
                 alphas += np.sum(self.mIndicatorQ, axis=0)
                 self.mWeights = scipy.stats.dirichlet.rvs(alphas)
                 self.mAverageWeights = scipy.special.digamma(alphas) - scipy.special.digamma(np.sum(alphas))
 
-            nTemperature = nTemperature - 100.0
+            nTemperature = nTemperature - 20.0
         self.mPosteriorWeights = self.mWeights[0]
         return self.lstExpectedLikelihood
 
@@ -241,16 +241,18 @@ class CMeanFieldAnnealing:
         self.expectedErrors = expectedErrors
         self.mResidues = residues
 
-        # Ordinary Least Square
+        """ Not using statmodel package 
+            # Ordinary Least Square
+            est = sm.OLS(residues,  X)
+            est2 = est.fit()
+            print(est2.summary())
+
+            glm_poisson = sm.GLM(residues, X, family=sm.families.Poisson(sm.families.links.log()))
+            glm_results = glm_poisson.fit()
+            print(glm_results.summary())
+        """ 
         X = np.reshape(expectedErrors, (-1,1))
-        est = sm.OLS(residues,  X)
-        est2 = est.fit()
-        print(est2.summary())
-
-        glm_poisson = sm.GLM(residues, X, family=sm.families.Poisson(sm.families.links.log()))
-        glm_results = glm_poisson.fit()
-        print(glm_results.summary())
-
+               
         # Create linear regression object
         regr = linear_model.LinearRegression()
         # Train the model using the training sets
@@ -260,7 +262,7 @@ class CMeanFieldAnnealing:
         print("Linear Regression evaluation:")
         self.estimator_summary(regr, residues, y_pred)
         
-        return (est2, fn, fp)
+        return (fn, fp)
 
     def computeEntropy(self, Nproteins, Nk):
         self.mEntropy = np.zeros(Nproteins, dtype=float)

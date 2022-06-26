@@ -38,7 +38,7 @@ def clustering(inputSet, Nk, psi):
     lstExpectedLikelihood = funcInfer.Likelihood(inputSet.observationG, nProteins, Nk, psi)
     te = timer()
     print("Time running MFA: ", te-ts)
-    (regr, fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)
+    (fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)
     
     print("False negative rate = " + str(fn))
     print("False positive rate = " + str(fp))
