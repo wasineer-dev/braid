@@ -32,9 +32,9 @@ class CountBioplexSpoke:
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
         bincounts = np.bincount(bait_inds)
-        for i, k in zip(np.unique(bait_inds), bincounts):
-            self.mTrials[i,:] = k*np.ones(nProteins, dtype=np.int32)
-            self.mTrials[:,i] = k*np.ones(nProteins, dtype=np.int32)
+        for i,k in enumerate(bincounts):
+            self.mTrials[i,:] += k*np.ones(nProteins, dtype=np.int32)
+            self.mTrials[:,i] += k*np.ones(nProteins, dtype=np.int32)
             
         for i in range(nProteins):
             assert(np.sum(self.mTrials[i,:]) == np.sum(self.mTrials[:,i]))

@@ -37,33 +37,8 @@ def complexCoverage(vecA, vecB):
     nIntersect = setA.intersection(setB)
     return float(len(nIntersect))/len(setB)
 
-# E.coli, IntAct complex file (tsv format)
-# Download on 12.03.2022
-def readIntActComplex():
-    df = pd.read_table("83333.tsv")
-    nRows, nCols = df.shape
-    N_COL = 4
-    clusters = {}
-    for i in range(nRows):
-        prots = set()
-        for p in df.iloc[i][4].split('|'):
-            prots.add(p.split('(')[0])    
-        print(df.iloc[i][0], prots)
-        clusters[df.iloc[i][0]] = prots
-    for k in clusters.keys():
-        for prot in clusters[k]:
-            setBenchmarkProteins.add(prot)
-    
-    with open("ecoli_intact_complexes.txt", "w") as fh:
-        for k, cl in enumerate(clusters):
-            for prot in clusters[cl]:
-                fh.write(prot + '\t')
-            fh.write('\n')
-        fh.close()
-    return clusters
-
 def mapSymbol2Uniprot():
-    df = pd.read_table("../uniprot-bioplex20.tab")
+    df = pd.read_table("uniprot-bioplex20.tab")
     nRows, nCols = df.shape
     uniprots = {}
     for i in range(nRows):
@@ -72,6 +47,22 @@ def mapSymbol2Uniprot():
         gene = df.iloc[i][0]
         uniprots[gene] = prot
     return uniprots
+
+def readClusterOne(fileName):
+    uniprots = mapSymbol2Uniprot()
+    with open(fileName) as fh:
+        fh2 = open("cl1_bioplex.txt", "w")
+        for line in fh:
+            lst = line.rstrip().split('\t')
+            cluster = []
+            for prot in lst:
+                prot = prot.strip()
+                if (prot in uniprots.keys()):
+                    cluster.append(uniprots[prot])
+                    fh2.write(uniprots[prot] + '\t')
+            fh2.write("\n")        
+        fh2.close()
+        fh.close()
 
 def readBioPlexMFAOutput(fileName):
     uniprots = mapSymbol2Uniprot()
@@ -108,10 +99,12 @@ def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
                         default='', help='Output from MFA')
+    parser.add_argument('-c', '--clone', metavar='clone',
+                        default='', help='Output from ClusterONE')
     return parser.parse_args()
 
 def main(args):
-    matB = readIntActComplex()
+    matB = readClusterOne(args.clone)
     matA = readBioPlexMFAOutput(args.file)
     
 if __name__ == '__main__':

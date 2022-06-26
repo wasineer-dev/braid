@@ -48,9 +48,8 @@ class CInputSet:
             fh.close()
         with open("out.csv", "w") as fh:
             for k in range(nCols):
-                for i in range(nRows):
-                    ind = indVec[i]
-                    if (ind == k):
-                        fh.write(self.aSortedProteins[i] + '\t')
+                inds = list(i for i in range(nRows) if indVec[i] == k)
+                for j in inds:
+                    fh.write(self.aSortedProteins[j] + '\t')
                 fh.write('\n')
             fh.close()
