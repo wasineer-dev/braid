@@ -76,8 +76,8 @@ def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
                         default='', help='CSV input file of protein purifications')
-    parser.add_argument('-bp', '--bioplex', action='store_true',
-                        default=False, help='Indicate if the input is in Bioplex format')
+    parser.add_argument('-bp', '--bioplex', metavar='bioplex',
+                        default='', help='Indicate if the input is in Bioplex format')
     parser.add_argument('-k', '--max', metavar='numclusters',
                         default='100', help='A maximum number of possible clusters')
     parser.add_argument('-psi', '--ratio', metavar='psi',
@@ -86,16 +86,18 @@ def get_args():
 
 def main():
     args = get_args()
-    if (args.file == ''):
+    if (args.file == '' and args.bioplex == ''):
         print('Input file cannot be empty. Require a CSV file of protein purifications.')
         exit()
-    print('Hello, ' + args.file)
+    
     nK = int(args.max)
     psi = float(args.ratio)
 
-    if args.bioplex:
-        inputSet = inputBioplex.CInputBioplex(args.file, cpmBioplex.CountBioplexSpoke)
+    if args.bioplex != '':
+        print('Hello, ' + args.bioplex)
+        inputSet = inputBioplex.CInputBioplex(args.bioplex, cpmBioplex.CountBioplexSpoke)
     else:
+        print('Hello, ' + args.file)
         inputSet = inputFile.CInputSet(args.file, cpm.CountSpokeModel)
     nLogLikelihood = clustering(inputSet, nK, psi)
 

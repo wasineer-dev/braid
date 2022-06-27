@@ -1,16 +1,17 @@
 import pandas as pd
 import numpy as np
 
-N_MAX_TRIAL = 30
-
 class CountBioplexSpoke:
 
     def __init__(self, filePath):
 
         df = pd.read_csv(filePath, sep='\t')
 
-        bait_list = np.array(df['bait_symbol'], dtype='U21')
-        prey_list = np.array(df['symbol'], dtype='U21')
+        df_filtered = df[df.apply(lambda x: not x['bait_symbol'].isnumeric() and x['bait_symbol'] != "nan", axis=1)]
+        df_filtered = df[df.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
+
+        bait_list = np.array(df_filtered['bait_symbol'], dtype='U21')
+        prey_list = np.array(df_filtered['symbol'], dtype='U21')
 
         proteins_list = np.append(bait_list, prey_list)
             
@@ -31,9 +32,9 @@ class CountBioplexSpoke:
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
         bincounts = np.bincount(bait_inds)
-        for i, k in zip(np.unique(bait_inds), bincounts):
-            self.mTrials[i,:] = k*np.ones(nProteins, dtype=np.int32)
-            self.mTrials[:,i] = k*np.ones(nProteins, dtype=np.int32)
+        for i, k in enumerate(bincounts):
+            self.mTrials[i,:] += k*np.ones(nProteins, dtype=np.int32)
+            self.mTrials[:,i] += k*np.ones(nProteins, dtype=np.int32)
             
         for i in range(nProteins):
             assert(np.sum(self.mTrials[i,:]) == np.sum(self.mTrials[:,i]))
