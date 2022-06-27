@@ -35,9 +35,8 @@ def clustering(inputSet, Nk, psi):
     te = timer()
     print("Time running MFA: ", te-ts)
 
-    (regr, fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
+    (fn, fp) = cmfa.computeResidues(inputSet.observationG, nProteins, Nk)
     cmfa.computeEntropy(nProteins, Nk)
-    matQ = cmfa.clusterImage(cmfa.mIndicatorQ)
     
     print("False negative rate = " + str(fn))
     print("False positive rate = " + str(fp))
@@ -45,6 +44,8 @@ def clustering(inputSet, Nk, psi):
     inputSet.writeCluster2File(cmfa.mIndicatorQ, cmfa.indicatorVec)
     inputSet.observationG.write2cytoscape(cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
 
+    """ Not doing error statistics """
+    """
     X = cmfa.expectedErrors
     y = cmfa.mResidues
     pred_ols = regr.get_prediction()
@@ -68,7 +69,7 @@ def clustering(inputSet, Nk, psi):
     ax2.set_ylabel('Pearson Residuals')
     ax2.set_xlabel('Fitted values')
     plt.show()
-    
+    """
     return lstExpectedLikelihood
 
 def get_args():

@@ -46,3 +46,10 @@ class CInputSet:
                 ind = indVec[i]
                 fh.write(self.aSortedProteins[i] + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')
             fh.close()
+        with open("out.csv", "w") as fh:
+            for k in range(nCols):
+                inds = [i for i in range(nRows) if k == indVec[i]]
+                for i in inds:
+                    fh.write(self.aSortedProteins[i] + '\t')
+                fh.write('\n')    
+            fh.close()

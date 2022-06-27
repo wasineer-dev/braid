@@ -12,7 +12,6 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import PoissonRegressor, Ridge
 from sklearn.pipeline import Pipeline
 
-import statsmodels.api as sm
 from scipy import stats
 
 class CMeanFieldAnnealing:
@@ -34,11 +33,12 @@ class CMeanFieldAnnealing:
 
         nTemperature = 1000.0
         while nTemperature > 0.0:
-            print('Temperature: ', nTemperature)
-            tmp = np.zeros(shape=(Nproteins, Nk), dtype=float)
-            while not np.allclose(tmp, self.mIndicatorQ, 1e-5):
-                nIteration = 1
-                np.copyto(tmp, self.mIndicatorQ)
+            tmp = 1e-2
+            mExpectation = 0.0
+            nIteration = 0
+            while not np.allclose(tmp, mExpectation, 1e-5):
+                tmp = mExpectation
+                mExpectation = 0.0
                 for i in range(Nproteins):
                     # i = np.random.randint(0, Nproteins) # Choose a node at random
                     """ 
@@ -61,9 +61,11 @@ class CMeanFieldAnnealing:
                     gamma = nTemperature
                     self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
                     ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
+                    mExpectation += np.sum(mLogLikelihood)
                 nIteration += 1
+            print('Num. Iterations = ', nIteration)    
             nTemperature = nTemperature - 100.0
-
+            print('Temperature: ', nTemperature, 'Expectation = ', mExpectation)
         return self.lstExpectedLikelihood
 
     ##
@@ -209,14 +211,12 @@ class CMeanFieldAnnealing:
         result = scipy.stats.ks_2samp(residues, expectedErrors)
         print(result)
 
-        #result = scipy.stats.cramervonmises_2samp(residues, expectedErrors)
-        #print(result)
 
         self.expectedErrors = expectedErrors
         self.mResidues = residues
 
+        """
         # Ordinary Least Square
-        X = np.reshape(expectedErrors, (-1,1))
         est = sm.OLS(residues,  X)
         est2 = est.fit()
         print(est2.summary())
@@ -224,7 +224,9 @@ class CMeanFieldAnnealing:
         glm_poisson = sm.GLM(residues, X, family=sm.families.Poisson(sm.families.links.log()))
         glm_results = glm_poisson.fit()
         print(glm_results.summary())
+        """
 
+        X = np.reshape(expectedErrors, (-1,1))
         # Create linear regression object
         regr = linear_model.LinearRegression()
         # Train the model using the training sets
@@ -234,7 +236,7 @@ class CMeanFieldAnnealing:
         print("Linear Regression evaluation:")
         self.estimator_summary(regr, residues, y_pred)
         
-        return (est2, fn, fp)
+        return (fn, fp)
 
     def computeEntropy(self, Nproteins, Nk):
         self.mEntropy = np.zeros(Nproteins, dtype=float)
