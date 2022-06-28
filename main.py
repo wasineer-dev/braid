@@ -37,7 +37,7 @@ def clustering(inputSet, Nk, psi):
     funcInfer = cmfa
 
     ts = timer()
-    funcInfer.Likelihood(inputSet.observationG, nProteins, Nk, psi)
+    funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi, 1e-2)
     te = timer()
     print("Time running MFA: ", te-ts)
     (fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)
@@ -80,8 +80,8 @@ def clustering(inputSet, Nk, psi):
     return 0
 
 def mixture_bernoulli(inputSet, Nk):
-    mb = mmb.MixtureBernoulli()
     Xs = np.transpose(inputSet.incidence)
+    mb = mmb.MixtureBernoulli()
     p, mix_p = mb.estimate(Xs, Nk, 1e-8, 1e-8)
     y_pred = mb.predict(Xs, p, mix_p)
     inputSet.writeLabel2File(y_pred)
@@ -103,22 +103,28 @@ def get_args():
 def main():
     args = get_args()
     if (args.file == '' and args.bioplex == ''):
-        print('Input file cannot be empty. Require a CSV file of protein purifications.')
+        print('Input file cannot be empty. Require a CSV file of protein purifications, or BioPlex 2.0/3.0 input file.')
         exit()
-    print('Hello, ' + args.file)
+    
     nK = int(args.max)
     psi = float(args.ratio)
 
     if args.bioplex != '':
+        print('Hello, ' + args.bioplex)
         inputSet = inputBioplex.CInputBioplex(args.bioplex, cpmBioplex.CountBioplexSpoke)
     else:
+        print('Hello, ' + args.file)
         inputSet = inputFile.CInputSet(args.file, cpm.CountSpokeModel)
     
     if args.mixmodel == "none":
         return clustering(inputSet, nK, psi)
 
     if args.mixmodel == "bernoulli":
-        return mixture_bernoulli(inputSet, nK)
+        if args.bioplex != '':
+            print("The input size is too large for this implementation")
+            return
+        else:
+            return mixture_bernoulli(inputSet, nK)
 
     if args.mixmodel == "beta":
         return
