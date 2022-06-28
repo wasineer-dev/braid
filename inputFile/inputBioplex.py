@@ -11,7 +11,7 @@ class CInputBioplex:
 
         df = pd.read_csv(filePath, sep='\t')
         df_filtered = df[df.apply(lambda x: not x['bait_symbol'].isnumeric() and x['bait_symbol'] != "nan", axis=1)]
-        df_filtered = df[df.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
+        df_filtered = df_filtered[df_filtered.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
 
         bait_list = np.array(df_filtered['bait_symbol'], dtype='U21')
         prey_list = np.array(df_filtered['symbol'], dtype='U21')
@@ -27,8 +27,29 @@ class CInputBioplex:
 
         self.aSortedProteins = np.sort(np.unique(proteins_list))  # sorted proteins list
         
-        for v in self.aSortedProteins[:100]:
-            print(v)
+        bait_inds = np.searchsorted(self.aSortedProteins, np.array(bait_list, dtype='U21'))
+        prey_inds = np.searchsorted(self.aSortedProteins, np.array(prey_list, dtype='U21'))
+
+        # Count purifications
+        nCount = 0
+        curBait = bait_inds[0]
+        for b in bait_inds:
+            if curBait != b:
+                curBait = b
+                nCount += 1
+        nCount += 1
+        print("Number of purifications = ", nCount)
+
+        nProteins = len(self.aSortedProteins)
+        self.incidence = np.zeros(shape=(nCount, nProteins), dtype=float)
+        nCount = 0
+        curBait = bait_inds[0]
+        for bait_ind,prey_ind in zip(bait_inds, prey_inds):
+            if curBait != bait_ind:
+                curBait = bait_ind
+                nCount += 1
+            self.incidence[nCount][prey_ind] = 1.0
+        del df
 
         self.observationG = cpmFunc(filePath)
 
@@ -45,5 +66,19 @@ class CInputBioplex:
                     ind = indVec[i]
                     if (ind == k):
                         fh.write(self.aSortedProteins[i] + '\t')
+                fh.write('\n')
+            fh.close()
+
+    def writeLabel2File(self, indVec):
+        clusters = {}
+        for i,k in enumerate(indVec):
+            if k not in clusters.keys():
+                clusters[k] = set()
+            clusters[k].add(i)
+
+        with open("bioplex_out.csv", "w") as fh:
+            for i, k in enumerate(clusters):
+                for v in clusters[k]:
+                    fh.write(self.aSortedProteins[v] + '\t')
                 fh.write('\n')
             fh.close()

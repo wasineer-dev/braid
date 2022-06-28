@@ -15,11 +15,13 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+from sklearn import mixture
 
 import spoke_model.countSpokeModel as cpm
 import spoke_model.countBioplexSpokeModel as cpmBioplex
 import spoke_model.countMatrixModel as cmm
 import meanfield.simulateLikelihood as smlt
+import mixmodel.mixtureBernoulli as mmb
 
 import inputFile.inputFile as inputFile
 import inputFile.inputBioplex as inputBioplex
@@ -35,7 +37,7 @@ def clustering(inputSet, Nk, psi):
     funcInfer = cmfa
 
     ts = timer()
-    lstExpectedLikelihood = funcInfer.Likelihood(inputSet.observationG, nProteins, Nk, psi)
+    funcInfer.Likelihood(inputSet.observationG, nProteins, Nk, psi)
     te = timer()
     print("Time running MFA: ", te-ts)
     (fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)
@@ -75,14 +77,23 @@ def clustering(inputSet, Nk, psi):
     ax3.set_title('Prior weights')
     plt.show()
     """
-    return lstExpectedLikelihood
+    return 0
+
+def mixture_bernoulli(inputSet, Nk):
+    mb = mmb.MixtureBernoulli()
+    Xs = np.transpose(inputSet.incidence)
+    p, mix_p = mb.estimate(Xs, Nk, 1e-8, 1e-8)
+    y_pred = mb.predict(Xs, p, mix_p)
+    inputSet.writeLabel2File(y_pred)
 
 def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
                         default='', help='CSV input file of protein purifications')
-    parser.add_argument('-bp', '--bioplex', action='store_true',
-                        default=False, help='Indicate if the input is in Bioplex format')
+    parser.add_argument('-bp', '--bioplex', metavar='bioplex',
+                        default='', help='Indicate if the input is in Bioplex format')
+    parser.add_argument('-mm', '--mixmodel', metavar="mixmodel",
+                        default='none', help='switch to mixture model')
     parser.add_argument('-k', '--max', metavar='numclusters',
                         default='100', help='A maximum number of possible clusters')
     parser.add_argument('-psi', '--ratio', metavar='psi',
@@ -91,18 +102,26 @@ def get_args():
 
 def main():
     args = get_args()
-    if (args.file == ''):
+    if (args.file == '' and args.bioplex == ''):
         print('Input file cannot be empty. Require a CSV file of protein purifications.')
         exit()
     print('Hello, ' + args.file)
     nK = int(args.max)
     psi = float(args.ratio)
 
-    if args.bioplex:
-        inputSet = inputBioplex.CInputBioplex(args.file, cpmBioplex.CountBioplexSpoke)
+    if args.bioplex != '':
+        inputSet = inputBioplex.CInputBioplex(args.bioplex, cpmBioplex.CountBioplexSpoke)
     else:
         inputSet = inputFile.CInputSet(args.file, cpm.CountSpokeModel)
-    nLogLikelihood = clustering(inputSet, nK, psi)
+    
+    if args.mixmodel == "none":
+        return clustering(inputSet, nK, psi)
+
+    if args.mixmodel == "bernoulli":
+        return mixture_bernoulli(inputSet, nK)
+
+    if args.mixmodel == "beta":
+        return
 
 if __name__ == '__main__':
     main()

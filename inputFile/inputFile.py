@@ -26,18 +26,18 @@ class CInputSet:
         print('Number of purifications ' + str(len(bait_inds)))
 
         nProteins = len(self.aSortedProteins)
-        incidence = np.zeros(shape=(len(bait_inds), nProteins), dtype=int)
+        self.incidence = np.zeros(shape=(len(bait_inds), nProteins), dtype=int)
         with open(filename) as fh:
             lineCount = 0
             for line in fh:
                 lst = line.rstrip().split(',')
                 prey_inds = np.searchsorted(self.aSortedProteins, np.array(lst, dtype='U21'))           
                 for id in prey_inds:
-                    incidence[lineCount][id] = 1
+                    self.incidence[lineCount][id] = 1
                 lineCount += 1
             fh.close()
             
-        self.observationG = cpmFunc(nProteins, bait_inds, incidence)
+        self.observationG = cpmFunc(nProteins, bait_inds, self.incidence)
 
     def writeCluster2File(self, matQ, indVec):
         nRows, nCols = matQ.shape
@@ -51,5 +51,20 @@ class CInputSet:
                 inds = list(i for i in range(nRows) if indVec[i] == k)
                 for j in inds:
                     fh.write(self.aSortedProteins[j] + '\t')
+                fh.write('\n')
+            fh.close()
+    
+    def writeLabel2File(self, indVec):
+        clusters = {}
+        for i,k in enumerate(indVec):
+            if k not in clusters.keys():
+                clusters[k] = set()
+            clusters[k].add(i)
+
+        with open("out.csv", "w") as fh:
+            for i, k in enumerate(clusters):
+                for v in clusters[k]:
+                    protein = self.aSortedProteins[v].split('__')[0] 
+                    fh.write(protein + '\t')
                 fh.write('\n')
             fh.close()
