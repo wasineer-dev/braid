@@ -61,8 +61,8 @@ class CMeanFieldAnnealing:
                     gamma = nTemperature
                     self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
                     ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
-                    mExpectation += np.sum(mLogLikelihood)
                 nIteration += 1
+                mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
             print('Num. Iterations = ', nIteration)    
             print('Temperature: ', nTemperature, 'Expectation = ', mExpectation)
             nTemperature = nTemperature - 100.0
