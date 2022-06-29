@@ -56,9 +56,9 @@ Ref 3 (proteins from Babu2018 PPI network)
 | Fraction |  0.227 (0.397)     |   0.170            |  0.159   |      
 
 Ref 4 (EcoCyC proteins)
-|  EcoCyc  |  MRF | ClusterONE |  Mix.Bernou. |       
+|  EcoCyC  |  MRF | ClusterONE |  Mix.Bernou. |       
 |--------  |-------------|--------------------|----------|
-| Accuracy |  0. (0.372)     |   0.318            |  0.467   |      
-| Fraction |  0. (0.121)     |   0.032            |  0.186   |      
+| Accuracy |  0.366 (0.372)     |   0.318            |  0.467   |      
+| Fraction |  0.150 (0.121)     |   0.032            |  0.186   |     
 
 Note: parameters of MRF $\psi = 0.01$, $k = 800$.
