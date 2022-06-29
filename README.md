@@ -50,13 +50,13 @@ Note: parameters of MRF $\psi = 3.4$, $k \in [700,800,900,1000]$. ClusterONE use
 Ref 3 (proteins from Babu2018 PPI network)
 |  EcoCyc  |  MRF | ClusterONE |  Mix.Bernou. |       
 |--------  |-------------|--------------------|----------|
-| Accuracy |  0.388 (0.465)     |   0.558            |  0.454   |      
-| Fraction |  0.227 (0.397)     |   0.170            |  0.159   |      
+| Accuracy |  0.425 (0.465)     |   0.558            |  0.454   |      
+| Fraction |  0.443 (0.397)     |   0.170            |  0.159   |      
 
-Ref 4 (EcoCyc proteins)
+Ref 4 (EcoCyC proteins)
 |  EcoCyc  |  MRF | ClusterONE |  Mix.Bernou. |       
 |--------  |-------------|--------------------|----------|
-| Accuracy |  0. (0.372)     |   0.318            |  0.467   |      
-| Fraction |  0. (0.121)     |   0.032            |  0.186   |      
+| Accuracy |  0.366 (0.372)     |   0.318            |  0.467   |      
+| Fraction |  0.150 (0.121)     |   0.032            |  0.186   |      
 
 Note: parameters of MRF $\psi = 0.01$, $k = 800$.
