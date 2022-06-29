@@ -37,7 +37,8 @@ def clustering(inputSet, Nk, psi):
     funcInfer = cmfa
 
     ts = timer()
-    funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi, 1e-2)
+    # alpha = 1e-2
+    funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi, 0.2) 
     te = timer()
     print("Time running MFA: ", te-ts)
     (fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)

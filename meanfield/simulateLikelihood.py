@@ -28,69 +28,58 @@ class CMeanFieldAnnealing:
     def __init__(self, Nproteins, Nk):
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
-        
-    def Likelihood(self, mObservationG, Nproteins, Nk, psi):
 
+    def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
+
+        gamma = 1000.0
         rng = default_rng()
-
-        # psi = (-np.log(fp) + np.log(1 - fn))/(-np.log(fn) + np.log(1 - fp))
-        print('psi = ', psi)
-
-        alphas = 0.5*np.ones(Nk, dtype=float)
-        self.mWeights = scipy.stats.dirichlet.rvs(alphas) 
-        self.mAverageWeights = scipy.special.digamma(alphas) - scipy.special.digamma(np.sum(alphas))
-
-        for i in range(Nproteins):
-            self.mIndicatorQ[i,:] = rng.random(Nk)
-            self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
 
         matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
         matB = np.array(psi*mObservationG.mObserved, dtype=float)
-        nTemperature = 1000.0
-        while nTemperature > 0.0:
-            mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
-            tmp = 0.0
-            print('Temperature: ', nTemperature, 'Expectation = ', mExpectation)
-            while not np.allclose(tmp, mExpectation, 1e-5):
-                nIteration = 1
-                tmp = mExpectation
-                for i in range(Nproteins):
-                    # i = np.random.randint(0, Nproteins) # Choose a node at random
-                    """ 
-                    mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
-                    for k in range(Nk):
-                        for j in mObservationG.lstAdjacency[i]:
-                            t = mObservationG.mTrials[i][j]
-                            s = mObservationG.mObserved[i][j]
-                            assert(s <= t)
-                            mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
-                            ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
-                    """
-                    if 0:
-                        mLogLikelihood = use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
-                    else:
-                        fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
-                        fp_out = np.dot(psi*mObservationG.mObserved[i], np.ones((Nproteins, Nk)) - self.mIndicatorQ)
-                        
-                        mLogLikelihood = fn_out + fp_out
-                        mLogLikelihood = mLogLikelihood - self.mAverageWeights 
-                        
-                    
-                    # Overflow problem. Need to compute with softmax
-                    gamma = nTemperature
-                    vecIndicator = scipy.special.softmax(-gamma*mLogLikelihood)
-                    ## self.mIndicatorQ[i,:] /= sum(self.mIndicatorQ[i,:])
-                    self.mIndicatorQ[i,:] = vecIndicator
-                nIteration += 1
-                mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
-                alphas = 0.5*np.ones(Nk, dtype=float)
-                alphas += np.sum(self.mIndicatorQ, axis=0)
-                self.mWeights = scipy.stats.dirichlet.rvs(alphas)
-                self.mAverageWeights = scipy.special.digamma(alphas) - scipy.special.digamma(np.sum(alphas))
 
-            nTemperature = nTemperature - 20.0
-        self.mPosteriorWeights = self.mWeights[0]
-        return self.lstExpectedLikelihood
+        A = matA @ self.mIndicatorQ
+        B = matB @ (1.0 - self.mIndicatorQ)
+        for i in range(Nproteins):        
+            """ 
+            mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
+            for k in range(Nk):
+                for j in mObservationG.lstAdjacency[i]:
+                    t = mObservationG.mTrials[i][j]
+                    s = mObservationG.mObserved[i][j]
+                    assert(s <= t)
+                    mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
+                    ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
+            """
+            if 0:
+                mLogLikelihood = use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
+            else:
+                fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
+                fp_out = np.dot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ)
+
+                mLogLikelihood = fn_out + fp_out + np.log(mix_p)
+                self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+            
+    def MStep(self, Nk, alpha):
+        Z = np.sum(self.mIndicatorQ, axis=0)
+        mix_p = np.zeros(Nk, dtype=float)
+        for k in range(Nk):
+            mix_p[k] = (Z[k] + alpha)/(np.sum(Z) + alpha*Nk)
+        return mix_p
+
+    def estimate(self, mObservationG, Nproteins, Nk, psi, beta):
+        
+        print('psi = ', psi)
+
+        mix_p = (1.0/float(Nk))*np.ones(Nk, dtype=float)
+        alpha1 = 1e-8
+        for i in range(Nproteins):
+            self.mIndicatorQ[i] = np.random.uniform(0.0, 1.0, size=Nk)
+            self.mIndicatorQ[i] = (self.mIndicatorQ[i] + alpha1)/(np.sum(self.mIndicatorQ[i]) + alpha1*Nproteins)
+
+        nIteration = 20
+        for n in range(nIteration):
+            self.EStep(mix_p, mObservationG, Nproteins, Nk, psi)
+            mix_p = self.MStep(Nk, beta)
 
     ##
     ## Adapt from https://github.com/zib-cmd/cmdtools/blob/dev/src/cmdtools/analysis/optimization.py

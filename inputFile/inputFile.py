@@ -50,7 +50,8 @@ class CInputSet:
             for k in range(nCols):
                 inds = list(i for i in range(nRows) if indVec[i] == k)
                 for j in inds:
-                    fh.write(self.aSortedProteins[j] + '\t')
+                    protein = self.aSortedProteins[j].split('__')[0] 
+                    fh.write(protein + '\t')
                 fh.write('\n')
             fh.close()
     
