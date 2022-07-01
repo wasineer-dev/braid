@@ -13,16 +13,22 @@ from sklearn.pipeline import Pipeline
 
 from scipy import stats
 
-from numba import njit
+from numba import jit, njit
 
-@njit(parallel=True)
+@jit
 def use_numba(Nproteins, Nk, A, B, indicatorQ):
     fn_out = np.dot(A, indicatorQ) 
     fp_out = np.dot(B, np.ones((Nproteins, Nk)) - indicatorQ)
 
     mLogLikelihood = fn_out + fp_out
     return mLogLikelihood
-
+    
+@jit
+def update_numba(i, Nproteins, matA, matB, nextQ, mIndicatorQ, A, B):
+    for j in range(i+1, Nproteins):
+        A[j] += (matA[j][i]*nextQ - matA[j][i]*mIndicatorQ)
+        B[j] += (matB[j][i]*nextQ - matB[j][i]*mIndicatorQ)
+        
 class CMeanFieldAnnealing:
 
     def __init__(self, Nproteins, Nk):
@@ -50,14 +56,32 @@ class CMeanFieldAnnealing:
                     mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
                     ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
             """
-            if 0:
-                mLogLikelihood = use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
+            if 1:
+                mLogLikelihood = np.log(mix_p)
+                mLogLikelihood += use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
             else:
                 fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
                 fp_out = np.dot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ)
 
                 mLogLikelihood = fn_out + fp_out + np.log(mix_p)
-                self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+            self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+
+    def EStepWithNumba(self, mix_p, mObservationG, Nproteins, Nk, psi):
+
+        gamma = 1000.0
+        rng = default_rng()
+
+        matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
+        matB = np.array(psi*mObservationG.mObserved, dtype=float)
+
+        A = matA @ self.mIndicatorQ
+        B = matB @ (1.0 - self.mIndicatorQ)
+
+        for i in range(Nproteins):
+            mLogLikelihood = A[i] + B[i] + np.log(mix_p)
+            nextQ = scipy.special.softmax(-gamma*mLogLikelihood)
+            update_numba(i, Nproteins, matA, matB, nextQ, self.mIndicatorQ[i], A, B)
+            self.mIndicatorQ[i] = nextQ
             
     def MStep(self, Nk, alpha):
         Z = np.sum(self.mIndicatorQ, axis=0)
