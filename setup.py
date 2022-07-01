@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-setup(name='braid_mrf',
+setup(name='braid-mrf',
       version='1.0.5',
       description='Predicting protein complexes',
       author='Wasinee Rungsarityotin',
