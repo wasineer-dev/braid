@@ -1,0 +1,32 @@
+# ignore this
+./__pycache__/*.pyc
+ecoli2018_clusters.tab
+gavin2006_clusters.tab
+out.tab
+compare_clusters/gavin2006_MRF.tab
+datasets/Babu_et_al_2017_Ecoli_CEP_predicted_complexes.cysZone.Identifier
+datasets/BaitPreyPairs_noFilters_BP2a.tsv
+datasets/BaitPreyPairs_noFilters_BP2a.tsvZone.Identifier
+datasets/BioPlex_BaitPreyPairs_noFilters_293T_10K_Dec_2019.tsv
+datasets/BioPlex_BaitPreyPairs_noFilters_293T_10K_Dec_2019.tsvZone.Identifier
+datasets/Supplementary Table 7_revised-July 19-2017.xlsxZone.Identifier
+spoke_model/__pycache__/*.pyc
+goterms_MFA_Gavin2006.csv
+datasets/EC_CEP_Complexes_Table 7_revised-July 19-2017.xlsx
+datasets/Babu_et_al_2017_Ecoli_CEP_predicted_complexes.cys
+out.sif
+convert2GeneSymbol.sif
+inputFile/__pycache__/inputFile.cpython-39.pyc
+meanfield/__pycache__/simulateLikelihood.cpython-39.pyc
+gavin2002_genes_05.sif
+gavin2002_genes_08.sif
+gavin2006_genes_08.sif
+.DS_Store
+gavin2006_simplex.sif
+inputFile/__pycache__/inputBioplex.cpython-39.pyc
+BioPlex2.sif
+meanfield/fast_matmul.py
+__pycache__/main.cpython-39.pyc
+meanfield/__pycache__/fast_matmul.cpython-39.pyc
+out.csv
+meanfield/__pycache__/betaProcessPrior.cpython-39.pyc
