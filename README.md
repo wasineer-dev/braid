@@ -47,18 +47,18 @@ Ref 2 (MIPS proteins):
 | Accuracy |  0.396 (0.384)   |   0.378     |    0.349       |           
 | Fraction |  0.492 (0.470)   |   0.428     |    0.433       |           
 
-Note: parameters of MRF $\psi = 3.4$, $k \in [700,800,900,1000]$. ClusterONE uses default parameters. Mixture of Bernoulli set $k=800$.
+Note: parameters of MRF $\psi = 3.4$, $k \in [700,800,900,1000]$. ClusterONE: default parameters. Mixture of Bernoulli: $k=800$.
 
 Ref 3 (proteins from Babu2018 PPI network)
 |  EcoCyc  |  MRF | ClusterONE |  Mix.Bernou. |       
 |--------  |-------------|--------------------|----------|
-| Accuracy |  0.388 (0.465)     |   0.558            |  0.454   |      
-| Fraction |  0.227 (0.397)     |   0.170            |  0.159   |      
+| Accuracy |  0.456 (0.465)     |   0.558            |  0.454   |      
+| Fraction |  0.352 (0.397)     |   0.170            |  0.159   |      
 
 Ref 4 (EcoCyC proteins)
 |  EcoCyC  |  MRF | ClusterONE |  Mix.Bernou. |       
 |--------  |-------------|--------------------|----------|
-| Accuracy |  0.366 (0.372)     |   0.318            |  0.467   |      
-| Fraction |  0.150 (0.121)     |   0.032            |  0.186   |     
+| Accuracy |  0.411 (0.372)     |   0.318            |  0.467   |      
+| Fraction |  0.157 (0.121)     |   0.032            |  0.186   |     
 
-Note: parameters of MRF $\psi = 0.01$, $k = 800$.
+Note: parameters of MRF $\psi = 0.1$, $k = 800$.
