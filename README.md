@@ -38,14 +38,14 @@ Benchmark: S.cerevisiae (MIPS), E.coli (EcoCyC)
 Ref 1 (proteins from Gavin2006 PPI network):
 |  MIPS    |    MRF (w prior)   |  ClusterONE        |  Mix.Bernou.   |     
 |--------  |-----------|--------------------|-------------   |
-| Accuracy |  0.497 (0.499)   |   0.498            |    0.450       |       
-| Fraction |  0.756 (0.713)   |   0.713            |    0.713       |       
+| Accuracy |  0.511 (0.499)   |   0.498            |    0.450       |       
+| Fraction |  0.721 (0.713)   |   0.713            |    0.713       |       
 
 Ref 2 (MIPS proteins):
 |  MIPS    |    MRF    |  ClusterONE |  Mix.Bernou.   |     
 |--------  |-----------|-------------|-------------   |
-| Accuracy |  0.376 (0.384)   |   0.378     |    0.349       |           
-| Fraction |  0.465 (0.470)   |   0.428     |    0.433       |           
+| Accuracy |  0.396 (0.384)   |   0.378     |    0.349       |           
+| Fraction |  0.492 (0.470)   |   0.428     |    0.433       |           
 
 Note: parameters of MRF $\psi = 3.4$, $k \in [700,800,900,1000]$. ClusterONE uses default parameters. Mixture of Bernoulli set $k=800$.
 

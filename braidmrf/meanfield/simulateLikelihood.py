@@ -35,8 +35,9 @@ class CMeanFieldAnnealing:
             tmp = 1e-2
             mExpectation = 0.0
             nIteration = 0
-            while not np.allclose(tmp, mExpectation, 1e-5):
-                tmp = mExpectation
+            tmpQ = tmp * np.ones(shape=(Nproteins, Nk), dtype=float)
+            while not np.allclose(tmpQ, self.mIndicatorQ, 1e-5):
+                np.copyto(tmpQ, self.mIndicatorQ)
                 mExpectation = 0.0
                 for i in range(Nproteins):
                     # i = np.random.randint(0, Nproteins) # Choose a node at random
@@ -64,7 +65,7 @@ class CMeanFieldAnnealing:
                 mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
             print('Num. Iterations = ', nIteration)    
             print('Temperature: ', nTemperature, 'Expectation = ', mExpectation)
-            nTemperature = nTemperature - 100.0
+            nTemperature = nTemperature - 80.0
         return self.lstExpectedLikelihood
 
     ##
