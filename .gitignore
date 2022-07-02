@@ -47,3 +47,5 @@ braidmrf/meanfield/__pycache__/simulateLikelihood.cpython-39.pyc
 braidmrf/observation/__pycache__/__init__.cpython-39.pyc
 braidmrf/observation/__pycache__/countBioplexSpokeModel.cpython-39.pyc
 braidmrf/observation/__pycache__/countSpokeModel.cpython-39.pyc
+braidmrf/__pycache__/__init__.cpython-39.pyc
+braidmrf/__pycache__/__main__.cpython-39.pyc
