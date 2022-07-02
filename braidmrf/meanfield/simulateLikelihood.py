@@ -19,7 +19,7 @@ class CMeanFieldAnnealing:
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
         
-    def Likelihood(self, mObservationG, Nproteins, Nk, psi):
+    def estimate(self, mObservationG, Nproteins, Nk, psi):
 
         rng = default_rng()
 
