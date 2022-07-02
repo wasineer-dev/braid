@@ -43,28 +43,22 @@ class CMeanFieldAnnealing:
         matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
         matB = np.array(psi*mObservationG.mObserved, dtype=float)
 
-        A = matA @ self.mIndicatorQ
-        B = matB @ (1.0 - self.mIndicatorQ)
-        for i in range(Nproteins):        
-            """ 
-            mLogLikelihood = np.zeros(Nk, dtype=float) # Negative log-likelihood
-            for k in range(Nk):
-                for j in mObservationG.lstAdjacency[i]:
-                    t = mObservationG.mTrials[i][j]
-                    s = mObservationG.mObserved[i][j]
-                    assert(s <= t)
-                    mLogLikelihood[k] += (self.mIndicatorQ[j][k]*float(t-s) + (1.0 - self.mIndicatorQ[j][k])*float(s)*psi)
-                    ## mLogLikelihood[k] += self.mIndicatorQ[j][k]*(t-s-s*psi)
-            """
-            if 1:
-                mLogLikelihood = np.log(mix_p)
-                mLogLikelihood += use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
-            else:
-                fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
-                fp_out = np.dot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ)
+        nIteration = 0
+        tmpQ = 1e-2 * np.zeros((Nproteins, Nk), dtype=float)
+        while(not np.allclose(tmpQ, self.mIndicatorQ, 1e-5)):
+            np.copyto(tmpQ, self.mIndicatorQ)
+            for i in range(Nproteins):        
+                if 0:
+                    mLogLikelihood = np.log(mix_p)
+                    mLogLikelihood += use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
+                else:
+                    fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
+                    fp_out = np.dot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ)
 
-                mLogLikelihood = fn_out + fp_out + np.log(mix_p)
-            self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+                    mLogLikelihood = fn_out + fp_out + np.log(mix_p)
+                self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
+            nIteration += 1
+        print("E-step: num. iterations = ", nIteration)
 
     def EStepWithNumba(self, mix_p, mObservationG, Nproteins, Nk, psi):
 
