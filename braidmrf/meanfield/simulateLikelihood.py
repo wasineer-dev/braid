@@ -13,6 +13,8 @@ from sklearn.pipeline import Pipeline
 
 from scipy import stats
 
+MAX_ITERATION = 20
+
 class CMeanFieldAnnealing:
 
     def __init__(self, Nproteins, Nk):
@@ -36,7 +38,7 @@ class CMeanFieldAnnealing:
             mExpectation = 0.0
             nIteration = 0
             tmpQ = tmp * np.ones(shape=(Nproteins, Nk), dtype=float)
-            while not np.allclose(tmpQ, self.mIndicatorQ, 1e-5):
+            while nIteration < MAX_ITERATION and not np.allclose(tmpQ, self.mIndicatorQ, 1e-5):
                 np.copyto(tmpQ, self.mIndicatorQ)
                 mExpectation = 0.0
                 for i in range(Nproteins):
