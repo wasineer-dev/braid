@@ -67,7 +67,7 @@ class CMeanFieldAnnealing:
                 mExpectation = np.sum(np.sum(self.mIndicatorQ, axis=0))
             print('Num. Iterations = ', nIteration)    
             print('Temperature: ', nTemperature, 'Expectation = ', mExpectation)
-            nTemperature = nTemperature - 80.0
+            nTemperature = nTemperature - 100.0
         return self.lstExpectedLikelihood
 
     ##
