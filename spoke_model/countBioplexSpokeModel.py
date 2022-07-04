@@ -31,7 +31,7 @@ class CountBioplexSpoke:
             self.mObserved[j][i] += 1
 
         self.mTrials = np.zeros(shape=(nProteins, nProteins), dtype=int)
-        bincounts = np.bincount(bait_inds)
+        bincounts = np.bincount(bait_inds, minlength=nProteins)
         for i,k in enumerate(bincounts):
             self.mTrials[i,:] += k*np.ones(nProteins, dtype=np.int32)
             self.mTrials[:,i] += k*np.ones(nProteins, dtype=np.int32)
