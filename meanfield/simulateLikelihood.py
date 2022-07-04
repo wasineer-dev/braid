@@ -35,10 +35,9 @@ class CMeanFieldAnnealing:
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
 
-    def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
+    def annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
 
         gamma = 1000.0
-        rng = default_rng()
 
         matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
         matB = np.array(psi*mObservationG.mObserved, dtype=float)
@@ -52,18 +51,26 @@ class CMeanFieldAnnealing:
                     mLogLikelihood = np.log(mix_p)
                     mLogLikelihood += use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
                 else:
-                    fn_out = np.dot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ) 
-                    fp_out = np.dot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ)
+                    fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
+                    fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
 
                     mLogLikelihood = fn_out + fp_out + np.log(mix_p)
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
             nIteration += 1
-        print("E-step: num. iterations = ", nIteration)
+        print("MFA: num. iterations = ", nIteration)
+
+    def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
+        gamma = 1000.0
+        for i in range(Nproteins):
+            fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
+            fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
+
+            mLogLikelihood = fn_out + fp_out + np.log(mix_p)
+            self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
 
     def EStepWithNumba(self, mix_p, mObservationG, Nproteins, Nk, psi):
 
         gamma = 1000.0
-        rng = default_rng()
 
         matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
         matB = np.array(psi*mObservationG.mObserved, dtype=float)
@@ -93,6 +100,10 @@ class CMeanFieldAnnealing:
         for i in range(Nproteins):
             self.mIndicatorQ[i] = np.random.uniform(0.0, 1.0, size=Nk)
             self.mIndicatorQ[i] = (self.mIndicatorQ[i] + alpha1)/(np.sum(self.mIndicatorQ[i]) + alpha1*Nproteins)
+
+        # Initialize
+        self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
+        mix_p = self.MStep(Nk, beta)
 
         nIteration = 20
         for n in range(nIteration):
