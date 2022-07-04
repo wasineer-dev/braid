@@ -15,6 +15,8 @@ from scipy import stats
 
 from numba import jit, njit
 
+MAX_ITERATION = 20
+
 @jit
 def use_numba(Nproteins, Nk, A, B, indicatorQ):
     fn_out = np.dot(A, indicatorQ) 
@@ -44,7 +46,7 @@ class CMeanFieldAnnealing:
 
         nIteration = 0
         tmpQ = 1e-2 * np.zeros((Nproteins, Nk), dtype=float)
-        while(not np.allclose(tmpQ, self.mIndicatorQ, 1e-5)):
+        while(nIteration < MAX_ITERATION and not np.allclose(tmpQ, self.mIndicatorQ, 1e-5)):
             np.copyto(tmpQ, self.mIndicatorQ)
             for i in range(Nproteins):        
                 if 0:
@@ -57,7 +59,7 @@ class CMeanFieldAnnealing:
                     mLogLikelihood = fn_out + fp_out + np.log(mix_p)
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
             nIteration += 1
-        print("MFA: num. iterations = ", nIteration)
+        print("Initialize with MFA: num. iterations = ", nIteration)
 
     def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
         gamma = 1000.0
