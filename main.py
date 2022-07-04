@@ -121,11 +121,7 @@ def main():
         return clustering(inputSet, nK, psi)
 
     if args.mixmodel == "bernoulli":
-        if args.bioplex != '':
-            print("The input size is too large for this implementation")
-            return
-        else:
-            return mixture_bernoulli(inputSet, nK)
+        return mixture_bernoulli(inputSet, nK)
 
     if args.mixmodel == "beta":
         return

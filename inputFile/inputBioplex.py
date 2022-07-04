@@ -30,25 +30,12 @@ class CInputBioplex:
         bait_inds = np.searchsorted(self.aSortedProteins, np.array(bait_list, dtype='U21'))
         prey_inds = np.searchsorted(self.aSortedProteins, np.array(prey_list, dtype='U21'))
 
-        # Count purifications
-        nCount = 0
-        curBait = bait_inds[0]
-        for b in bait_inds:
-            if curBait != b:
-                curBait = b
-                nCount += 1
-        nCount += 1
-        print("Number of purifications = ", nCount)
-
-        nProteins = len(self.aSortedProteins)
-        self.incidence = np.zeros(shape=(nCount, nProteins), dtype=float)
-        nCount = 0
-        curBait = bait_inds[0]
-        for bait_ind,prey_ind in zip(bait_inds, prey_inds):
-            if curBait != bait_ind:
-                curBait = bait_ind
-                nCount += 1
-            self.incidence[nCount][prey_ind] = 1.0
+        nBaits = len(np.unique(bait_list))
+        self.incidence = np.zeros((nBaits, nProteins), dtype=float)
+        aSortedBaits = np.sort(np.unique(bait_list))
+        inds = np.searchsorted(aSortedBaits, np.array(bait_list, dtype='U21'))
+        for bait, prey in zip(inds, prey_inds):
+            self.incidence[bait][prey] = 1
         del df
 
         self.observationG = cpmFunc(filePath)
