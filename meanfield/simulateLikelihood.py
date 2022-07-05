@@ -15,7 +15,7 @@ from scipy import stats
 
 from numba import jit, njit
 
-MAX_ITERATION = 20
+MAX_ITERATION = 10
 
 @jit
 def use_numba(Nproteins, Nk, A, B, indicatorQ):
@@ -90,7 +90,7 @@ class CMeanFieldAnnealing:
             mix_p[k] = (Z[k] + alpha)/(np.sum(Z) + alpha*Nk)
         return mix_p
 
-    def estimate(self, mObservationG, Nproteins, Nk, psi, beta):
+    def estimate(self, mObservationG, Nproteins, Nk, psi):
         
         print('psi = ', psi)
 

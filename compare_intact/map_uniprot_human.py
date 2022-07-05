@@ -104,7 +104,7 @@ def get_args():
     return parser.parse_args()
 
 def main(args):
-    matB = readClusterOne(args.clone)
+    #matB = readClusterOne(args.clone)
     matA = readBioPlexMFAOutput(args.file)
     
 if __name__ == '__main__':

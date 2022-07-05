@@ -23,12 +23,14 @@ class MixtureBernoulli:
     def annealing(self, Xs, p, mix_p):
         Ns, nD = Xs.shape
         gamma = 1000.0
-        while(gamma > 1.0):
+        nIteration = 0
+        while(nIteration < MAX_ITERATION and gamma > 1.0):
             for i in range(Ns):
                 fn_out = np.tensordot(self.matA[i], self.eta, axes=1)
                 fp_out = np.tensordot(self.matB[i], 1.0 - self.eta, axes=1)
                 Z = fn_out + fp_out
                 self.eta[i] = scipy.special.softmax(-gamma*Z)
+            nIteration += 1
             gamma = gamma - 100.0
         
     #
