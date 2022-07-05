@@ -80,9 +80,9 @@ def clustering(inputSet, Nk, psi):
     """
     return 0
 
-def mixture_bernoulli(inputSet, Nk):
+def mixture_bernoulli(inputSet, Nk, psi):
     Xs = np.transpose(inputSet.incidence)
-    mb = mmb.MixtureBernoulli()
+    mb = mmb.MixtureBernoulli(inputSet.observationG, psi)
     p, mix_p = mb.estimate(Xs, Nk, 1e-8, 1e-8)
     y_pred = mb.predict(Xs, p, mix_p)
     inputSet.writeLabel2File(y_pred)
@@ -121,7 +121,7 @@ def main():
         return clustering(inputSet, nK, psi)
 
     if args.mixmodel == "bernoulli":
-        return mixture_bernoulli(inputSet, nK)
+        return mixture_bernoulli(inputSet, nK, psi)
 
     if args.mixmodel == "beta":
         return

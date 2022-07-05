@@ -28,8 +28,8 @@ def use_numba(Nproteins, Nk, A, B, indicatorQ):
 @jit
 def update_numba(i, Nproteins, matA, matB, nextQ, mIndicatorQ, A, B):
     for j in range(i+1, Nproteins):
-        A[j] += (matA[j][i]*nextQ - matA[j][i]*mIndicatorQ)
-        B[j] += (matB[j][i]*nextQ - matB[j][i]*mIndicatorQ)
+        A[j] += (matA[j][i]*(nextQ - mIndicatorQ))
+        B[j] += (matB[j][i]*(nextQ - mIndicatorQ))
         
 class CMeanFieldAnnealing:
 
