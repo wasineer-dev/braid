@@ -39,26 +39,23 @@ class CMeanFieldAnnealing:
 
     def annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
 
-        gamma = 1000.0
-
         matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
         matB = np.array(psi*mObservationG.mObserved, dtype=float)
 
+        gamma = 1000.0
         nIteration = 0
-        tmpQ = 1e-2 * np.zeros((Nproteins, Nk), dtype=float)
-        while(nIteration < MAX_ITERATION and not np.allclose(tmpQ, self.mIndicatorQ, 1e-5)):
-            np.copyto(tmpQ, self.mIndicatorQ)
+        while(nIteration < MAX_ITERATION and gamma > 1.0):
             for i in range(Nproteins):        
                 if 0:
-                    mLogLikelihood = np.log(mix_p)
-                    mLogLikelihood += use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
+                    mLogLikelihood = use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
                 else:
                     fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
                     fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
 
-                    mLogLikelihood = fn_out + fp_out + np.log(mix_p)
+                    mLogLikelihood = fn_out + fp_out
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
             nIteration += 1
+            gamma = gamma - 100.0
         print("Initialize with MFA: num. iterations = ", nIteration)
 
     def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
@@ -103,14 +100,7 @@ class CMeanFieldAnnealing:
             self.mIndicatorQ[i] = np.random.uniform(0.0, 1.0, size=Nk)
             self.mIndicatorQ[i] = (self.mIndicatorQ[i] + alpha1)/(np.sum(self.mIndicatorQ[i]) + alpha1*Nproteins)
 
-        # Initialize
         self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
-        mix_p = self.MStep(Nk, beta)
-
-        nIteration = 20
-        for n in range(nIteration):
-            self.EStep(mix_p, mObservationG, Nproteins, Nk, psi)
-            mix_p = self.MStep(Nk, beta)
 
     ##
     ## Adapt from https://github.com/zib-cmd/cmdtools/blob/dev/src/cmdtools/analysis/optimization.py
