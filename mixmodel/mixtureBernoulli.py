@@ -8,30 +8,33 @@ class MixtureBernoulli:
     def __init__(self, mObservationG, psi):
         self.matA = mObservationG.mTrials - mObservationG.mObserved
         self.matB = psi*mObservationG.mObserved
-        
+        print("psi = ", psi)
+
     def EStep(self, Xs, p, mix_p):
+        """
+        for k in range(nK):
+            Z[k] = np.log(mix_p[k]) + np.dot(Xs[i], np.log(p[:,k])) + np.dot(1.0 - Xs[i], np.log(1.0 - p[:,k]))
+        """
         Ns, nD = Xs.shape
         mLogLikelihood  = (Xs @ np.log(p)) + ((1.0 - Xs) @ np.log(1.0-p))
         Z = np.tile(np.log(mix_p), (Ns, 1)) + mLogLikelihood
         self.eta = scipy.special.softmax(Z, axis=1)
 
-    def EStepMFA(self, Xs, p, mix_p, gamma):
+    def EMWithAnnealing(self, Xs, p, mix_p, alpha1, alpha2):
         Ns, nD = Xs.shape
-        nD, nK = p.shape
+        gamma = 1000.0
+        while(gamma > 1.0):
+            mLogLikelihood  = (Xs @ np.log(p)) + ((1.0 - Xs) @ np.log(1.0-p))
+            Z = np.tile(np.log(mix_p), (Ns, 1)) + mLogLikelihood
+            for i in range(Ns):
+                fn_out = np.tensordot(self.matA[i], self.eta, axes=1)
+                fp_out = np.tensordot(self.matB[i], 1.0 - self.eta, axes=1)
+                Z[i] += (fn_out + fp_out)
+                self.eta[i] = scipy.special.softmax(-gamma*Z[i])
+            p, mix_p = self.MStep(Xs, alpha1, alpha2)
+            gamma = gamma - 100.0
 
-        mLogLikelihood  = (Xs @ np.log(p)) + ((1.0 - Xs) @ np.log(1.0-p))
-        Z = np.tile(np.log(mix_p), (Ns, 1)) + mLogLikelihood
-        # Dependency
-        for i in range(Ns):
-            fn_out = np.tensordot(self.matA[i], self.eta, axes=1)
-            fp_out = np.tensordot(self.matB[i], 1.0 - self.eta, axes=1)
-            Z[i] += (fn_out + fp_out)
-            self.eta[i] = scipy.special.softmax(-gamma*Z[i])
         
-        """
-        for k in range(nK):
-            Z[k] = np.log(mix_p[k]) + np.dot(Xs[i], np.log(p[:,k])) + np.dot(1.0 - Xs[i], np.log(1.0 - p[:,k]))
-        """
     #
     def MStep(self, Xs, alpha1, alpha2):
         Ns, nD = Xs.shape
@@ -66,14 +69,8 @@ class MixtureBernoulli:
             self.EStep(Xs, p, mix_p)
             p, mix_p = self.MStep(Xs, alpha1, alpha2)
 
-        nIteration = 0
-        gamma = 1000.0
-        while(nIteration < MAX_ITERATION and gamma > 1.0):
-            self.EStepMFA(Xs, p, mix_p, gamma)
-            p, mix_p = self.MStep(Xs, alpha1, alpha2)
-            nIteration += 1
-            gamma = gamma - 100
-
+        self.EMWithAnnealing(Xs, p, mix_p, alpha1, alpha2)
+            
         return (p, mix_p)
 
     def predict(self, Xs, p, mix_p):
