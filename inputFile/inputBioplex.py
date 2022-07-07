@@ -31,14 +31,14 @@ class CInputBioplex:
         prey_inds = np.searchsorted(self.aSortedProteins, np.array(prey_list, dtype='U21'))
 
         nBaits = len(np.unique(bait_list))
-        self.incidence = np.zeros((nBaits, nProteins), dtype=float)
+        self.incidence = np.zeros((nBaits, nProteins), dtype=int)
         aSortedBaits = np.sort(np.unique(bait_list))
         inds = np.searchsorted(aSortedBaits, np.array(bait_list, dtype='U21'))
         for bait, prey in zip(inds, prey_inds):
             self.incidence[bait][prey] = 1
         del df
 
-        self.observationG = cpmFunc(filePath)
+        self.observationG = cpmFunc(filePath, range(nBaits), self.incidence)
 
     def writeCluster2File(self, matQ, indVec):
         nRows, nCols = matQ.shape

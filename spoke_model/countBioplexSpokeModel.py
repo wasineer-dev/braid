@@ -3,7 +3,7 @@ import numpy as np
 
 class CountBioplexSpoke:
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, bait_inds=None, incidence=None):
 
         df = pd.read_csv(filePath, sep='\t')
 
@@ -21,7 +21,6 @@ class CountBioplexSpoke:
         npSortedProteins = np.sort(np.unique(proteins_list))  # sorted proteins list
         bait_inds = np.searchsorted(npSortedProteins,bait_list) # array([[2, 1, 0, 2,...]])
         prey_inds = np.searchsorted(npSortedProteins,prey_list)
-        # proteins_list = list(proteins_set)
         self.mObserved = np.zeros(shape=(nProteins, nProteins), dtype=int)
         nrows, ncols = df.shape
         for i,j in zip(bait_inds, prey_inds):
