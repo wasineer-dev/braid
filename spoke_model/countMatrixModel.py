@@ -50,16 +50,16 @@ class CountMatrixModel:
         #
         self.lstAdjacency = {}
         for i in np.arange(nProteins):
-            self.lstAdjacency[i] = []
+            self.lstAdjacency[i] = set()
             for j in np.arange(nProteins):
                 t = self.mTrials[i][j]
                 if (i < j):
                     s = self.mObserved[i][j] 
                 else:
                     s = self.mObserved[j][i] 
+                assert(s <= t)
                 if (i != j and t > 0):
-                    assert(s <= t)
-                    self.lstAdjacency[i].append(j)
+                    self.lstAdjacency[i].add(j)
                     
     def write2cytoscape(self, indicators, matQ, vecProteins):
         nRows, nCols = matQ.shape
