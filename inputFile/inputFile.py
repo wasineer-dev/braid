@@ -69,3 +69,19 @@ class CInputSet:
                     fh.write(protein + '\t')
                 fh.write('\n')
             fh.close()
+
+    def writeCoComplex(self, y_pred):
+        Ns, Nk = y_pred.shape
+        clusters = {}
+        for k in range(Nk):
+            clusters[k] = set()
+            for i in range(Ns):
+                if y_pred[i,k] > 0: clusters[k].add(i)     
+
+        with open("out.csv", "w") as fh:
+            for i, k in enumerate(clusters):
+                for v in clusters[k]:
+                    protein = self.aSortedProteins[v].split('__')[0] 
+                    fh.write(protein + '\t')
+                fh.write('\n')
+            fh.close()

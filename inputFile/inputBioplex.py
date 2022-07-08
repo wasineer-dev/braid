@@ -15,6 +15,7 @@ class CInputBioplex:
 
         bait_list = np.array(df_filtered['bait_symbol'], dtype='U21')
         prey_list = np.array(df_filtered['symbol'], dtype='U21')
+        compass_ids = np.array(df_filtered['CompPASS_ID'])
 
         proteins_list = np.append(bait_list, prey_list)
             
@@ -24,11 +25,13 @@ class CInputBioplex:
         print('Number of baits = ', len(np.unique(bait_list)))
         print('Number of preys = ', len(np.unique(prey_list)))
         print('Number of proteins = ', nProteins)
+        print('Number of COMPASS_ID = ', len(np.unique(compass_ids)))
 
         self.aSortedProteins = np.sort(np.unique(proteins_list))  # sorted proteins list
         
         bait_inds = np.searchsorted(self.aSortedProteins, np.array(bait_list, dtype='U21'))
         prey_inds = np.searchsorted(self.aSortedProteins, np.array(prey_list, dtype='U21'))
+
 
         nBaits = len(np.unique(bait_list))
         self.incidence = np.zeros((nBaits, nProteins), dtype=int)

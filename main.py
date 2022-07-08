@@ -19,9 +19,11 @@ from sklearn import mixture
 
 import spoke_model.countSpokeModel as cpm
 import spoke_model.countBioplexSpokeModel as cpmBioplex
+import spoke_model.countBioplexMatrixModel as cmmBioplex
 import spoke_model.countMatrixModel as cmm
 import meanfield.simulateLikelihood as smlt
 import mixmodel.mixtureBernoulli as mmb
+import mixmodel.betaProcess as mbp
 
 import inputFile.inputFile as inputFile
 import inputFile.inputBioplex as inputBioplex
@@ -87,6 +89,13 @@ def mixture_bernoulli(inputSet, Nk, psi):
     y_pred = mb.predict(Xs, p, mix_p)
     inputSet.writeLabel2File(y_pred)
 
+def beta_process(inputSet, Nk, psi):
+    Xs = np.transpose(inputSet.incidence)
+    mb = mbp.BetaProcess(inputSet.observationG, Xs, Nk)
+    mix_p = mb.estimate(Xs, Nk)
+    y_pred = mb.predict(Xs, mix_p)
+    inputSet.writeCoComplex(y_pred)
+
 def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
@@ -112,10 +121,10 @@ def main():
 
     if args.bioplex != '':
         print('Hello, ' + args.bioplex)
-        inputSet = inputBioplex.CInputBioplex(args.bioplex, cpmBioplex.CountBioplexSpoke)
+        inputSet = inputBioplex.CInputBioplex(args.bioplex, cmmBioplex.CountBioplexMatrix)
     else:
         print('Hello, ' + args.file)
-        inputSet = inputFile.CInputSet(args.file, cpm.CountSpokeModel)
+        inputSet = inputFile.CInputSet(args.file, cmm.CountMatrixModel)
     
     if args.mixmodel == "none":
         return clustering(inputSet, nK, psi)
@@ -124,7 +133,7 @@ def main():
         return mixture_bernoulli(inputSet, nK, psi)
 
     if args.mixmodel == "beta":
-        return
+        return beta_process(inputSet, nK, psi)
 
 if __name__ == '__main__':
     main()
