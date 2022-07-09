@@ -5,7 +5,7 @@ from meanfield.simulateLikelihood import MAX_ITERATION
 
 class MixtureBernoulli:
 
-    def __init__(self, mObservationG, psi):
+    def __init__(self, mObservationG, psi=3.4):
         self.matA = mObservationG.mTrials - mObservationG.mObserved
         self.matB = psi*mObservationG.mObserved
         print("psi = ", psi)
@@ -67,10 +67,9 @@ class MixtureBernoulli:
             self.EStep(Xs, p, mix_p)
             p, mix_p = self.MStep(Xs, alpha1, alpha2)
 
-        self.annealing(Xs, p, mix_p)
-        p, mix_p = self.MStep(Xs, alpha1, alpha2)
         return (p, mix_p)
 
     def predict(self, Xs, p, mix_p):
+        self.EStep(Xs, p, mix_p)
         y_pred = np.argmax(self.eta, axis=1)
         return y_pred
