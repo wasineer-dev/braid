@@ -90,10 +90,12 @@ def mixture_bernoulli(inputSet, Nk, psi):
     inputSet.writeLabel2File(y_pred)
 
 def beta_process(inputSet, Nk, psi):
-    Xs = np.transpose(inputSet.incidence)
+    Xs = np.array(inputSet.incidence, dtype=float)
+    Nd, Ns = Xs.shape
+    Xs += np.random.normal(size=(Ns*Nd)).reshape(Nd,Ns)       
     mb = mbp.BetaProcess(inputSet.observationG, Xs, Nk)
-    mix_p = mb.estimate(Xs, Nk)
-    y_pred = mb.predict(Xs, mix_p)
+    mb.estimate(Xs, Nk)
+    y_pred = mb.predict(Xs)
     inputSet.writeCoComplex(y_pred)
 
 def get_args():
