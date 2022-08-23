@@ -14,6 +14,7 @@ from sklearn.pipeline import Pipeline
 from scipy import stats
 
 from numba import jit, njit
+import tensorflow as tf
 
 MAX_ITERATION = 10
 
@@ -57,6 +58,30 @@ class CMeanFieldAnnealing:
             nIteration += 1
             gamma = gamma - 100.0
         print("Initialize with MFA: num. iterations = ", nIteration)
+
+    def tf_annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
+
+        matA = tf.convert_to_tensor(mObservationG.mTrials - mObservationG.mObserved, dtype=tf.float32)
+        matB = tf.convert_to_tensor(psi*mObservationG.mObserved, dtype=tf.float32)
+        tfArray = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True)
+        for i in range(Nproteins):
+            tfArray = tfArray.write(i, self.mIndicatorQ[i])
+        
+        gamma = 1000.0
+        nIteration = 0
+        while(nIteration < MAX_ITERATION and gamma > 1.0):
+            for i in range(Nproteins):        
+                tQ = tfArray.stack()
+                fn_out = tf.tensordot(matA[i], tQ, axes=1) 
+                fp_out = tf.tensordot(matB[i], 1.0 - tQ, axes=1)
+
+                mLogLikelihood = fn_out + fp_out
+                tfArray = tfArray.write(i, tf.nn.softmax(-gamma*mLogLikelihood))
+
+            nIteration += 1
+            gamma = gamma - 100.0
+        print("Initialize with MFA: num. iterations = ", nIteration)
+        self.mIndicatorQ = tfArray.stack().numpy()
 
     def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
         gamma = 1000.0
