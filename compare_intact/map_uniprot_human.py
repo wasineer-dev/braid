@@ -42,10 +42,10 @@ def mapSymbol2Uniprot():
     nRows, nCols = df.shape
     uniprots = {}
     for i in range(nRows):
-        #gene_symbol = df.iloc[i][1].split("_")[0]
+        gene_symbol = df.iloc[i][0].split("_")[0]
         prot = df.iloc[i][1]
         gene = df.iloc[i][0]
-        uniprots[gene] = prot
+        uniprots[gene_symbol] = prot
     return uniprots
 
 def readClusterOne(fileName):
@@ -104,7 +104,8 @@ def get_args():
     return parser.parse_args()
 
 def main(args):
-    #matB = readClusterOne(args.clone)
+    if (args.clone != ""):
+        matB = readClusterOne(args.clone)
     matA = readBioPlexMFAOutput(args.file)
     
 if __name__ == '__main__':

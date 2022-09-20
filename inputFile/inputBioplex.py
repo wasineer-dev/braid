@@ -10,13 +10,13 @@ class CInputBioplex:
         super().__init__()
 
         df = pd.read_csv(filePath, sep='\t')
-        df_filtered = df[df.apply(lambda x: not x['bait_symbol'].isnumeric() and x['bait_symbol'] != "nan", axis=1)]
-        df_filtered = df_filtered[df_filtered.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
+        #df_filtered = df[df.apply(lambda x: not x['bait_symbol'].isnumeric() and x['bait_symbol'] != "nan", axis=1)]
+        #df_filtered = df_filtered[df_filtered.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
 
-        bait_list = np.array(df_filtered['bait_symbol'], dtype='U21')
-        prey_list = np.array(df_filtered['symbol'], dtype='U21')
-        compass_ids = np.array(df_filtered['CompPASS_ID'])
-
+        df_filtered = df
+        bait_list = np.array(df_filtered['Bait Symbol'], dtype='U21')
+        prey_list = np.array(df_filtered['Prey Symbol'], dtype='U21')
+        
         proteins_list = np.append(bait_list, prey_list)
             
         self.nProteins = len(np.unique(proteins_list))
@@ -25,8 +25,7 @@ class CInputBioplex:
         print('Number of baits = ', len(np.unique(bait_list)))
         print('Number of preys = ', len(np.unique(prey_list)))
         print('Number of proteins = ', nProteins)
-        print('Number of COMPASS_ID = ', len(np.unique(compass_ids)))
-
+        
         self.aSortedProteins = np.sort(np.unique(proteins_list))  # sorted proteins list
         
         bait_inds = np.searchsorted(self.aSortedProteins, np.array(bait_list, dtype='U21'))

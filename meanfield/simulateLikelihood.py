@@ -59,6 +59,14 @@ class CMeanFieldAnnealing:
             gamma = gamma - 100.0
         print("Initialize with MFA: num. iterations = ", nIteration)
 
+        mLogLikelihood = 0.0
+        for i in range(Nproteins):        
+            fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
+            fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
+            mLogLikelihood += np.log(np.sum(fn_out + fp_out))
+        print("Expected-likelihood=", mLogLikelihood)    
+        return mLogLikelihood
+
     def tf_annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
 
         matA = tf.convert_to_tensor(mObservationG.mTrials - mObservationG.mObserved, dtype=tf.float32)
@@ -125,7 +133,7 @@ class CMeanFieldAnnealing:
             self.mIndicatorQ[i] = np.random.uniform(0.0, 1.0, size=Nk)
             self.mIndicatorQ[i] = (self.mIndicatorQ[i] + alpha1)/(np.sum(self.mIndicatorQ[i]) + alpha1*Nproteins)
 
-        self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
+        return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
 
     ##
     ## Adapt from https://github.com/zib-cmd/cmdtools/blob/dev/src/cmdtools/analysis/optimization.py

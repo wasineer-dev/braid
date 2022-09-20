@@ -3,9 +3,6 @@ import argparse
 
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-
-sns.set_theme()
 
 setBenchmarkProteins = set()
 setObservedProteins = set()
@@ -167,8 +164,8 @@ def sortBySize(matA):
 def main(args):
     # readMCLOutput()
     matA = readEcoliMFAOutput(args.file)
-    # matB = readCYC2008()
-    y_actual, matB = readEColi2018Benchmark()
+    matB = readCYC2008()
+    #y_actual, matB = readEColi2018Benchmark()
 
     print("Number of proteins considered = ", len(setBenchmarkProteins.intersection(setObservedProteins)))
 
@@ -230,12 +227,12 @@ def main(args):
                     fh.write(strLine)
             fh.close()
     
+    lstSizes.sort()
+    bins = np.histogram(lstSizes)
+    print(bins)
     print('MRF largest cluster = ' + str(maxSize))
-    plt.hist(lstSizes, range(200))
-    plt.title('Complex sizes in Gavin2002')
-    plt.show()
-
-    sns.heatmap(matCoverage)
+    plt.hist(lstSizes, range(500))
+    plt.title('Complex sizes')
     plt.show()
 
 if __name__ == '__main__':
