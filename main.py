@@ -98,6 +98,35 @@ def beta_process(inputSet, Nk, psi):
     y_pred = mb.predict(Xs)
     inputSet.writeCoComplex(y_pred)
 
+def hill_climbing(inputSet, Nk, epsilon=1.2):
+
+    nProteins = inputSet.observationG.nProteins
+    cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
+
+    funcInfer = cmfa        
+
+    f_last = funcInfer.estimate(inputSet.observationG, nProteins, Nk, 0.3)
+    x_values = np.arange(1.0, 10.5, 0.4)
+    y_values = np.zeros(len(x_values), dtype=float)
+    aic = np.zeros(len(x_values), dtype=float) 
+    for i, psi in enumerate(x_values):
+        ts = timer()
+        f_value = funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi) 
+        te = timer()
+        print("Time running MFA: ", te-ts)
+        print("x = ", psi, "f(x) = ", f_value)
+        (fn, fp, errs, likelihood) = funcInfer.computeErrorRate(inputSet.observationG, nProteins)
+        print("\tLikelihood =", likelihood)
+        y_values[i] = likelihood
+        aic[i] = (Nk - f_value)/(Nk - f_last)
+        f_last = f_value
+        
+    d2 = np.gradient(y_values)
+    ind = np.where(aic > epsilon)
+    print(x_values[ind])
+    plt.plot(x_values, y_values)
+    plt.show()
+
 def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
@@ -136,6 +165,9 @@ def main():
 
     if args.mixmodel == "beta":
         return beta_process(inputSet, nK, psi)
+
+    if args.mixmodel == "search":
+        hill_climbing(inputSet, nK)
 
 if __name__ == '__main__':
     main()

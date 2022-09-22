@@ -63,7 +63,7 @@ class CMeanFieldAnnealing:
         for i in range(Nproteins):        
             fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
             fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
-            mLogLikelihood += np.log(np.sum(fn_out + fp_out))
+            mLogLikelihood += np.sum(fn_out + fp_out)
         print("Expected-likelihood=", mLogLikelihood)    
         return mLogLikelihood
 
@@ -219,13 +219,20 @@ class CMeanFieldAnnealing:
                     countFp += s
                     sumDiffCluster += t
 
+        counts = countFn + countFp
         fn = 0.0
         fp = 0.0
         if (sumSameCluster > 0):
             fn = float(countFn)/float(sumSameCluster)
         if (sumDiffCluster > 0):
             fp = float(countFp)/float(sumDiffCluster)
-        return (fn, fp)
+        likelihood = countFn*(-np.log(fn) + np.log(1.0 - fp)) + countFp*(-np.log(fp) + np.log(1.0 - fn)) 
+        for i in range(Nproteins):
+            for j in mObservationG.lstAdjacency[i]:
+                t = mObservationG.mTrials[i][j]
+                s = mObservationG.mObserved[i][j]
+                likelihood += -s*(np.log(1.0-fn)) - (t-s)*(np.log(1.0-fp))
+        return (fn, fp, counts, likelihood)
 
     def estimator_summary(self, regr, y_actual, y_pred):
         # The coefficients
@@ -237,7 +244,7 @@ class CMeanFieldAnnealing:
         
     def computeResidues(self, mObservationG, Nproteins, Nk):
     
-        (fn, fp) = self.computeErrorRate(mObservationG, Nproteins)
+        (fn, fp, errs, _) = self.computeErrorRate(mObservationG, Nproteins)
 
         # Filter singletons
         clusters = []
