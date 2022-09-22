@@ -105,8 +105,9 @@ def hill_climbing(inputSet, Nk, epsilon=1.2):
 
     funcInfer = cmfa        
 
-    f_last = funcInfer.estimate(inputSet.observationG, nProteins, Nk, 0.3)
-    x_values = np.arange(1.0, 10.5, 0.4)
+    funcInfer.estimate(inputSet.observationG, nProteins, Nk, 0.3)
+    (fn, fp, errs, f_last) = funcInfer.computeErrorRate(inputSet.observationG, nProteins)
+    x_values = np.arange(1.0, 10.5, 0.2)
     y_values = np.zeros(len(x_values), dtype=float)
     aic = np.zeros(len(x_values), dtype=float) 
     for i, psi in enumerate(x_values):
@@ -118,11 +119,11 @@ def hill_climbing(inputSet, Nk, epsilon=1.2):
         (fn, fp, errs, likelihood) = funcInfer.computeErrorRate(inputSet.observationG, nProteins)
         print("\tLikelihood =", likelihood)
         y_values[i] = likelihood
-        aic[i] = (Nk - f_value)/(Nk - f_last)
-        f_last = f_value
+        aic[i] = (Nk - likelihood)/(Nk - f_last)
+        f_last = likelihood
         
     d2 = np.gradient(y_values)
-    ind = np.where(aic > epsilon)
+    ind = np.where(np.abs(aic) > epsilon)
     print(x_values[ind])
     plt.plot(x_values, y_values)
     plt.show()
