@@ -29,6 +29,7 @@ import inputFile.inputFile as inputFile
 import inputFile.inputBioplex as inputBioplex
 
 from time import time as timer
+from scipy.ndimage import gaussian_filter1d
 
 def clustering(inputSet, Nk, psi):
     fn = 0.8
@@ -97,8 +98,8 @@ def beta_process(inputSet, Nk, psi):
     mb.estimate(Xs, Nk)
     y_pred = mb.predict(Xs)
     inputSet.writeCoComplex(y_pred)
-
-def hill_climbing(inputSet, Nk, epsilon=1.2):
+    
+def hill_climbing(inputSet, Nk):
 
     nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
@@ -121,11 +122,17 @@ def hill_climbing(inputSet, Nk, epsilon=1.2):
         y_values[i] = likelihood
         aic[i] = (Nk - likelihood)/(Nk - f_last)
         f_last = likelihood
-        
-    d2 = np.gradient(y_values)
-    ind = np.where(np.abs(aic) > epsilon)
-    print(x_values[ind])
-    plt.plot(x_values, y_values)
+
+    y_values = y_values/np.max(y_values)
+    y_filter = gaussian_filter1d(y_values, 1)
+    d2 = np.gradient(np.gradient(y_filter))
+    #ind = np.where(aic > epsilon)
+    infls = np.where(np.diff(np.sign(d2)))[0]
+    plt.plot(x_values, y_values, label='log-likelihood')
+    plt.plot(x_values, y_filter, label="Filter")
+    for i, infl in enumerate(infls):
+        plt.axvline(x=x_values[infl], color='k', label='Inflection Point')
+    plt.legend(bbox_to_anchor=(1.55, 1.0))
     plt.show()
 
 def get_args():
