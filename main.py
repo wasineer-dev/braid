@@ -110,7 +110,7 @@ def hill_climbing(inputSet, Nk):
     (fn, fp, errs, f_last) = funcInfer.computeErrorRate(inputSet.observationG, nProteins)
     x_values = np.arange(1.0, 10.5, 0.2)
     y_values = np.zeros(len(x_values), dtype=float)
-    aic = np.zeros(len(x_values), dtype=float) 
+    aics = np.zeros(len(x_values), dtype=float) 
     for i, psi in enumerate(x_values):
         ts = timer()
         f_value = funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi) 
@@ -120,14 +120,18 @@ def hill_climbing(inputSet, Nk):
         (fn, fp, errs, likelihood) = funcInfer.computeErrorRate(inputSet.observationG, nProteins)
         print("\tLikelihood =", likelihood)
         y_values[i] = likelihood
-        aic[i] = (Nk - likelihood)/(Nk - f_last)
+        aics[i] = (Nk - likelihood)/(Nk - f_last)
         f_last = likelihood
 
+    aics_filter = gaussian_filter1d(aics, 1)
     y_values = y_values/np.max(y_values)
     y_filter = gaussian_filter1d(y_values, 1)
     d2 = np.gradient(np.gradient(y_filter))
-    #ind = np.where(aic > epsilon)
-    infls = np.where(np.diff(np.sign(d2)))[0]
+    aics_d2 = np.gradient(np.gradient(aics_filter))
+    infls = np.where(np.diff(np.sign(aics_d2)))[0]
+    print("psi = ", x_values[infls])
+
+    plt.plot(x_values, aics_filter, label='AIC')
     plt.plot(x_values, y_values, label='log-likelihood')
     plt.plot(x_values, y_filter, label="Filter")
     for i, infl in enumerate(infls):
