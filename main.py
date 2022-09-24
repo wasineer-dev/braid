@@ -131,12 +131,11 @@ def hill_climbing(inputSet, Nk):
     infls = np.where(np.diff(np.sign(aics_d2)))[0]
     print("psi = ", x_values[infls])
 
-    plt.plot(x_values, aics_filter, label='AIC')
-    plt.plot(x_values, y_values, label='log-likelihood')
-    plt.plot(x_values, y_filter, label="Filter")
+    plt.plot(x_values, aics_filter, label='AIC Filter')
+    plt.plot(x_values, aics, label='AIC')
     for i, infl in enumerate(infls):
-        plt.axvline(x=x_values[infl], color='k', label='Inflection Point')
-    plt.legend(bbox_to_anchor=(1.55, 1.0))
+        plt.axvline(x=x_values[infl], color='k')
+    plt.legend(bbox_to_anchor=(1.5, 1.0))
     plt.show()
 
 def get_args():

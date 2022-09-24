@@ -132,7 +132,11 @@ class CMeanFieldAnnealing:
             self.mIndicatorQ[i] = np.random.uniform(0.0, 1.0, size=Nk)
             self.mIndicatorQ[i] = (self.mIndicatorQ[i] + alpha1)/(np.sum(self.mIndicatorQ[i]) + alpha1*Nproteins)
 
-        return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
+        gpu_available = tf.test.is_gpu_available()
+        if gpu_available:
+            return self.tf_annealing(mix_p, mObservationG, Nproteins, Nk, psi)
+        else:
+            return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
 
     ##
     ## Adapt from https://github.com/zib-cmd/cmdtools/blob/dev/src/cmdtools/analysis/optimization.py
