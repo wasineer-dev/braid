@@ -132,8 +132,8 @@ class CMeanFieldAnnealing:
             self.mIndicatorQ[i] = np.random.uniform(0.0, 1.0, size=Nk)
             self.mIndicatorQ[i] = (self.mIndicatorQ[i] + alpha1)/(np.sum(self.mIndicatorQ[i]) + alpha1*Nproteins)
 
-        gpu_available = tf.test.is_gpu_available()
-        if gpu_available:
+        gpus = tf.config.list_physical_devices('GPU')
+        if len(gpus) > 0:
             return self.tf_annealing(mix_p, mObservationG, Nproteins, Nk, psi)
         else:
             return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)

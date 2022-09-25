@@ -38,7 +38,7 @@ def complexCoverage(vecA, vecB):
     return float(len(nIntersect))/len(setB)
 
 def mapSymbol2Uniprot():
-    df = pd.read_table("uniprot-bioplex20.tab")
+    df = pd.read_table("uniprot_bioplex3.txt")
     nRows, nCols = df.shape
     uniprots = {}
     for i in range(nRows):
@@ -87,7 +87,7 @@ def readBioPlexMFAOutput(fileName):
             setObservedProteins.add(prot)
             predictions[k] = clusters[k]
 
-    with open("bioplex20_mrf_complexes.txt", "w") as fh:
+    with open("bioplex30_mrf_complexes.txt", "w") as fh:
         for k, cl in enumerate(clusters):
             for prot in clusters[cl]:
                 fh.write(prot + '\t')
