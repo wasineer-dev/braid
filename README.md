@@ -8,7 +8,7 @@ Rungsarityotin, W., Krause, R., Schoedl, A., Schliep, A. (2007) BMC Bioinformati
 #### Requirement
 Require a Python >= 3.5 installation. Since it depends on some packages that can be tricky to install using pip (numba, numpy, ...), we recommend using the [Anaconda Python distribution](https://www.continuum.io/downloads). In case you are creating a new conda environment or using miniconda, please make sure to run `conda install anaconda` before running pip, or otherwise the required packages will not be present.  
 
-In addition if you obtain the code from the development branch, you will need to install the package [statsmodel](https://www.statsmodels.org/stable/index.html). We now use [Tensorflow] (https://www.tensorflow.org/install) when GPU is available.
+In addition if you obtain the code from the development branch, you will need to install the package [statsmodel](https://www.statsmodels.org/stable/index.html). We now use [Tensorflow](https://www.tensorflow.org/install) when GPU is available.
 
 The develop branch contains experimental code which has not been well tested. We're still working on an efficient implementation for large dataset like BioPlex 2.0 or BioPlex 3.0. We got good results runnning on datasets with fewer than 4,000 proteins. 
 
