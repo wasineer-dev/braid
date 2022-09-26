@@ -8,7 +8,7 @@ Rungsarityotin, W., Krause, R., Schoedl, A., Schliep, A. (2007) BMC Bioinformati
 #### Requirement
 Require a Python >= 3.5 installation. Since it depends on some packages that can be tricky to install using pip (numba, numpy, ...), we recommend using the [Anaconda Python distribution](https://www.continuum.io/downloads). In case you are creating a new conda environment or using miniconda, please make sure to run `conda install anaconda` before running pip, or otherwise the required packages will not be present.  
 
-In addition if you obtain the code from the development branch, you will need to install the package [statsmodel](https://www.statsmodels.org/stable/index.html)
+In addition if you obtain the code from the development branch, you will need to install the package [statsmodel](https://www.statsmodels.org/stable/index.html). We now use [Tensorflow](https://www.tensorflow.org/install) when GPU is available.
 
 #### Input file 
   (-f) a CSV file containing a list of bait-preys experiments. The first protein at the beginning of every line is a bait protein.
