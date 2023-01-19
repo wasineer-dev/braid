@@ -196,7 +196,7 @@ class CMeanFieldAnnealing:
         k = np.size(self.mIndicatorQ, axis=1)
         self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
 
-    def computeErrorRate(self, mObservationG, Nproteins):
+    def computeErrorRate(self, psi, mObservationG, Nproteins):
         
         # self.find_lin_dependent()
         self.find_argmax()
@@ -208,8 +208,6 @@ class CMeanFieldAnnealing:
 
         countFn = 0
         countFp = 0
-        sumSameCluster = 0
-        sumDiffCluster = 0
         for i in range(Nproteins):
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
@@ -217,25 +215,17 @@ class CMeanFieldAnnealing:
                 assert(s <= t)
                 if (self.indicatorVec[i] == self.indicatorVec[j]):
                     countFn += (t - s)
-                    sumSameCluster += t
                 else:
                     countFp += s
-                    sumDiffCluster += t
-
+                    
         counts = countFn + countFp
-        fn = 0.0
-        fp = 0.0
-        if (sumSameCluster > 0):
-            fn = float(countFn)/float(sumSameCluster)
-        if (sumDiffCluster > 0):
-            fp = float(countFp)/float(sumDiffCluster)
-        likelihood = countFn*(-np.log(fn) + np.log(1.0 - fp)) + countFp*(-np.log(fp) + np.log(1.0 - fn)) 
+        likelihood = countFn*psi + countFp
         for i in range(Nproteins):
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
-                likelihood += -s*(np.log(1.0-fn)) - (t-s)*(np.log(1.0-fp))
-        return (fn, fp, counts, likelihood)
+                likelihood += -s*psi - (t-s)
+        return (counts, likelihood)
 
     def estimator_summary(self, regr, y_actual, y_pred):
         # The coefficients

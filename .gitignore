@@ -39,3 +39,4 @@ bioplex20_mrf_complexes.txt
 cl1_bioplex.txt
 
 mixmodel/__pycache__/mixtureBernoulli.cpython-39.pyc
+out.tsv

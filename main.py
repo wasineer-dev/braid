@@ -44,44 +44,10 @@ def clustering(inputSet, Nk, psi):
     funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi) 
     te = timer()
     print("Time running MFA: ", te-ts)
-    (fn, fp) = funcInfer.computeResidues(inputSet.observationG, nProteins, Nk)
+    (counts, lscore) = funcInfer.computeErrorRate(psi, inputSet.observationG, nProteins)
     
-    print("False negative rate = " + str(fn))
-    print("False positive rate = " + str(fp))
     inputSet.writeCluster2File("out.tsv", funcInfer.mIndicatorQ, funcInfer.indicatorVec)
     inputSet.observationG.write2cytoscape(funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
-
-    """
-    X = funcInfer.expectedErrors
-    y = funcInfer.mResidues
-    pred_ols = regr.get_prediction()
-    iv_l = pred_ols.summary_frame()["obs_ci_lower"]
-    iv_u = pred_ols.summary_frame()["obs_ci_upper"]
-
-    fig, ax1 = plt.subplots(figsize=(8, 6))
-
-    ax1.plot(X, y, "o", label="data")
-    ax1.plot(X, regr.fittedvalues, "r--.", label="OLS")
-    ax1.plot(X, iv_u, "r--")
-    ax1.plot(X, iv_l, "r--")
-    ax1.legend(loc="best")
-    plt.show()
-    
-    fig, ax2 = plt.subplots(figsize=(8, 6))
-    ax2.scatter(regr.fittedvalues, regr.resid_pearson)
-    ax2.hlines(0, 0, np.max(regr.fittedvalues))
-    #ax2.set_xlim(0, 1)
-    ax2.set_title('Residual Dependence Plot')
-    ax2.set_ylabel('Pearson Residuals')
-    ax2.set_xlabel('Fitted values')
-    plt.show()
-
-    fig, ax3 = plt.subplots(figsize=(8,6))
-    ax3.plot(range(Nk), funcInfer.mPosteriorWeights)
-    ax3.set_title('Prior weights')
-    plt.show()
-    """
-    return 0
 
 def mixture_bernoulli(inputSet, Nk, psi):
     Xs = np.transpose(inputSet.incidence)
@@ -99,45 +65,6 @@ def beta_process(inputSet, Nk, psi):
     y_pred = mb.predict(Xs)
     inputSet.writeCoComplex(y_pred)
     
-def hill_climbing(inputSet, Nk):
-
-    nProteins = inputSet.observationG.nProteins
-    cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
-
-    funcInfer = cmfa        
-
-    funcInfer.estimate(inputSet.observationG, nProteins, Nk, 0.3)
-    (fn, fp, errs, f_last) = funcInfer.computeErrorRate(inputSet.observationG, nProteins)
-    x_values = np.arange(1.0, 10.5, 0.2)
-    y_values = np.zeros(len(x_values), dtype=float)
-    aics = np.zeros(len(x_values), dtype=float) 
-    for i, psi in enumerate(x_values):
-        ts = timer()
-        f_value = funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi) 
-        te = timer()
-        print("Time running MFA: ", te-ts)
-        print("x = ", psi, "f(x) = ", f_value)
-        (fn, fp, errs, likelihood) = funcInfer.computeErrorRate(inputSet.observationG, nProteins)
-        print("\tLikelihood =", likelihood)
-        y_values[i] = likelihood
-        aics[i] = (Nk - likelihood)/(Nk - f_last)
-        f_last = likelihood
-
-    aics_filter = gaussian_filter1d(aics, 1)
-    y_values = y_values/np.max(y_values)
-    y_filter = gaussian_filter1d(y_values, 1)
-    d2 = np.gradient(np.gradient(y_filter))
-    aics_d2 = np.gradient(np.gradient(aics_filter))
-    infls = np.where(np.diff(np.sign(aics_d2)))[0]
-    print("psi = ", x_values[infls])
-
-    plt.plot(x_values, aics_filter, label='AIC Filter')
-    plt.plot(x_values, aics, label='AIC')
-    for i, infl in enumerate(infls):
-        plt.axvline(x=x_values[infl], color='k')
-    plt.legend(bbox_to_anchor=(1.5, 1.0))
-    plt.show()
-
 def get_args():
     parser = argparse.ArgumentParser(description='MFA')
     parser.add_argument('-f', '--file', metavar='file',
@@ -176,9 +103,6 @@ def main():
 
     if args.mixmodel == "beta":
         return beta_process(inputSet, nK, psi)
-
-    if args.mixmodel == "search":
-        hill_climbing(inputSet, nK)
 
 if __name__ == '__main__':
     main()
