@@ -41,9 +41,9 @@ class CInputBioplex:
 
         self.observationG = cpmFunc(filePath, range(nBaits), self.incidence)
 
-    def writeCluster2File(self, matQ, indVec):
+    def writeCluster2File(self, filename, matQ, indVec):
         nRows, nCols = matQ.shape
-        with open("bioplex_out.tab", "w") as fh:
+        with open(filename, "w") as fh:
             for i in range(nRows):
                 ind = indVec[i]
                 fh.write(str(self.aSortedProteins[i]) + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')

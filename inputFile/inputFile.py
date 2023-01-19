@@ -39,9 +39,9 @@ class CInputSet:
             
         self.observationG = cpmFunc(nProteins, bait_inds, self.incidence)
 
-    def writeCluster2File(self, matQ, indVec):
+    def writeCluster2File(self, filename, matQ, indVec):
         nRows, nCols = matQ.shape
-        with open("out.tab", "w") as fh:
+        with open(filename, "w") as fh:
             for i in range(nRows):
                 ind = indVec[i]
                 fh.write(self.aSortedProteins[i] + '\t' + str(indVec[i]) + '\t' + str(max(matQ[ind])) + '\n')

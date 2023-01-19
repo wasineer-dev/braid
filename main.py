@@ -48,7 +48,7 @@ def clustering(inputSet, Nk, psi):
     
     print("False negative rate = " + str(fn))
     print("False positive rate = " + str(fp))
-    inputSet.writeCluster2File(funcInfer.mIndicatorQ, funcInfer.indicatorVec)
+    inputSet.writeCluster2File("out.tsv", funcInfer.mIndicatorQ, funcInfer.indicatorVec)
     inputSet.observationG.write2cytoscape(funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
 
     """
