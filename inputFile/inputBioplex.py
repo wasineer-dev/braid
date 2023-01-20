@@ -35,7 +35,6 @@ class CInputBioplex:
         bait_inds = np.searchsorted(self.aSortedProteins, np.array(bait_list, dtype='U21'))
         prey_inds = np.searchsorted(self.aSortedProteins, np.array(prey_list, dtype='U21'))
 
-
         nBaits = len(np.unique(bait_list))
         self.incidence = np.zeros((nBaits, nProteins), dtype=int)
         aSortedBaits = np.sort(np.unique(bait_list))
