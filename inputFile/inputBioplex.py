@@ -6,16 +6,21 @@ import pandas as pd
 #
 class CInputBioplex:
 
-    def __init__(self, filePath, cpmFunc):
+    def __init__(self, filePath, cpmFunc, undirected=False):
         super().__init__()
 
         df = pd.read_csv(filePath, sep='\t')
-        df_filtered = df[df.apply(lambda x: not x['bait_symbol'].isnumeric() and x['bait_symbol'] != "nan", axis=1)]
-        df_filtered = df_filtered[df_filtered.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
 
-        bait_list = np.array(df_filtered['bait_symbol'], dtype='U21')
-        prey_list = np.array(df_filtered['symbol'], dtype='U21')
-        
+        if undirected:
+            df_filtered = df[df.apply(lambda x: not x['bait_symbol'].isnumeric() and x['bait_symbol'] != "nan", axis=1)]
+            df_filtered = df_filtered[df_filtered.apply(lambda x: isinstance(x['symbol'], str) and not x['symbol'].isnumeric(), axis=1)]
+
+            bait_list = np.array(df_filtered['bait_symbol'], dtype='U21')
+            prey_list = np.array(df_filtered['symbol'], dtype='U21')
+        else:
+            bait_list = np.array(df['Bait Symbol'], dtype='U21')
+            prey_list = np.array(df['Prey Symbol'], dtype='U21')
+            
         proteins_list = np.append(bait_list, prey_list)
             
         self.nProteins = len(np.unique(proteins_list))
