@@ -16,7 +16,7 @@ from scipy import stats
 from numba import jit, njit
 import tensorflow as tf
 
-MAX_ITERATION = 10
+MAX_ITERATION = 20
 
 @jit
 def use_numba(Nproteins, Nk, A, B, indicatorQ):
@@ -37,6 +37,8 @@ class CMeanFieldAnnealing:
     def __init__(self, Nproteins, Nk):
         self.lstExpectedLikelihood = []
         self.mIndicatorQ = np.zeros((Nproteins, Nk), dtype=float)
+        self.alpha = 0.1
+        self.beta = 0.1
 
     def annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
 
@@ -45,7 +47,7 @@ class CMeanFieldAnnealing:
 
         gamma = 1000.0
         nIteration = 0
-        while(nIteration < MAX_ITERATION and gamma > 1.0):
+        while(nIteration < MAX_ITERATION):
             for i in range(Nproteins):        
                 if 0:
                     mLogLikelihood = use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
@@ -56,14 +58,16 @@ class CMeanFieldAnnealing:
                     mLogLikelihood = fn_out + fp_out
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
             nIteration += 1
-            gamma = gamma - 100.0
-        print("Initialize with MFA: num. iterations = ", nIteration)
-
-        mLogLikelihood = 0.0
-        for i in range(Nproteins):        
-            fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
-            fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
-            mLogLikelihood += np.sum(fn_out + fp_out)
+            
+            mLogLikelihood = 0.0
+            for i in range(Nproteins):        
+                fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
+                fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
+                mLogLikelihood += np.sum(fn_out + fp_out)
+            print("MFA: num. iterations = ", nIteration, mLogLikelihood)
+        
+            (fp, _) = self.computeErrorRate(psi, mObservationG, Nproteins)
+            psi = self.compute_psi(fp)
         return mLogLikelihood
 
     def tf_annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
@@ -134,7 +138,7 @@ class CMeanFieldAnnealing:
 
         gpus = tf.config.list_physical_devices('GPU')
         if len(gpus) > 0:
-            return self.tf_annealing(mix_p, mObservationG, Nproteins, Nk, psi)
+            return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
         else:
             return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
 
@@ -196,6 +200,10 @@ class CMeanFieldAnnealing:
         k = np.size(self.mIndicatorQ, axis=1)
         self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
 
+    def compute_psi(self, fp):
+        fn = 0.001
+        return (np.log(1.0 - fn) - np.log(fp))/(np.log(1.0 - fp) - np.log(fn))
+
     def computeErrorRate(self, psi, mObservationG, Nproteins):
         
         # self.find_lin_dependent()
@@ -206,6 +214,7 @@ class CMeanFieldAnnealing:
         nClusters = len(np.unique(self.indicatorVec))
         print("Number of clusters used: " + str(nClusters))
 
+        num_trials = 0
         countFn = 0
         countFp = 0
         for i in range(Nproteins):
@@ -217,15 +226,18 @@ class CMeanFieldAnnealing:
                     countFn += (t - s)
                 else:
                     countFp += s
-                    
-        counts = countFn + countFp
+                num_trials += t
+        self.alpha = self.alpha + countFp
+        self.beta = self.beta + num_trials - countFp
+        fp = (countFp + self.alpha)/(self.alpha + self.beta + num_trials)
+        psi = self.compute_psi(fp)
         likelihood = countFn*psi + countFp
         for i in range(Nproteins):
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
                 likelihood += -s*psi - (t-s)
-        return (counts, likelihood)
+        return (fp, likelihood)
 
     def estimator_summary(self, regr, y_actual, y_pred):
         # The coefficients
