@@ -86,7 +86,8 @@ class CMeanFieldAnnealing:
         
         gamma = 1000.0
         nIteration = 0
-        while(nIteration < MAX_ITERATION and gamma > 1.0):
+        prev = np.finfo(np.float32).max
+        while(nIteration < MAX_ITERATION):
             for i in range(Nproteins):        
                 tQ = tfArray.stack()
                 fn_out = tf.tensordot(matA[i], tQ, axes=1) 
@@ -94,11 +95,24 @@ class CMeanFieldAnnealing:
 
                 mLogLikelihood = fn_out + fp_out
                 tfArray = tfArray.write(i, tf.nn.softmax(-gamma*mLogLikelihood))
-
+            
             nIteration += 1
-            gamma = gamma - 100.0
-        print("Initialize with MFA: num. iterations = ", nIteration)
-        self.mIndicatorQ = tfArray.stack().numpy()
+            mLogLikelihood = 0.0
+            for i in range(Nproteins):        
+                fn_out = tf.tensordot(matA[i], tfArray.stack(), axes=1) 
+                fp_out = tf.tensordot(matB[i], 1.0 - tfArray.stack(), axes=1)
+                mLogLikelihood += np.sum(fn_out + fp_out)
+            self.mIndicatorQ = tfArray.stack().numpy()
+            print("MFA: num. iterations = ", nIteration, mLogLikelihood)
+        
+            (fn, fp, _) = self.computeErrorRate(psi, mObservationG, Nproteins)
+            psi = self.compute_psi(fp, fn)
+            print("FN: fn rate = ", fn)
+            if np.isclose(mLogLikelihood, prev, rtol=0.01):
+                return mLogLikelihood
+            else:
+                prev = mLogLikelihood
+        return mLogLikelihood
 
     def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
         gamma = 1000.0
@@ -144,7 +158,7 @@ class CMeanFieldAnnealing:
 
         gpus = tf.config.list_physical_devices('GPU')
         if len(gpus) > 0:
-            return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
+            return self.tf_annealing(mix_p, mObservationG, Nproteins, Nk, psi)
         else:
             return self.annealing(mix_p, mObservationG, Nproteins, Nk, psi)
 
