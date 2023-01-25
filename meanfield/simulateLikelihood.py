@@ -252,13 +252,7 @@ class CMeanFieldAnnealing:
         fn = (countFn + self.alpha)/(self.alpha + self.beta + num_trials)
         fp = 0.006
         psi = self.compute_psi(fp, fn)
-        likelihood = countFn*psi + countFp
-        for i in range(Nproteins):
-            for j in mObservationG.lstAdjacency[i]:
-                t = mObservationG.mTrials[i][j]
-                s = mObservationG.mObserved[i][j]
-                likelihood += -s*psi - (t-s)
-        return (fn, fp, likelihood)
+        return (fn, fp, psi)
 
     def estimator_summary(self, regr, y_actual, y_pred):
         # The coefficients
