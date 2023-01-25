@@ -16,7 +16,7 @@ from scipy import stats
 from numba import jit, njit
 import tensorflow as tf
 
-MAX_ITERATION = 20
+MAX_ITERATION = 100
 
 @jit
 def use_numba(Nproteins, Nk, A, B, indicatorQ):
@@ -47,6 +47,7 @@ class CMeanFieldAnnealing:
 
         gamma = 1000.0
         nIteration = 0
+        prev = np.finfo(np.float32).max
         while(nIteration < MAX_ITERATION):
             for i in range(Nproteins):        
                 if 0:
@@ -66,8 +67,13 @@ class CMeanFieldAnnealing:
                 mLogLikelihood += np.sum(fn_out + fp_out)
             print("MFA: num. iterations = ", nIteration, mLogLikelihood)
         
-            (fp, _) = self.computeErrorRate(psi, mObservationG, Nproteins)
-            psi = self.compute_psi(fp)
+            (fn, fp, _) = self.computeErrorRate(psi, mObservationG, Nproteins)
+            psi = self.compute_psi(fp, fn)
+            print("FN: fn rate = ", fn)
+            if np.isclose(mLogLikelihood, prev, rtol=0.01):
+                return mLogLikelihood
+            else:
+                prev = mLogLikelihood
         return mLogLikelihood
 
     def tf_annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
@@ -200,8 +206,8 @@ class CMeanFieldAnnealing:
         k = np.size(self.mIndicatorQ, axis=1)
         self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
 
-    def compute_psi(self, fp):
-        fn = 0.001
+    def compute_psi(self, fp, fn):
+        fp = 0.006
         return (np.log(1.0 - fn) - np.log(fp))/(np.log(1.0 - fp) - np.log(fn))
 
     def computeErrorRate(self, psi, mObservationG, Nproteins):
@@ -227,17 +233,18 @@ class CMeanFieldAnnealing:
                 else:
                     countFp += s
                 num_trials += t
-        self.alpha = self.alpha + countFp
-        self.beta = self.beta + num_trials - countFp
-        fp = (countFp + self.alpha)/(self.alpha + self.beta + num_trials)
-        psi = self.compute_psi(fp)
+        self.alpha = self.alpha + countFn
+        self.beta = self.beta + num_trials - countFn
+        fn = (countFn + self.alpha)/(self.alpha + self.beta + num_trials)
+        fp = 0.006
+        psi = self.compute_psi(fp, fn)
         likelihood = countFn*psi + countFp
         for i in range(Nproteins):
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
                 likelihood += -s*psi - (t-s)
-        return (fp, likelihood)
+        return (fn, fp, likelihood)
 
     def estimator_summary(self, regr, y_actual, y_pred):
         # The coefficients

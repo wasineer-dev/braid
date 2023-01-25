@@ -65,7 +65,7 @@ def readClusterOne(fileName):
         fh.close()
 
 def readBioPlexMFAOutput(fileName):
-    uniprots = mapSymbol2Uniprot()
+    #uniprots = mapSymbol2Uniprot()
     clusters = {}
     proteins = {}
     with open(fileName) as fh:
@@ -76,8 +76,7 @@ def readBioPlexMFAOutput(fileName):
             if lst[1] not in clusters.keys():
                 clusters[lst[1]] = []
             prot = prot.strip()
-            if (prot in uniprots.keys()):
-                clusters[lst[1]].append(uniprots[prot])
+            clusters[lst[1]].append(prot)
         fh.close()
     print('MRF ' + 'number of complexes = ' + str(len(clusters.keys())))
 

@@ -32,8 +32,6 @@ from time import time as timer
 from scipy.ndimage import gaussian_filter1d
 
 def clustering(inputSet, Nk, psi):
-    fn = 0.8
-    fp = 0.04
     nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
 
@@ -44,7 +42,7 @@ def clustering(inputSet, Nk, psi):
     funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi) 
     te = timer()
     print("Time running MFA: ", te-ts)
-    (counts, lscore) = funcInfer.computeErrorRate(psi, inputSet.observationG, nProteins)
+    (fn, fp, lscore) = funcInfer.computeErrorRate(psi, inputSet.observationG, nProteins)
     
     inputSet.writeCluster2File("out.tsv", funcInfer.mIndicatorQ, funcInfer.indicatorVec)
     inputSet.observationG.write2cytoscape(funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
