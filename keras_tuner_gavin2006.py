@@ -11,14 +11,14 @@ from meanfield import simulateLikelihood as smlt
 
 from spoke_model import countMatrixModel as cmm 
 
-inputSet = inputFile.CInputSet("gavin2006.csv", cmm.CountMatrixModel)
+inputSet = inputFile.CInputSet("gavin2002.csv", cmm.CountMatrixModel)
 
 Nk = 300
 nProteins = inputSet.observationG.nProteins
 cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
 
-def likelihood_loss(x):
-    mle = cmfa.estimate(inputSet.observationG, nProteins, Nk, x)  
+def likelihood_loss(x, nk):
+    mle = cmfa.estimate(inputSet.observationG, nProteins, nk, x)  
     (fn, fp, total_loss) = cmfa.computeErrorRate(x, inputSet.observationG, nProteins)
     regularization_penalty = (1.0 + x)      
     regularized_loss = total_loss + regularization_penalty # this loss needs to be minimized
@@ -30,20 +30,20 @@ class RandomSearchTuner(keras_tuner.RandomSearch):
         # Get the hp from trial.
         hp = trial.hyperparameters
         # Define "x" as a hyperparameter.
-        x = hp.Float("psi", min_value=1.0, max_value=10.0)
+        x = hp.Float("psi", min_value=1.0, max_value=7.0)
         # Return the objective value to minimize.
-        return likelihood_loss(x)
+        return likelihood_loss(x, Nk)
 
-class BayesianTuner(keras_tuner.BayesianOptimization):
+class NumOfClustersTuner(keras_tuner.RandomSearch):
     def run_trial(self, trial, *args, **kwargs):
         # Get the hp from trial.
         hp = trial.hyperparameters
         # Define "x" as a hyperparameter.
-        x = hp.Float("psi", min_value=1.0, max_value=5.0)
+        x = hp.Integer("K", min_value=300, max_value=500)
         # Return the objective value to minimize.
         return likelihood_loss(x)
 
-tuner = BayesianTuner(
+tuner = RandomSearchTuner(
     # No hypermodel or objective specified.
     max_trials=10,
     overwrite=True,
@@ -57,4 +57,4 @@ tuner.search(
     # Use the TensorBoard callback.
     # The logs will be write to "/tmp/tb_logs".
     callbacks=[keras.callbacks.TensorBoard("/tmp/tb_logs")])
-print(tuner.get_best_hyperparameters()[0])
+print(tuner.get_best_hyperparameters()[0].get("psi"))

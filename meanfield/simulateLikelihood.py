@@ -71,9 +71,9 @@ class CMeanFieldAnnealing:
         prev = np.finfo(np.float32).max
         while(gamma > 1.0 and nIteration < MAX_ITERATION):
             for i in range(Nproteins):
-                fn_out = tf.tensordot(matA, tQ, axes=1) 
-                fp_out = tf.tensordot(matB, 1.0 - tQ, axes=1)
-                mLogLikelihood = fn_out[i] + fp_out[i]
+                fn_out = tf.tensordot(matA[i], tQ, axes=1) 
+                fp_out = tf.tensordot(matB[i], 1.0 - tQ, axes=1)
+                mLogLikelihood = fn_out + fp_out
                 indices = [(i,j) for j in range(Nk)]
                 tQ = tf.tensor_scatter_nd_update(tQ, indices, tf.nn.softmax(-gamma*mLogLikelihood))
             
@@ -199,6 +199,8 @@ class CMeanFieldAnnealing:
         num_trials = 0
         countFn = 0
         countFp = 0
+        trialFn = 0
+        trialFp = 0
         for i in range(Nproteins):
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
@@ -206,14 +208,21 @@ class CMeanFieldAnnealing:
                 assert(s <= t)
                 if (self.indicatorVec[i] == self.indicatorVec[j]):
                     countFn += (t - s)
+                    trialFn += t
                 else:
                     countFp += s
+                    trialFp += t
                 num_trials += t
-        
-        fn = float(countFn)/float(num_trials)
-        fp = float(countFp)/float(num_trials)
-        psi = self.compute_psi(fp, fn)
-        total_loss = psi*countFp + countFn
+
+        fn = float(countFn)/float(trialFn)
+        fp = float(countFp)/float(trialFp)       
+        regularized = 0.0
+        for i in range(Nproteins):
+            for j in mObservationG.lstAdjacency[i]:
+                t = mObservationG.mTrials[i][j]
+                s = mObservationG.mObserved[i][j]
+                regularized += -s*(np.log(1.0 - fn)) - (t-s)*np.log(1.0 - fp)
+        total_loss = regularized + (-np.log(fp) + np.log(1.0 - fn))*countFp + (-np.log(fn) + np.log(1.0 - fp))*countFn 
         return (fn, fp, total_loss)
 
     def estimator_summary(self, regr, y_actual, y_pred):
