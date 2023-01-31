@@ -13,24 +13,9 @@ from sklearn.pipeline import Pipeline
 
 from scipy import stats
 
-from numba import jit, njit
 import tensorflow as tf
 
 MAX_ITERATION = 100
-
-@jit
-def use_numba(Nproteins, Nk, A, B, indicatorQ):
-    fn_out = np.dot(A, indicatorQ) 
-    fp_out = np.dot(B, np.ones((Nproteins, Nk)) - indicatorQ)
-
-    mLogLikelihood = fn_out + fp_out
-    return mLogLikelihood
-    
-@jit
-def update_numba(i, Nproteins, matA, matB, nextQ, mIndicatorQ, A, B):
-    for j in range(i+1, Nproteins):
-        A[j] += (matA[j][i]*(nextQ - mIndicatorQ))
-        B[j] += (matB[j][i]*(nextQ - mIndicatorQ))
         
 class CMeanFieldAnnealing:
 
@@ -50,13 +35,10 @@ class CMeanFieldAnnealing:
         prev = np.finfo(np.float32).max
         while(nIteration < MAX_ITERATION):
             for i in range(Nproteins):        
-                if 0:
-                    mLogLikelihood = use_numba(Nproteins, Nk, matA[i], matB[i], self.mIndicatorQ)
-                else:
-                    fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
-                    fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
+                fn_out = np.tensordot(mObservationG.mTrials[i] - mObservationG.mObserved[i], self.mIndicatorQ, axes=1) 
+                fp_out = np.tensordot(psi*mObservationG.mObserved[i], 1.0 - self.mIndicatorQ, axes=1)
 
-                    mLogLikelihood = fn_out + fp_out
+                mLogLikelihood = fn_out + fp_out
                 self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
             nIteration += 1
             
@@ -83,36 +65,33 @@ class CMeanFieldAnnealing:
         tfArray = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True)
         for i in range(Nproteins):
             tfArray = tfArray.write(i, self.mIndicatorQ[i])
-        
-        gamma = 1000.0
+        tQ = tfArray.stack()
+        gamma = 10000.0
         nIteration = 0
         prev = np.finfo(np.float32).max
-        while(nIteration < MAX_ITERATION):
-            for i in range(Nproteins):        
-                tQ = tfArray.stack()
-                fn_out = tf.tensordot(matA[i], tQ, axes=1) 
-                fp_out = tf.tensordot(matB[i], 1.0 - tQ, axes=1)
-
-                mLogLikelihood = fn_out + fp_out
-                tfArray = tfArray.write(i, tf.nn.softmax(-gamma*mLogLikelihood))
+        while(gamma > 1.0 and nIteration < MAX_ITERATION):
+            for i in range(Nproteins):
+                fn_out = tf.tensordot(matA, tQ, axes=1) 
+                fp_out = tf.tensordot(matB, 1.0 - tQ, axes=1)
+                mLogLikelihood = fn_out[i] + fp_out[i]
+                indices = [(i,j) for j in range(Nk)]
+                tQ = tf.tensor_scatter_nd_update(tQ, indices, tf.nn.softmax(-gamma*mLogLikelihood))
             
             nIteration += 1
-            mLogLikelihood = 0.0
-            for i in range(Nproteins):        
-                fn_out = tf.tensordot(matA[i], tfArray.stack(), axes=1) 
-                fp_out = tf.tensordot(matB[i], 1.0 - tfArray.stack(), axes=1)
-                mLogLikelihood += np.sum(fn_out + fp_out)
-            self.mIndicatorQ = tfArray.stack().numpy()
-            print("MFA: num. iterations = ", nIteration, mLogLikelihood)
-        
-            (fn, fp, _) = self.computeErrorRate(psi, mObservationG, Nproteins)
-            psi = self.compute_psi(fp, fn)
-            print("FN: fn rate = ", fn)
-            if np.isclose(mLogLikelihood, prev, rtol=0.01):
-                return mLogLikelihood
+            logLikelihood = 0.0
+            fn_out = tf.tensordot(matA, tQ, axes=1) 
+            fp_out = tf.tensordot(matB, 1.0 - tQ, axes=1)
+            logLikelihood += np.sum(fn_out + fp_out)
+            self.mIndicatorQ = tQ.numpy()
+            print("MFA: num. iterations = ", nIteration, logLikelihood)
+            
+            if np.isclose(logLikelihood, prev, rtol=0.001):
+                prev = logLikelihood
+                gamma *= 0.1
+                nIteration = 0
             else:
-                prev = mLogLikelihood
-        return mLogLikelihood
+                prev = logLikelihood
+        return logLikelihood
 
     def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
         gamma = 1000.0
@@ -122,22 +101,6 @@ class CMeanFieldAnnealing:
 
             mLogLikelihood = fn_out + fp_out + np.log(mix_p)
             self.mIndicatorQ[i,:] = scipy.special.softmax(-gamma*mLogLikelihood)
-
-    def EStepWithNumba(self, mix_p, mObservationG, Nproteins, Nk, psi):
-
-        gamma = 1000.0
-
-        matA = np.array(mObservationG.mTrials - mObservationG.mObserved, dtype=float)
-        matB = np.array(psi*mObservationG.mObserved, dtype=float)
-
-        A = matA @ self.mIndicatorQ
-        B = matB @ (1.0 - self.mIndicatorQ)
-
-        for i in range(Nproteins):
-            mLogLikelihood = A[i] + B[i] + np.log(mix_p)
-            nextQ = scipy.special.softmax(-gamma*mLogLikelihood)
-            update_numba(i, Nproteins, matA, matB, nextQ, self.mIndicatorQ[i], A, B)
-            self.mIndicatorQ[i] = nextQ
             
     def MStep(self, Nk, alpha):
         Z = np.sum(self.mIndicatorQ, axis=0)
@@ -221,7 +184,6 @@ class CMeanFieldAnnealing:
         self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
 
     def compute_psi(self, fp, fn):
-        fp = 0.006
         return (np.log(1.0 - fn) - np.log(fp))/(np.log(1.0 - fp) - np.log(fn))
 
     def computeErrorRate(self, psi, mObservationG, Nproteins):
@@ -247,12 +209,12 @@ class CMeanFieldAnnealing:
                 else:
                     countFp += s
                 num_trials += t
-        self.alpha = self.alpha + countFn
-        self.beta = self.beta + num_trials - countFn
-        fn = (countFn + self.alpha)/(self.alpha + self.beta + num_trials)
-        fp = 0.006
+        
+        fn = float(countFn)/float(num_trials)
+        fp = float(countFp)/float(num_trials)
         psi = self.compute_psi(fp, fn)
-        return (fn, fp, psi)
+        total_loss = psi*countFp + countFn
+        return (fn, fp, total_loss)
 
     def estimator_summary(self, regr, y_actual, y_pred):
         # The coefficients
