@@ -30,7 +30,7 @@ class RandomSearchTuner(keras_tuner.RandomSearch):
         # Get the hp from trial.
         hp = trial.hyperparameters
         # Define "x" as a hyperparameter.
-        x = hp.Float("psi", min_value=1.0, max_value=7.0)
+        x = hp.Float("psi", min_value=0.5, max_value=10.0)
         # Return the objective value to minimize.
         return likelihood_loss(x, Nk)
 

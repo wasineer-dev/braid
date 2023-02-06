@@ -216,13 +216,12 @@ class CMeanFieldAnnealing:
 
         fn = float(countFn)/float(trialFn)
         fp = float(countFp)/float(trialFp)       
-        regularized = 0.0
+        total_loss = 0.0
         for i in range(Nproteins):
             for j in mObservationG.lstAdjacency[i]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
-                regularized += -s*(np.log(1.0 - fn)) - (t-s)*np.log(1.0 - fp)
-        total_loss = regularized + (-np.log(fp) + np.log(1.0 - fn))*countFp + (-np.log(fn) + np.log(1.0 - fp))*countFn 
+                total_loss += -s*(np.log(1.0 - fn)) - (t-s)*np.log(1.0 - fp)
         return (fn, fp, total_loss)
 
     def estimator_summary(self, regr, y_actual, y_pred):
