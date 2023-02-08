@@ -45,7 +45,7 @@ def clustering(inputSet, Nk, psi):
     (fn, fp, lscore) = funcInfer.computeErrorRate(psi, inputSet.observationG, nProteins)
     
     inputSet.writeCluster2File("out.tsv", funcInfer.mIndicatorQ, funcInfer.indicatorVec)
-    inputSet.observationG.write2cytoscape(funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
+    inputSet.observationG.write2cytoscape("out.sif", funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
 
 def mixture_bernoulli(inputSet, Nk, psi):
     Xs = np.transpose(inputSet.incidence)

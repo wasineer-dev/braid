@@ -20,6 +20,8 @@ cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
 def likelihood_loss(x, nk):
     mle = cmfa.estimate(inputSet.observationG, nProteins, nk, x)  
     (fn, fp, total_loss) = cmfa.computeErrorRate(x, inputSet.observationG, nProteins)
+    inputSet.writeCluster2File("my_dir/out_%.2f.tsv" % x, cmfa.mIndicatorQ, cmfa.indicatorVec)
+    inputSet.observationG.write2cytoscape("my_dir/out_%.2f.sif" % x, cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
     regularization_penalty = (1.0 + x)      
     regularized_loss = total_loss + regularization_penalty # this loss needs to be minimized
     print(regularized_loss)
