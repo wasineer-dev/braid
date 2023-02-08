@@ -16,7 +16,7 @@ inputSet = inputFile.CInputSet("gavin2002.csv", cmm.CountMatrixModel)
 nProteins = inputSet.observationG.nProteins
 cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
 
-def make_graph(x):
+def make_graph(g, x):
     mle = cmfa.estimate(inputSet.observationG, nProteins, Nk, x)  
     cmfa.find_argmax()
     g.delete_edges()
@@ -25,31 +25,37 @@ def make_graph(x):
             s = inputSet.observationG.mObserved[i][j]
             if (s == 0):
                 continue
-            if (i < j):
+            if (i < j and cmfa.indicatorVec[i] == cmfa.indicatorVec[j]):
                 g.add_edge(i,j)
 
-
 g = ig.Graph(nProteins)
+make_graph(g, 10.0)
+gclust = g.connected_components(mode='weak')
+g_init = gclust.giant()
+print(len(g_init.vs))
 
 def update_graph(frame, psi, ax):
     #mst = g.spanning_tree()
     #components = g.components()
     ax.clear()
     x = psi[frame]
-    make_graph(x)
+    make_graph(g, x)
     gclust = g.connected_components(mode='weak')
-    gd = gclust.giant()
+    gd = ig.intersection([g_init, gclust.giant()], keep_all_vertices=False)
+    #gd = ig.Graph.subgraph(g, list( v.index for v in g_init.vs))
     community_greedy = gd.community_fastgreedy()
     communities = community_greedy.as_clustering()
-    """
+    
+    #ig.plot(gd, target=ax, vertex_size=2)
+    
     ig.plot(
             communities,
             target=ax,
             mark_groups=True,
-            vertex_size=2,
+            vertex_size=0.2,
             edge_width=0.5   
         )
-    """
+
     # mst = g.spanning_tree()
     num_communities = len(communities)
     palette1 = ig.RainbowPalette(n=num_communities)
@@ -76,9 +82,9 @@ def update_graph(frame, psi, ax):
     )
 
     palette2 = ig.GradientPalette("gainsboro", "black")
-    gd.es["color"] = [palette2.get(int(i)) for i in ig.rescale(cluster_graph.es["size"], (0, 255), clamp=True)]
-    #mst.es["color"] = [palette2.get(10)]
-
+    #gd.es["color"] = [palette2.get(int(i)) for i in ig.rescale(cluster_graph.es["size"], (0, 255), clamp=True)]
+    gd.es["color"] = [palette2.get(10)]
+    """
     ig.plot(
         cluster_graph,
         target=ax,
@@ -88,17 +94,17 @@ def update_graph(frame, psi, ax):
         edge_color=gd.es["color"],
         edge_width=0.8,
     )
-
-    handles = ax.get_children()[:frame]
+    """
+    handles = ax.get_children()
     return handles
     
 
-vlist = [8.0, 4.0, 2.0]
-num_steps = 3
+vlist = [8.0, 4.0, 2.0, 1.5, 0.5]
+num_steps = len(vlist)
 # Creating the Animation object
 fig, ax = plt.subplots(figsize=(5,5))
 ani = animation.FuncAnimation(
-    fig, update_graph, num_steps, fargs=(vlist, ax), interval=100, blit=True)
+    fig, update_graph, num_steps, fargs=(vlist, ax), interval=100)
 
 plt.show()
     
