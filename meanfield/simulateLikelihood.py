@@ -111,7 +111,7 @@ class CMeanFieldAnnealing:
 
     def estimate(self, mObservationG, Nproteins, Nk, psi):
         
-        print('psi = ', psi)
+        print('psi = %.8f' % psi)
 
         mix_p = (1.0/float(Nk))*np.ones(Nk, dtype=float)
         alpha1 = 1e-8
