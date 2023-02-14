@@ -18,7 +18,8 @@ decimal.getcontext().prec = 2
 decimal.getcontext().rounding = decimal.ROUND_HALF_EVEN
 def likelihood_loss(x):
     psi = decimal.Decimal(x)
-    mle = cmfa.estimate(inputSet.observationG, nProteins, Nk, psi)  
+    mle = cmfa.estimate(inputSet.observationG, nProteins, Nk, psi)
+    cmfa.mIndicatorQ = cmfa.tQ.numpy()  
     cmfa.find_argmax()
     (fn, fp, fvalue) = cmfa.computeErrorRate(x, cmfa.indicatorVec, inputSet.observationG, nProteins)
     #inputSet.writeCluster2File("my_dir/out_%.2f.tsv" % x, cmfa.mIndicatorQ, cmfa.indicatorVec)

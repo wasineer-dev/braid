@@ -35,18 +35,17 @@ def clustering(inputSet, Nk, psi):
     nProteins = inputSet.observationG.nProteins
     cmfa = smlt.CMeanFieldAnnealing(nProteins, Nk) # default
 
-    funcInfer = cmfa
-
     ts = timer()
     # alpha = 1e-2
-    funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi) 
+    cmfa.estimate(inputSet.observationG, nProteins, Nk, psi) 
     te = timer()
     print("Time running MFA: ", te-ts)
-    funcInfer.find_argmax()
-    (fn, fp, lscore) = funcInfer.computeErrorRate(psi, funcInfer.indicatorVec, inputSet.observationG, nProteins)
+    cmfa.mIndicatorQ = cmfa.tQ.numpy()
+    cmfa.find_argmax()
+    (fn, fp, lscore) = cmfa.computeErrorRate(psi, cmfa.indicatorVec, inputSet.observationG, nProteins)
     
-    inputSet.writeCluster2File("out.tsv", funcInfer.mIndicatorQ, funcInfer.indicatorVec)
-    inputSet.observationG.write2cytoscape("out.sif", funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)
+    inputSet.writeCluster2File("out.tsv", cmfa.mIndicatorQ, cmfa.indicatorVec)
+    inputSet.observationG.write2cytoscape("out.sif", cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
 
 def mixture_bernoulli(inputSet, Nk, psi):
     Xs = np.transpose(inputSet.incidence)

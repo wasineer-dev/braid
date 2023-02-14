@@ -16,7 +16,7 @@ from scipy import stats
 import tensorflow as tf
 
 MAX_ITERATION = 10
-N_ITERATION = 5
+N_ITERATION = 3
 
 class CMeanFieldAnnealing:
 
@@ -63,10 +63,7 @@ class CMeanFieldAnnealing:
 
         matA = tf.convert_to_tensor(mObservationG.mTrials - mObservationG.mObserved, dtype=tf.float32)
         matB = tf.convert_to_tensor(psi*mObservationG.mObserved, dtype=tf.float32)
-        tfArray = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True)
-        for i in range(Nproteins):
-            tfArray = tfArray.write(i, self.mIndicatorQ[i])
-        self.tQ = tfArray.stack()
+        self.tQ = tf.convert_to_tensor(self.mIndicatorQ, dtype=tf.float32)
         gamma = 10000.0
         nIteration = 0
         prev = np.finfo(np.float32).max
@@ -83,7 +80,7 @@ class CMeanFieldAnnealing:
             fn_out = tf.tensordot(matA, self.tQ, axes=1) 
             fp_out = tf.tensordot(matB, 1.0 - self.tQ, axes=1)
             logLikelihood += tf.reduce_sum(fn_out + fp_out, [0, 1])
-            print("MFA: num. iterations = ", nIteration, logLikelihood)
+            print("MFA: num. iterations = ", nIteration, logLikelihood.numpy())
             atol = 1e-06
             rtol = 0.001
             if nIteration >= N_ITERATION:
@@ -182,15 +179,15 @@ class CMeanFieldAnnealing:
     def find_argmax(self):
         N = np.size(self.mIndicatorQ, axis=0)
         k = np.size(self.mIndicatorQ, axis=1)
-        self.indicatorVec = tf.math.argmax(self.mIndicatorQ, 1)
+        self.indicatorVec = tf.argmax(self.mIndicatorQ, axis=1)
 
     def compute_psi(self, fp, fn):
         return (np.log(1.0 - fn) - np.log(fp))/(np.log(1.0 - fp) - np.log(fn))
 
     def computeErrorRate(self, psi, indicatorVec, mObservationG, Nproteins):
         
-        nClusters = len(np.unique(indicatorVec))
-        print("Number of clusters used: " + str(nClusters))
+        y, idx = tf.unique(indicatorVec)
+        print("Number of clusters used: ", len(y))
 
         num_trials = 0
         countFn = 0
