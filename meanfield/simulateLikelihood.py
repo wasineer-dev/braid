@@ -15,8 +15,9 @@ from scipy import stats
 
 import tensorflow as tf
 
-MAX_ITERATION = 100
-        
+MAX_ITERATION = 10
+N_ITERATION = 5
+
 class CMeanFieldAnnealing:
 
     def __init__(self, Nproteins, Nk):
@@ -65,27 +66,27 @@ class CMeanFieldAnnealing:
         tfArray = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True)
         for i in range(Nproteins):
             tfArray = tfArray.write(i, self.mIndicatorQ[i])
-        tQ = tfArray.stack()
+        self.tQ = tfArray.stack()
         gamma = 10000.0
         nIteration = 0
         prev = np.finfo(np.float32).max
         while(gamma > 1.0 and nIteration < MAX_ITERATION):
             for i in range(Nproteins):
-                fn_out = tf.tensordot(matA[i], tQ, axes=1) 
-                fp_out = tf.tensordot(matB[i], 1.0 - tQ, axes=1)
+                fn_out = tf.tensordot(matA[i], self.tQ, axes=1) 
+                fp_out = tf.tensordot(matB[i], 1.0 - self.tQ, axes=1)
                 mLogLikelihood = fn_out + fp_out
                 indices = [(i,j) for j in range(Nk)]
-                tQ = tf.tensor_scatter_nd_update(tQ, indices, tf.nn.softmax(-gamma*mLogLikelihood))
+                self.tQ = tf.tensor_scatter_nd_update(self.tQ, indices, tf.nn.softmax(-gamma*mLogLikelihood))
             
             nIteration += 1
             logLikelihood = 0.0
-            fn_out = tf.tensordot(matA, tQ, axes=1) 
-            fp_out = tf.tensordot(matB, 1.0 - tQ, axes=1)
-            logLikelihood += np.sum(fn_out + fp_out)
-            self.mIndicatorQ = tQ.numpy()
+            fn_out = tf.tensordot(matA, self.tQ, axes=1) 
+            fp_out = tf.tensordot(matB, 1.0 - self.tQ, axes=1)
+            logLikelihood += tf.reduce_sum(fn_out + fp_out, [0, 1])
             print("MFA: num. iterations = ", nIteration, logLikelihood)
-            
-            if np.isclose(logLikelihood, prev, rtol=0.001):
+            atol = 1e-06
+            rtol = 0.001
+            if nIteration >= N_ITERATION:
                 prev = logLikelihood
                 gamma *= 0.1
                 nIteration = 0
@@ -111,7 +112,7 @@ class CMeanFieldAnnealing:
 
     def estimate(self, mObservationG, Nproteins, Nk, psi):
         
-        print('psi = %.8f' % psi)
+        # print('psi = %.8f' % psi)
 
         mix_p = (1.0/float(Nk))*np.ones(Nk, dtype=float)
         alpha1 = 1e-8
@@ -181,19 +182,14 @@ class CMeanFieldAnnealing:
     def find_argmax(self):
         N = np.size(self.mIndicatorQ, axis=0)
         k = np.size(self.mIndicatorQ, axis=1)
-        self.indicatorVec = np.argmax(self.mIndicatorQ, axis=1)
+        self.indicatorVec = tf.math.argmax(self.mIndicatorQ, 1)
 
     def compute_psi(self, fp, fn):
         return (np.log(1.0 - fn) - np.log(fp))/(np.log(1.0 - fp) - np.log(fn))
 
-    def computeErrorRate(self, psi, mObservationG, Nproteins):
+    def computeErrorRate(self, psi, indicatorVec, mObservationG, Nproteins):
         
-        # self.find_lin_dependent()
-        self.find_argmax()
-
-        rnk = np.linalg.matrix_rank(self.mIndicatorQ)
-        print("Indicator matrix had rank = " + str(rnk))
-        nClusters = len(np.unique(self.indicatorVec))
+        nClusters = len(np.unique(indicatorVec))
         print("Number of clusters used: " + str(nClusters))
 
         num_trials = 0
@@ -206,7 +202,7 @@ class CMeanFieldAnnealing:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
                 assert(s <= t)
-                if (self.indicatorVec[i] == self.indicatorVec[j]):
+                if (indicatorVec[i] == indicatorVec[j]):
                     countFn += (t - s)
                     trialFn += t
                 else:

@@ -42,7 +42,8 @@ def clustering(inputSet, Nk, psi):
     funcInfer.estimate(inputSet.observationG, nProteins, Nk, psi) 
     te = timer()
     print("Time running MFA: ", te-ts)
-    (fn, fp, lscore) = funcInfer.computeErrorRate(psi, inputSet.observationG, nProteins)
+    funcInfer.find_argmax()
+    (fn, fp, lscore) = funcInfer.computeErrorRate(psi, funcInfer.indicatorVec, inputSet.observationG, nProteins)
     
     inputSet.writeCluster2File("out.tsv", funcInfer.mIndicatorQ, funcInfer.indicatorVec)
     inputSet.observationG.write2cytoscape("out.sif", funcInfer.indicatorVec, funcInfer.mIndicatorQ, inputSet.aSortedProteins)

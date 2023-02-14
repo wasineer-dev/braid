@@ -19,7 +19,8 @@ decimal.getcontext().rounding = decimal.ROUND_HALF_EVEN
 def likelihood_loss(x):
     psi = decimal.Decimal(x)
     mle = cmfa.estimate(inputSet.observationG, nProteins, Nk, psi)  
-    (fn, fp, fvalue) = cmfa.computeErrorRate(x, inputSet.observationG, nProteins)
+    cmfa.find_argmax()
+    (fn, fp, fvalue) = cmfa.computeErrorRate(x, cmfa.indicatorVec, inputSet.observationG, nProteins)
     #inputSet.writeCluster2File("my_dir/out_%.2f.tsv" % x, cmfa.mIndicatorQ, cmfa.indicatorVec)
     #inputSet.observationG.write2cytoscape("my_dir/out_%.2f.sif" % x, cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)    
     regularized_loss = fvalue  # this loss needs to be minimized
