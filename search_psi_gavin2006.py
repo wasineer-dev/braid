@@ -25,7 +25,7 @@ def likelihood_loss(x):
     #inputSet.writeCluster2File("my_dir/out_%.2f.tsv" % x, cmfa.mIndicatorQ, cmfa.indicatorVec)
     #inputSet.observationG.write2cytoscape("my_dir/out_%.2f.sif" % x, cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)    
     regularized_loss = fvalue  # this loss needs to be minimized
-    print("%.8f" % regularized_loss)
+    print("psi=%.3f, loss=%.8f" % (psi, regularized_loss))
     return regularized_loss
 
 def gradient(x):
@@ -34,5 +34,5 @@ def gradient(x):
     g = (decimal.Decimal(f2[0]) - decimal.Decimal(f1[0]))/decimal.Decimal('0.01')
     return (f1[0], float(g))
 
-res = minimize_scalar(likelihood_loss, (0.2, 0.9, 6.0), tol=0.1, method='brent', options={'xtol': 0.05})
+res = minimize_scalar(likelihood_loss, bounds=(0.5, 8.0), tol=0.1, options={'xatol': 0.1})
 print(res.x, res.fun)
