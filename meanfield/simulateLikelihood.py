@@ -81,9 +81,8 @@ class CMeanFieldAnnealing:
             fp_out = tf.tensordot(matB, 1.0 - self.tQ, axes=1)
             logLikelihood += tf.reduce_sum(fn_out + fp_out, [0, 1])
             print("MFA: num. iterations = ", nIteration, logLikelihood.numpy())
-            atol = 1e-06
             rtol = 0.001
-            if nIteration >= N_ITERATION:
+            if np.isclose(logLikelihood, prev, rtol=rtol):
                 prev = logLikelihood
                 gamma *= 0.1
                 nIteration = 0
