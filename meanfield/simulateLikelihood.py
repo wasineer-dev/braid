@@ -194,7 +194,7 @@ class CMeanFieldAnnealing:
         trialFn = 0
         trialFp = 0
         for i in range(Nproteins):
-            for j in mObservationG.lstAdjacency[i]:
+            for j in [v for v in mObservationG.lstAdjacency[i] if i < v]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
                 assert(s <= t)
@@ -210,10 +210,13 @@ class CMeanFieldAnnealing:
         fp = float(countFp)/float(trialFp)       
         total_loss = 0.0
         for i in range(Nproteins):
-            for j in mObservationG.lstAdjacency[i]:
+            for j in [v for v in mObservationG.lstAdjacency[i] if i < v]:
                 t = mObservationG.mTrials[i][j]
                 s = mObservationG.mObserved[i][j]
-                total_loss += -s*(np.log(1.0 - fn)) - (t-s)*np.log(1.0 - fp)
+                if (indicatorVec[i] == indicatorVec[j]):
+                    total_loss += -s*np.log(1.0 - fn) - (t-s)*np.log(fn)
+                else:
+                    total_loss += -s*np.log(fp) - (t-s)*np.log(1. - fp)
         return (fn, fp, total_loss)
 
     def estimator_summary(self, regr, y_actual, y_pred):
