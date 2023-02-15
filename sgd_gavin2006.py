@@ -22,7 +22,7 @@ def loss_fn(psi):
     (fn, fp, fvalue) = cmfa.computeErrorRate(psi, cmfa.indicatorVec, inputSet.observationG, nProteins)
     #inputSet.writeCluster2File("my_dir/out_%.2f.tsv" % x, cmfa.mIndicatorQ, cmfa.indicatorVec)
     #inputSet.observationG.write2cytoscape("my_dir/out_%.2f.sif" % x, cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)    
-    regularized_loss = fvalue  # this loss needs to be minimized
+    regularized_loss = np.float32(fvalue)  # this loss needs to be minimized
     print("%.8f" % regularized_loss)
     def loss_gradient(upstream_grad):
         gradient = 2.0
@@ -37,14 +37,12 @@ class Mrf_Layer(tf.keras.layers.Layer):
         return loss_fn(psi)
         
 mrf_layer = Mrf_Layer()
-current_loss = mrf_layer(4.0)
-print(current_loss)
 
 class MrfModel(tf.keras.Model):
     def __init__(self, nn_block = None, **kwargs):
         kwargs.setdefault("name", "custom_model")
         super().__init__(**kwargs)
-        self.psi = tf.Variable(3.0)
+        self.psi = tf.Variable(3., dtype=tf.float32)
         self.Nk = tf.constant(300)
         self.loss_tracker = tf.keras.metrics.Mean(name="loss")
         
