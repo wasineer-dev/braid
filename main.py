@@ -42,7 +42,7 @@ def clustering(inputSet, Nk, psi):
     print("Time running MFA: ", te-ts)
     cmfa.mIndicatorQ = cmfa.tQ.numpy()
     cmfa.find_argmax()
-    (fn, fp, lscore) = cmfa.computeErrorRate(psi, cmfa.indicatorVec, inputSet.observationG, nProteins)
+    # (fn, fp, lscore) = cmfa.computeErrorRate(psi, cmfa.indicatorVec, inputSet.observationG, nProteins)
     
     inputSet.writeCluster2File("out.tsv", cmfa.mIndicatorQ, cmfa.indicatorVec)
     inputSet.observationG.write2cytoscape("out.sif", cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
