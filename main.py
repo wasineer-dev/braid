@@ -40,12 +40,11 @@ def clustering(inputSet, Nk, psi):
     cmfa.estimate(inputSet.observationG, nProteins, Nk, psi) 
     te = timer()
     print("Time running MFA: ", te-ts)
-    cmfa.mIndicatorQ = cmfa.tQ.numpy()
     cmfa.find_argmax()
-    # (fn, fp, lscore) = cmfa.computeErrorRate(psi, cmfa.indicatorVec, inputSet.observationG, nProteins)
+    # TODO: Fix (fn, fp, lscore) = cmfa.computeErrorRate(psi, cmfa.indicatorVec, inputSet.observationG, nProteins)
     
-    inputSet.writeCluster2File("out.tsv", cmfa.mIndicatorQ, cmfa.indicatorVec)
-    inputSet.observationG.write2cytoscape("out.sif", cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
+    inputSet.writeCluster2File("out.tsv", cmfa.mIndicatorQ, cmfa.indicatorVec.numpy())
+    # TODO: Fix inputSet.observationG.write2cytoscape("out.sif", cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
 
 def mixture_bernoulli(inputSet, Nk, psi):
     Xs = np.transpose(inputSet.incidence)

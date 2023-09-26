@@ -60,17 +60,3 @@ class CountMatrixModel:
                 assert(s <= t)
                 if (i != j and t > 0):
                     self.lstAdjacency[i].add(j)
-                    
-    def write2cytoscape(self, fileName, indicators, matQ, vecProteins):
-        nRows, nCols = matQ.shape
-        with open(fileName, "w") as fh:
-            for k in range(nCols):
-                inds = list(i for i in range(nRows) if indicators[i] == k)
-                for i in inds:
-                    for j in inds:
-                        t = self.mTrials[i][j]
-                        if (i >= j):
-                            continue
-                        if (t > 0):
-                            fh.write(vecProteins[i] + '\t' + str(indicators[i]) + '\t' + str(vecProteins[j]) + '\n')
-            fh.close()

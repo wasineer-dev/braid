@@ -40,3 +40,8 @@ cl1_bioplex.txt
 
 mixmodel/__pycache__/mixtureBernoulli.cpython-39.pyc
 out.tsv
+inputFile/__pycache__/inputBioplex.cpython-311.pyc
+inputFile/__pycache__/inputFile.cpython-311.pyc
+.gitignore
+meanfield/__pycache__/simulateLikelihood.cpython-311.pyc
+.gitignore

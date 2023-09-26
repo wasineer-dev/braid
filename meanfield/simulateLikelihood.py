@@ -50,13 +50,6 @@ class CMeanFieldAnnealing:
                 mLogLikelihood += np.sum(fn_out + fp_out)
             print("MFA: num. iterations = ", nIteration, mLogLikelihood)
         
-            (fn, fp, _) = self.computeErrorRate(psi, mObservationG, Nproteins)
-            psi = self.compute_psi(fp, fn)
-            print("FN: fn rate = ", fn)
-            if np.isclose(mLogLikelihood, prev, rtol=0.01):
-                return mLogLikelihood
-            else:
-                prev = mLogLikelihood
         return mLogLikelihood
 
     def tf_annealing(self, mix_p, mObservationG, Nproteins, Nk, psi):
@@ -88,6 +81,7 @@ class CMeanFieldAnnealing:
                 nIteration = 0
             else:
                 prev = logLikelihood
+        self.mIndicatorQ = self.tQ.numpy()
         return logLikelihood
 
     def EStep(self, mix_p, mObservationG, Nproteins, Nk, psi):
