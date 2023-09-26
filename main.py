@@ -44,6 +44,8 @@ def clustering(inputSet, Nk, psi):
     # TODO: Fix (fn, fp, lscore) = cmfa.computeErrorRate(psi, cmfa.indicatorVec, inputSet.observationG, nProteins)
     
     inputSet.writeCluster2File("out.tsv", cmfa.mIndicatorQ, cmfa.indicatorVec.numpy())
+    numPairs = inputSet.countInteractionPairs(cmfa.indicatorVec.numpy())
+    print("Number of candidate pairs :", numPairs)
     # TODO: Fix inputSet.observationG.write2cytoscape("out.sif", cmfa.indicatorVec, cmfa.mIndicatorQ, inputSet.aSortedProteins)
 
 def mixture_bernoulli(inputSet, Nk, psi):

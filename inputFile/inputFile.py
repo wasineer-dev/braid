@@ -85,3 +85,12 @@ class CInputSet:
                     fh.write(protein + '\t')
                 fh.write('\n')
             fh.close()
+
+    def countInteractionPairs(self, indVec):
+        nProteins = self.observationG.nProteins
+        t = 0
+        for i in np.arange(nProteins):
+            for j in self.observationG.lstAdjacency[i]:
+                if (i > j and indVec[i] == indVec[j]):
+                    t += 1
+        return t 
